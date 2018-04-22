@@ -4,9 +4,6 @@ jdk:
 
 os:
   - linux
-  - osx
-
-osx_image: xcode8
 
 script:
   - ./gradlew clean
