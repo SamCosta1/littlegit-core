@@ -20,7 +20,7 @@ class GitCommandRunner {
         return this
     }
 
-    fun runCommand(repoDir: String? = null, command: GitCommand, callback: GitCommandRunnerCallback) {
+    fun runCommand(repoDir: String? = null, command: GitCommand, callback: GitCommandRunnerCallback?) {
         if (repoPath == null && repoDir == null) {
             throw RuntimeException("Repo path must be supplied or GitCommandRunner initialised")
         }
@@ -29,9 +29,9 @@ class GitCommandRunner {
 
         basePath?.let {
             shellRunner.runCommand(it, command.command) {
-                when {
-                    it is ShellResult.Success -> callback(GitResult.Success(it.lines))
-                    it is ShellResult.Error   -> callback(GitResult.Error(GitError.parseError(it.lines)))
+                when (it) {
+                    is ShellResult.Success -> callback?.invoke(GitResult.Success(it.lines))
+                    is ShellResult.Error -> callback?.invoke(GitResult.Error(GitError.parseError(it.lines)))
                 }
             }
         }

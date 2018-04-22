@@ -18,7 +18,7 @@ class InitializeRepo: GitCommand() {
 }
 
 class Commit(val message: String): GitCommand() {
-    override val command: List<String> get() = listOf("git", "commit ", "-m", message)
+    override val command: List<String> get() = listOf("git", "commit", "-m", message)
 }
 
 class Log(): GitCommand() {
