@@ -10,6 +10,7 @@ sealed class GitResult {
 class GitCommandRunner {
 
     private var repoPath: String? = null
+    private val shellRunner = ShellRunner()
 
     fun initializeRepoDirectory(path: String): GitCommandRunner {
         if (path.isNotBlank()) {
@@ -27,7 +28,7 @@ class GitCommandRunner {
         val basePath = repoDir ?: repoPath
 
         basePath?.let {
-            ShellRunner.runCommand(it, command.command) {
+            shellRunner.runCommand(it, command.command) {
                 when {
                     it is ShellResult.Success -> callback(GitResult.Success(it.lines))
                     it is ShellResult.Error   -> callback(GitResult.Error(GitError.parseError(it.lines)))

@@ -14,7 +14,7 @@ sealed class ShellResult {
     data class Error(val lines: List<String>): ShellResult()
 }
 
-object ShellRunner {
+class ShellRunner {
 
     fun runCommand(basePath: String, commands: List<String>, callback: ShellRunnerCallback) {
 

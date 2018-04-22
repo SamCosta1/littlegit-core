@@ -1,6 +1,7 @@
 package org.littlegit.core.shell
 
 enum class GitError {
+    LocalChangesWouldBeOverwritten,
     Unknown,
     NotARepo;
 
@@ -14,9 +15,11 @@ enum class GitError {
                 return NotARepo
             }
 
+            if (lines[0].startsWith("error: Your local changes to the following files would be overwritten by checkout", ignoreCase = true)) {
+                return LocalChangesWouldBeOverwritten
+            }
+
             return Unknown
         }
     }
-
-
 }
