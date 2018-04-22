@@ -1,5 +1,9 @@
 import org.gradle.jvm.tasks.Jar
-group = "org.example"
+import org.jetbrains.kotlin.config.AnalysisFlag.Flags.experimental
+import org.jetbrains.kotlin.gradle.dsl.Coroutines
+
+
+group = "org.littlegit"
 version = "0.0.1"
 
 plugins {
@@ -16,6 +20,7 @@ repositories {
 dependencies {
     implementation(kotlin("stdlib", "1.2.31"))
     testImplementation("junit:junit:4.12")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:0.21")
 }
 
 buildScan {
@@ -50,4 +55,8 @@ publishing {
             url = uri("$buildDir/repository")
         }
     }
+}
+
+kotlin {
+    experimental.coroutines = Coroutines.ENABLE
 }
