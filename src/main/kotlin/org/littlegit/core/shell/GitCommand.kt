@@ -9,11 +9,15 @@ abstract class GitCommand {
     abstract val command: List<String>
 }
 
-class GitCommit(val message: String): GitCommand() {
+class IsInitialized: GitCommand() {
+    override val command: List<String> get() = listOf("git", "rev-parse", "--is-inside-work-tree")
+}
+
+class Commit(val message: String): GitCommand() {
     override val command: List<String> get() = listOf("git", "commit ", "-m", message)
 }
 
-class GitLog(): GitCommand() {
+class Log(): GitCommand() {
     companion object {
         private var deliminator = "|"
         private var format = "%H$deliminator%P$deliminator%d$deliminator%ct$deliminator%ce$deliminator%B"

@@ -1,14 +1,13 @@
 package org.littlegit.core.shell
 
 import kotlinx.coroutines.experimental.async
+import kotlinx.coroutines.experimental.run
 import kotlinx.coroutines.experimental.runBlocking
 import java.io.File
 import java.io.InputStreamReader
 import java.io.BufferedReader
 
-interface ShellRunnerCallback {
-    fun onExecFinished(result: ShellResult)
-}
+typealias ShellRunnerCallback = (result: ShellResult) -> Unit
 
 sealed class ShellResult {
     data class Success(val lines: List<String>): ShellResult()
@@ -17,30 +16,19 @@ sealed class ShellResult {
 
 object ShellRunner {
 
-    private var rootDirectoryPath: String? = null
+    fun runCommand(basePath: String, commands: List<String>, callback: ShellRunnerCallback) {
 
-    fun initializeRootDirectory(path: String) {
-        if (path.isNotBlank()) {
-            rootDirectoryPath = path
-        }
-    }
-
-    fun runCommand(repoPath: String? = null, vararg commands: String, callback: ShellRunnerCallback) {
-        if (repoPath == null && ShellRunner.rootDirectoryPath == null) {
-            throw RuntimeException("Repo path must be supplied or ShellRunner initialised")
-        }
-
-        val runCommand = async { runCommand(*commands) }
+        val runCommand = async { run(basePath, commands) }
 
         runBlocking {
-            callback.onExecFinished(runCommand.await())
+            callback(runCommand.await())
         }
     }
 
-    private fun runCommand(vararg command: String): ShellResult {
-        val pb = ProcessBuilder(*command)
+    private fun run(basePath: String, command: List<String>): ShellResult {
+        val pb = ProcessBuilder(command)
 
-        val workingFolder = File(rootDirectoryPath)
+        val workingFolder = File(basePath)
         pb.directory(workingFolder)
 
         val proc = pb.start()

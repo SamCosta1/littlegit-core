@@ -1,6 +1,6 @@
 package org.littlegit.core.modifier
-import org.littlegit.core.shell.ShellRunner
+import org.littlegit.core.shell.GitCommandRunner
 
-class RepoModifier {
+class RepoModifier(commandRunner: GitCommandRunner) {
 
 }
