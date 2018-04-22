@@ -17,6 +17,5 @@ class RepoReader(private val commandRunner: GitCommandRunner) {
                 is GitResult.Error -> callback(false)
             }
         }
-
     }
 }
