@@ -20,6 +20,14 @@ object GitResultParser {
             return GitResult.Error(GitError.LocalChangesWouldBeOverwritten(lines))
         }
 
+        if (lines.first().startsWith("fatal: No remote repository specified") || lines.first().startsWith("fatal: No configured push destination")) {
+            return GitResult.Error(GitError.NoRemote(lines))
+        }
+
+        if (lines.first().startsWith("fatal: The current branch") && lines.last().endsWith("has no upstream branch")) {
+            return GitResult.Error(GitError.NoUpstreamBranch(lines))
+        }
+
         return GitResult.Error(GitError.Unknown(lines))
     }
 

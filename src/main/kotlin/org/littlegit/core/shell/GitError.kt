@@ -9,6 +9,8 @@ sealed class GitError(val error: List<String>) {
     data class Unknown(private val err: List<String>): GitError(err)
     data class NotARepo(private val err: List<String>): GitError(err)
     data class NothingToCommit(private val err: List<String>): GitError(err)
+    data class NoRemote(private val err: List<String>): GitError(err)
+    data class NoUpstreamBranch(private val err: List<String>): GitError(err)
 
     private fun buildErrorString(lines: List<String>) = lines.joinToString("\n")
 }
