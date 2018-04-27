@@ -1,7 +1,6 @@
 package org.littlegit.core
 
 import java.io.File
-import jdk.nashorn.internal.runtime.ScriptingFunctions.readLine
 import java.io.InputStreamReader
 import java.io.BufferedReader
 

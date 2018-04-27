@@ -29,12 +29,8 @@ class GitCommandRunner {
 
         basePath?.let {
             shellRunner.runCommand(it, command.command) {
-                when (it) {
-                    is ShellResult.Success -> callback?.invoke(GitResult.Success(it.lines))
-                    is ShellResult.Error -> callback?.invoke(GitResult.Error(GitError.parseError(it.lines)))
-                }
+                callback?.invoke(GitResultParser.parseShellResult(it))
             }
         }
     }
-
 }
