@@ -10,8 +10,10 @@ import java.io.BufferedReader
 typealias ShellRunnerCallback = (result: ShellResult) -> Unit
 
 sealed class ShellResult {
-    data class Success(val lines: List<String>): ShellResult()
-    data class Error(val lines: List<String>): ShellResult()
+    abstract val lines: List<String>
+
+    data class Success(override val lines: List<String>): ShellResult()
+    data class Error(override val lines: List<String>): ShellResult()
 }
 
 class ShellRunner {

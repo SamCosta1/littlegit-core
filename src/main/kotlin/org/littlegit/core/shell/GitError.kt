@@ -1,25 +1,14 @@
 package org.littlegit.core.shell
 
-enum class GitError {
-    LocalChangesWouldBeOverwritten,
-    Unknown,
-    NotARepo;
+sealed class GitError(val error: List<String>) {
 
-    companion object {
-        fun parseError(lines: List<String>): GitError {
-            if (lines.isEmpty()) {
-                return Unknown
-            }
+    val errString: String
+        get() = buildErrorString(error)
 
-            if (lines[0].startsWith("fatal: Not a git repository", ignoreCase = true)) {
-                return NotARepo
-            }
+    data class LocalChangesWouldBeOverwritten(private val err: List<String>): GitError(err)
+    data class Unknown(private val err: List<String>): GitError(err)
+    data class NotARepo(private val err: List<String>): GitError(err)
+    data class NothingToCommit(private val err: List<String>): GitError(err)
 
-            if (lines[0].startsWith("error: Your local changes to the following files would be overwritten by checkout", ignoreCase = true)) {
-                return LocalChangesWouldBeOverwritten
-            }
-
-            return Unknown
-        }
-    }
+    private fun buildErrorString(lines: List<String>) = lines.joinToString("\n")
 }
