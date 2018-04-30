@@ -21,33 +21,45 @@ class Commit(val message: String): GitCommand() {
     override val command: List<String> get() = listOf("git", "commit", "-m", message)
 }
 
-class Log(): GitCommand() {
+class Log: GitCommand() {
+    private data class RefsResult(val refs: List<String>, val isHead: Boolean)
     companion object {
         private var deliminator = "|"
-        private var format = "%H$deliminator%P$deliminator%d$deliminator%ct$deliminator%ce$deliminator%B"
+
+        //                   | Commit hash | Parent Hashes | Refs |   Timestamp  | committer email | Subject line of message
+        private var format = "%H$deliminator%P$deliminator%D$deliminator%ct$deliminator%ce$deliminator%s"
 
         fun parse(rawLines: List<String>): List<Commit> {
-            val commits = emptyList<Commit>()
+            if (rawLines.isEmpty()) {
+                return emptyList()
+            }
+
+            val commits = mutableListOf<Commit>()
 
             rawLines.forEach {
                 val split = it.split(deliminator)
 
-                val message = split.subList(6, split.size).joinToString(deliminator)
-                val date = OffsetDateTime.ofInstant(Instant.ofEpochMilli(split[3].toLong()), ZoneId.systemDefault())
-                val refs = parseRef(split[2])
-                Commit(split[0], split[1].split(" "), refs.first, date, split[4], message, refs.second)
+                val commitHash = split[0]
+                val parentHashes = split[1].split(" ")
+                val message = split.subList(5, split.size).joinToString(deliminator)
+
+                val date = OffsetDateTime.ofInstant(Instant.ofEpochMilli(split[3].toLong() * 1000), ZoneId.systemDefault())
+                val refResults = parseRef(split[2])
+                val committerEmail = split[4]
+
+                commits.add( Commit(commitHash, parentHashes, refResults.refs, date, committerEmail, message, refResults.isHead) )
             }
 
             return commits
         }
 
-        private fun parseRef(rawRef: String): Pair<List<String>, Boolean> {
+        private fun parseRef(rawRef: String): RefsResult {
             // Refs are split by spaces. But the first ref could be in the form HEAD -> [name]
 
             var split = rawRef.split(" ")
             var isHead = false
 
-            if (split[1] == "->") {
+            if (split.size >= 2 && split[1] == "->") {
                 split = split.subList(2, split.size)
                 isHead = true
             }
@@ -55,9 +67,9 @@ class Log(): GitCommand() {
             val formatted = mutableListOf<String>() // Refs with the trailing commas removed
             split.forEach { formatted.add(it.removeSuffix(",")) }
 
-            return Pair(formatted, isHead)
+            return RefsResult(formatted, isHead)
         }
     }
 
-    override val command: List<String> get() = listOf("git", "log", "--all", "--decorate=full", "--format=\"$format\"")
+    override val command: List<String> get() = listOf("git", "log", "--all", "--decorate=full", "--format=$format")
 }
