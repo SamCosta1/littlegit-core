@@ -8,4 +8,4 @@ os:
 script:
   - ./gradlew clean
   - ./gradlew build
-  - ./gradlew test
+  - ./gradlew test --scan
