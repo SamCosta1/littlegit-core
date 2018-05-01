@@ -21,6 +21,7 @@ class Commit(val message: String): GitCommand() {
     override val command: List<String> get() = listOf("git", "commit", "-m", message)
 }
 
+typealias CommitHash = String
 class Log: GitCommand() {
     private data class RefsResult(val refs: List<String>, val isHead: Boolean)
     companion object {
@@ -40,7 +41,7 @@ class Log: GitCommand() {
                 val split = it.split(deliminator)
 
                 val commitHash = split[0]
-                val parentHashes = split[1].split(" ")
+                val parentHashes = split[1].split(" ").filter { it.isNotBlank() }
                 val message = split.subList(5, split.size).joinToString(deliminator)
 
                 val date = OffsetDateTime.ofInstant(Instant.ofEpochMilli(split[3].toLong() * 1000), ZoneId.systemDefault())

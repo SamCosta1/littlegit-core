@@ -6,6 +6,11 @@ class RepoReader(private val commandRunner: GitCommandRunner) {
 
     fun getGraph(callback: LittleGitCommandCallback<GitGraph>) {
         commandRunner.runCommand(command = Log()) { result ->
+            if (result is GitResult.Success) {
+                val parsedCommits = Log.parse(result.lines)
+                callback.invoke(GitGraph(parsedCommits), result)
+            }
+
             callback.invoke(null, result)
         }
     }
