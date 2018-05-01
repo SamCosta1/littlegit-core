@@ -1,5 +1,7 @@
 package org.littlegit.core.reader
 
-class GitGraph {
+import org.littlegit.core.model.Commit
+
+class GitGraph(commits: List<Commit>) {
 
 }

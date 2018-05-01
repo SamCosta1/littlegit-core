@@ -1,24 +1,12 @@
-package org.littlegit.core
+package org.littlegit.core.integration
 
 import org.junit.Assert.*
-import org.junit.Before
-import org.junit.Rule
 import org.junit.Test
-import org.junit.rules.TemporaryFolder
 import org.littlegit.core.shell.GitError
 import org.littlegit.core.shell.GitResult
 
-class CommitTests {
+class CommitTests: IntegrationBaseTest() {
 
-    @Rule
-    @JvmField var testFolder = TemporaryFolder()
-
-    lateinit var littleGit: LittleGitCore
-
-    @Before
-    fun setup() {
-        littleGit = LittleGitCore(testFolder.root.path)
-    }
 
     @Test fun testValidCommit() {
         val commitMessage = "test message"
