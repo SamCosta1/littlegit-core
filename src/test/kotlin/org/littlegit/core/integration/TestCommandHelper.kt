@@ -1,4 +1,4 @@
-package org.littlegit.core
+package org.littlegit.core.integration
 
 import java.io.File
 import java.io.InputStreamReader
