@@ -5,10 +5,10 @@ import org.littlegit.core.shell.*
 class RepoReader(private val commandRunner: GitCommandRunner) {
 
     fun getGraph(callback: LittleGitCommandCallback<GitGraph>) {
-        commandRunner.runCommand(command = Log()) { result ->
+        commandRunner.runCommand(command = GitCommand.Log()) { result ->
 
             if (result is GitResult.Success) {
-                val commits = Log.parse(result.lines)
+                val commits = GitCommand.Log.parse(result.lines)
                 callback(GitGraph(commits), result)
             } else {
                 callback(null, result)
@@ -18,7 +18,7 @@ class RepoReader(private val commandRunner: GitCommandRunner) {
 
     fun isInitialized(callback: LittleGitCommandCallback<Boolean>) {
 
-        commandRunner.runCommand(command = IsInitialized()) { result ->
+        commandRunner.runCommand(command = GitCommand.IsInitialized()) { result ->
 
             when (result) {
                 is GitResult.Success -> callback(result.lines[0] == "true", result)

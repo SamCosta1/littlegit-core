@@ -2,7 +2,7 @@ package org.littlegit.core.model
 
 import java.time.OffsetDateTime
 
-data class Commit(
+data class RawCommit(
         val hash: String,
         val refs: List<String>,
         val parentHashes: List<String>,

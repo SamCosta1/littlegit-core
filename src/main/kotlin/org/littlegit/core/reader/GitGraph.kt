@@ -1,14 +1,14 @@
 package org.littlegit.core.reader
 
-import org.littlegit.core.model.Commit
+import org.littlegit.core.model.RawCommit
 import org.littlegit.core.shell.CommitHash
 import org.littlegit.core.util.weak
 import java.lang.ref.WeakReference
 
 typealias WeakNode = WeakReference<GraphNode?>
-data class GraphNode(val commit: Commit, val children: MutableList<WeakNode> = mutableListOf(), val parents: MutableList<WeakNode> = mutableListOf())
+data class GraphNode(val commit: RawCommit, val children: MutableList<WeakNode> = mutableListOf(), val parents: MutableList<WeakNode> = mutableListOf())
 
-class GitGraph(commits: List<Commit>) {
+class GitGraph(commits: List<RawCommit>) {
 
     private val nodes: MutableMap<CommitHash, GraphNode> = mutableMapOf()
     private val initialCommits = mutableListOf<WeakNode>() // Nodes without parents, usually only 1
@@ -16,7 +16,7 @@ class GitGraph(commits: List<Commit>) {
 
     fun getInitialCommits() = initialCommits.toList()
     fun getEndingCommits() = endingCommits.toList()
-    fun getNode(commit: Commit) = nodes[commit.hash]
+    fun getNode(commit: RawCommit) = nodes[commit.hash]
     fun getNode(hash: CommitHash) = nodes[hash]
 
     init {

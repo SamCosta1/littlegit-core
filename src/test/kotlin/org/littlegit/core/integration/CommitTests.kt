@@ -17,13 +17,13 @@ class CommitTests: IntegrationBaseTest() {
         littleGit.repoModifier.commit(commitMessage) {
 
             assertTrue("Result was a success", it is GitResult.Success)
-            assertTrue("Commit message is as expected", commandHelper.getLastCommitMessage() == commitMessage)
+            assertTrue("RawCommit message is as expected", commandHelper.getLastCommitMessage() == commitMessage)
         }
     }
 
     @Test fun testCommitBeforeInit() {
         littleGit.repoModifier.commit("msg") {
-            assertTrue("Commit rejected", it is GitResult.Error && it.err is GitError.NotARepo)
+            assertTrue("RawCommit rejected", it is GitResult.Error && it.err is GitError.NotARepo)
         }
     }
 
@@ -32,7 +32,7 @@ class CommitTests: IntegrationBaseTest() {
 
         littleGit.repoModifier.commit("msg") {
             print(it)
-            assertTrue("Commit rejected", it is GitResult.Error && it.err is GitError.NothingToCommit)
+            assertTrue("RawCommit rejected", it is GitResult.Error && it.err is GitError.NothingToCommit)
         }
     }
 }
