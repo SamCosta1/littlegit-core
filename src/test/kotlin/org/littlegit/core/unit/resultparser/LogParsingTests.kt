@@ -31,25 +31,25 @@ class LogParsingTests {
                                                     "samdc@apadmi.com",
                                                     "Merge branch 'feature'", true),
                                     RawCommit("bb7058bb7e9214f2497336938ce2e4a9c43ca96d",
-                                            emptyList(),
-                                            listOf("159a78f59031cb814f83148d6f6aaebd2a186a22"),
-                                            OffsetDateTime.ofInstant(Instant.ofEpochMilli(1525272312000), ZoneId.systemDefault()),
-                                            "test@email.com",
-                                            "feature comm!@£\$%^&*()_+)@£\$%^&*()(*&^%''\"\$£|||it", false),
+                                                    emptyList(),
+                                                    listOf("159a78f59031cb814f83148d6f6aaebd2a186a22"),
+                                                    OffsetDateTime.ofInstant(Instant.ofEpochMilli(1525272312000), ZoneId.systemDefault()),
+                                                    "test@email.com",
+                                                    "feature comm!@£\$%^&*()_+)@£\$%^&*()(*&^%''\"\$£|||it", false),
 
                                     RawCommit("159a78f59031cb814f83148d6f6aaebd2a186a22",
-                                            emptyList(),
-                                            listOf("03e6c7df90e56aa5d721a14f8e8363397f17cc28"),
-                                            OffsetDateTime.ofInstant(Instant.ofEpochMilli(1525272270000), ZoneId.systemDefault()),
-                                            "samdc@apadmi.com",
-                                            "master commit 3", false),
+                                                    emptyList(),
+                                                    listOf("03e6c7df90e56aa5d721a14f8e8363397f17cc28"),
+                                                    OffsetDateTime.ofInstant(Instant.ofEpochMilli(1525272270000), ZoneId.systemDefault()),
+                                                    "samdc@apadmi.com",
+                                                    "master commit 3", false),
                                     RawCommit("03e6c7df90e56aa5d721a14f8e8363397f17cc28",
-                                            emptyList(),
-                                            emptyList(),
-                                            OffsetDateTime.ofInstant(Instant.ofEpochMilli(1525272249000), ZoneId.systemDefault()),
-                                            "samdc@apadmi.com",
-                                            "master commit 2", false)
-        )
+                                                    emptyList(),
+                                                    emptyList(),
+                                                    OffsetDateTime.ofInstant(Instant.ofEpochMilli(1525272249000), ZoneId.systemDefault()),
+                                                    "samdc@apadmi.com",
+                                                    "master commit 2", false)
+                                    )
 
         parsed.forEachIndexed { index, rawCommit ->
             println("Correct: " + correctCommits[index].refs)
