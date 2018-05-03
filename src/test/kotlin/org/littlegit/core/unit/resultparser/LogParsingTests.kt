@@ -13,7 +13,7 @@ import java.time.ZoneId
 class LogParsingTests {
 
     @get:Rule
-    val res = ResourceFile("/testFiles/smallLog.txt")
+    val res = ResourceFile(System.getProperty("user.dir") + "/src/test/kotlin/testFiles/smallLog.txt")
 
     @Test fun specialCharacterCommitSubjectTest() {
         val parsed = GitCommand.Log.parse(res.content)
