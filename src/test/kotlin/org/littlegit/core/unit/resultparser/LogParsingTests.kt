@@ -12,12 +12,6 @@ import java.time.ZoneId
 
 class LogParsingTests {
 
-    @Test fun kotlinTest() {
-        val empty1 = mutableListOf<String>()
-        val empty2 = emptyList<String>()
-        println(empty1 == empty2)
-    }
-
     @get:Rule
     val res = ResourceFile("/testFiles/smallLog.txt")
 
@@ -52,16 +46,6 @@ class LogParsingTests {
                                     )
 
         parsed.forEachIndexed { index, rawCommit ->
-            println("Correct: " + correctCommits[index].refs)
-            println("Actual:  " + rawCommit.refs)
-            println(correctCommits[index].refs == rawCommit.refs)
-            println()
-
-            assertTrue(correctCommits[index].commitSubject == rawCommit.commitSubject)
-            assertTrue(correctCommits[index].hash == rawCommit.hash)
-            assertTrue(correctCommits[index].parentHashes == rawCommit.parentHashes)
-            assertTrue(correctCommits[index].refs.equals(rawCommit.refs))
-            assertTrue(correctCommits[index].date == rawCommit.date)
             assertTrue("Commit is as expected", rawCommit == correctCommits[index])
         }
     }
