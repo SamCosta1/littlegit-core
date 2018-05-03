@@ -7,7 +7,7 @@ import org.littlegit.core.shell.GitResult
 import org.littlegit.core.shell.GitResultParser
 import org.littlegit.core.shell.ShellResult
 
-class GitResultParserTests {
+class ResultParserTests {
 
     @Test
     fun testEmptyError() {

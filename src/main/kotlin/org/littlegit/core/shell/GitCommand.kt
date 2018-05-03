@@ -49,10 +49,10 @@ abstract class GitCommand {
                     val refResults = parseRef(split[2])
                     val committerEmail = split[4]
 
-                    commits.add(RawCommit(commitHash, parentHashes, refResults.refs, date, committerEmail, message, refResults.isHead))
+                    commits.add(RawCommit(commitHash, refResults.refs, parentHashes, date, committerEmail, message, refResults.isHead))
                 }
 
-                return commits
+                return commits.sortedByDescending { it.date }
             }
 
             private fun parseRef(rawRef: String): RefsResult {
@@ -67,7 +67,13 @@ abstract class GitCommand {
                 }
 
                 val formatted = mutableListOf<String>() // Refs with the trailing commas removed
-                split.forEach { formatted.add(it.removeSuffix(",")) }
+
+                split.forEach {
+                    val ref = it.removeSuffix(",")
+                    if (ref.isNotBlank()) {
+                        formatted.add(ref)
+                    }
+                }
 
                 return RefsResult(formatted, isHead)
             }

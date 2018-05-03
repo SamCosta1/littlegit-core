@@ -8,6 +8,6 @@ data class RawCommit(
         val parentHashes: List<String>,
         val date: OffsetDateTime,
         val committerEmail: String,
-        val commitMessage: String,
+        val commitSubject: String,
         val isHead: Boolean
 )
