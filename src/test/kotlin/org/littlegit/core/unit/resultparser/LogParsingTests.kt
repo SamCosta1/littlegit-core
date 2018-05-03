@@ -13,10 +13,13 @@ import java.time.ZoneId
 class LogParsingTests {
 
     @get:Rule
-    val res = ResourceFile(System.getProperty("user.dir") + "/src/test/kotlin/testFiles/smallLog.txt")
+    val smallLog = ResourceFile(System.getProperty("user.dir") + "/src/test/kotlin/testFiles/smallLog.txt")
+
+    @get:Rule
+    val emptyEmail = ResourceFile(System.getProperty("user.dir") + "/src/test/kotlin/testFiles/emptyEmail.txt")
 
     @Test fun specialCharacterCommitSubjectTest() {
-        val parsed = GitCommand.Log.parse(res.content)
+        val parsed = GitCommand.Log.parse(smallLog.content)
 
         val correctCommits = listOf(RawCommit("428d62f5b7244454edfbf94fd99dee0972f130e8",
                                                     listOf("refs/heads/master"),
@@ -44,6 +47,23 @@ class LogParsingTests {
                                                     "samdc@apadmi.com",
                                                     "master commit 2", false)
                                     )
+
+        parsed.forEachIndexed { index, rawCommit ->
+            assertTrue("Commit is as expected", rawCommit == correctCommits[index])
+        }
+    }
+
+    @Test fun emptyEmailTest() {
+        val parsed = GitCommand.Log.parse(emptyEmail.content)
+
+        val correctCommits = listOf(
+                RawCommit("03e6c7df90e56aa5d721a14f8e8363397f17cc28",
+                        emptyList(),
+                        emptyList(),
+                        OffsetDateTime.ofInstant(Instant.ofEpochMilli(1525272249000), ZoneId.systemDefault()),
+                        "",
+                        "master commit 2", false)
+        )
 
         parsed.forEachIndexed { index, rawCommit ->
             assertTrue("Commit is as expected", rawCommit == correctCommits[index])
