@@ -11,7 +11,7 @@ import java.nio.charset.Charset
 
 import org.junit.rules.ExternalResource
 
-class ResourceFile(private var res: String) : ExternalResource() {
+open class ResourceFile(private var res: String) : ExternalResource() {
     private var file: File? = null
     private var inputStream: InputStream? = null
 

@@ -26,7 +26,7 @@ abstract class GitCommand {
     class Log : GitCommand() {
         private data class RefsResult(val refs: List<String>, val isHead: Boolean)
         companion object {
-            private var deliminator = "|"
+            private var deliminator = "@|@"
 
             //                   | RawCommit hash | Parent Hashes | Refs |   Timestamp  | committer email | Subject line of message
             private var format = "%H$deliminator%P$deliminator%D$deliminator%ct$deliminator%ce$deliminator%s"
