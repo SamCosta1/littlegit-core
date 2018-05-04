@@ -10,7 +10,11 @@ object GitResultParser {
     }
 
     private fun parseErrorResult(errResult: ShellResult.Error): GitResult.Error {
-        val lines = errResult.lines
+        val lines = cleanLines(errResult.lines.toMutableList())
+
+        if (lines.isEmpty()) {
+            return GitResult.Error(GitError.Unknown(lines))
+        }
 
         if (lines.first().startsWith("fatal: Not a git repository", ignoreCase = true)) {
             return GitResult.Error(GitError.NotARepo(lines))
@@ -20,16 +24,31 @@ object GitResultParser {
             return GitResult.Error(GitError.LocalChangesWouldBeOverwritten(lines))
         }
 
+        if (lines.first().startsWith("fatal: No remote repository specified") || lines.first().startsWith("fatal: No configured push destination")) {
+            return GitResult.Error(GitError.NoRemote(lines))
+        }
+
+        if (lines.first().startsWith("fatal: The current branch") && lines.last().endsWith("has no upstream branch")) {
+            return GitResult.Error(GitError.NoUpstreamBranch(lines))
+        }
+
         return GitResult.Error(GitError.Unknown(lines))
     }
 
     private fun parseSuccessResult(successResult: ShellResult.Success): GitResult {
-        val lines = successResult.lines
-        val lastLine = lines.last()
-        if (lastLine.startsWith("nothing added to commit") || lastLine.startsWith("nothing to commit")) {
-            return GitResult.Error(GitError.NothingToCommit(lines))
+        val lines = cleanLines(successResult.lines.toMutableList())
+
+        if (lines.isNotEmpty()) {
+            val lastLine = lines.last()
+            if (lastLine.startsWith("nothing added to commit") || lastLine.startsWith("nothing to commit")) {
+                return GitResult.Error(GitError.NothingToCommit(lines))
+            }
         }
 
         return GitResult.Success(lines)
+    }
+
+    private fun cleanLines(lines: MutableList<String>): List<String> {
+        return lines.dropWhile { it.isBlank() }
     }
 }

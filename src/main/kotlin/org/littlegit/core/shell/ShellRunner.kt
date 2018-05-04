@@ -1,7 +1,6 @@
 package org.littlegit.core.shell
 
 import kotlinx.coroutines.experimental.async
-import kotlinx.coroutines.experimental.run
 import kotlinx.coroutines.experimental.runBlocking
 import java.io.File
 import java.io.InputStreamReader

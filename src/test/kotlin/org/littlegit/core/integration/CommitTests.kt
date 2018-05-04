@@ -1,24 +1,12 @@
-package org.littlegit.core
+package org.littlegit.core.integration
 
 import org.junit.Assert.*
-import org.junit.Before
-import org.junit.Rule
 import org.junit.Test
-import org.junit.rules.TemporaryFolder
 import org.littlegit.core.shell.GitError
 import org.littlegit.core.shell.GitResult
 
-class CommitTests {
+class CommitTests: IntegrationBaseTest() {
 
-    @Rule
-    @JvmField var testFolder = TemporaryFolder()
-
-    lateinit var littleGit: LittleGitCore
-
-    @Before
-    fun setup() {
-        littleGit = LittleGitCore(testFolder.root.path)
-    }
 
     @Test fun testValidCommit() {
         val commitMessage = "test message"
@@ -29,13 +17,13 @@ class CommitTests {
         littleGit.repoModifier.commit(commitMessage) {
 
             assertTrue("Result was a success", it is GitResult.Success)
-            assertTrue("Commit message is as expected", commandHelper.getLastCommitMessage() == commitMessage)
+            assertTrue("RawCommit message is as expected", commandHelper.getLastCommitMessage() == commitMessage)
         }
     }
 
     @Test fun testCommitBeforeInit() {
         littleGit.repoModifier.commit("msg") {
-            assertTrue("Commit rejected", it is GitResult.Error && it.err is GitError.NotARepo)
+            assertTrue("RawCommit rejected", it is GitResult.Error && it.err is GitError.NotARepo)
         }
     }
 
@@ -44,7 +32,7 @@ class CommitTests {
 
         littleGit.repoModifier.commit("msg") {
             print(it)
-            assertTrue("Commit rejected", it is GitResult.Error && it.err is GitError.NothingToCommit)
+            assertTrue("RawCommit rejected", it is GitResult.Error && it.err is GitError.NothingToCommit)
         }
     }
 }
