@@ -41,6 +41,10 @@ abstract class GitCommand {
                 rawLines.forEach {
                     val split = it.split(deliminator)
 
+                    if (split.size < 6) {
+                        throw InvalidCommitException(raw = it)
+                    }
+
                     val commitHash = split[0]
                     val parentHashes = split[1].split(" ").filter { it.isNotBlank() }
                     val message = split.subList(5, split.size).joinToString(deliminator)
@@ -48,6 +52,10 @@ abstract class GitCommand {
                     val date = OffsetDateTime.ofInstant(Instant.ofEpochMilli(split[3].toLong() * 1000), ZoneId.systemDefault())
                     val refResults = parseRef(split[2])
                     val committerEmail = split[4]
+
+                    if (commitHash.isBlank() || date == null) {
+                        throw InvalidCommitException(raw = it)
+                    }
 
                     commits.add(RawCommit(commitHash, refResults.refs, parentHashes, date, committerEmail, message, refResults.isHead))
                 }

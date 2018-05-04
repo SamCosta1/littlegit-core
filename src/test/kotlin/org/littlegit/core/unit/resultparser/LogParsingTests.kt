@@ -1,11 +1,10 @@
 package org.littlegit.core.unit.resultparser
 
 import junit.framework.Assert.assertTrue
-import org.junit.Rule
 import org.junit.Test
-import org.littlegit.core.helper.LocalResourceFile
 import org.littlegit.core.model.RawCommit
 import org.littlegit.core.shell.GitCommand
+import org.littlegit.core.shell.InvalidCommitException
 import java.time.Instant
 import java.time.OffsetDateTime
 import java.time.ZoneId
@@ -20,6 +19,18 @@ class LogParsingTests {
         private val SPECIAL_CHAR_EMAIL = listOf("159a78f59031cb814f83148d6f6aaebd2a186a22@|@03e6c7df90e56aa5d721a14f8e8363397f17cc28@|@@|@1525272270@|@|samdc|@|apadmi.com|@|@master commit 3")
         private val SPECIAL_CHAR_SUBJECT = listOf("bb7058bb7e9214f2497336938ce2e4a9c43ca96d@|@159a78f59031cb814f83148d6f6aaebd2a186a22@|@@|@1525272312@|@test@email.com@|@feature comm!@£\$%^&*()_+)@£\$%^&*|||()(*&^%''\"\$£@|@@|@|it")
         private val EMPTY_SUBJECT = listOf("bb7058bb7e9214f2497336938ce2e4a9c43ca96d@|@159a78f59031cb814f83148d6f6aaebd2a186a22@|@@|@1525272312@|@test@email.com@|@")
+        private val MISSING_HASH = listOf("@|@159a78f59031cb814f83148d6f6aaebd2a186a22@|@@|@1525272312@|@test@email.com@|@feature commit")
+        private val GARBAGE = listOf("ergegetohjt40t843635^£$%.,ergERgergn[erg  eurhger")
+    }
+
+    @Test(expected = InvalidCommitException::class)
+    fun missingCommitHashTest() {
+        GitCommand.Log.parse(MISSING_HASH)
+    }
+
+    @Test(expected = InvalidCommitException::class)
+    fun garbageTest() {
+        GitCommand.Log.parse(GARBAGE)
     }
 
     @Test fun emptySubjectTest() {
