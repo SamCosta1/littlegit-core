@@ -8,6 +8,7 @@ import org.littlegit.core.shell.GitResult
 class ConfigTests: BaseIntegrationTest() {
 
     @Test fun testUserName() {
+        TestCommandHelper(testFolder.root).init()
         val testName = "Larry Smartington"
         littleGit.configModifier.setName(testName) { name, gitResult ->
 
@@ -21,8 +22,10 @@ class ConfigTests: BaseIntegrationTest() {
         }
     }
 
-    @Test fun testEmailName() {
+    @Test fun testEmail() {
+        TestCommandHelper(testFolder.root).init()
         val testEmail = "larry@scooby.com"
+
         littleGit.configModifier.setEmail(testEmail) { name, gitResult ->
 
             assertTrue("Result is successful", gitResult is GitResult.Success)
