@@ -27,10 +27,10 @@ class ConfigModifier(private val commandRunner: GitCommandRunner) {
         }
     }
 
-    fun getEmail(name: String, global: Boolean = false, callback: LittleGitCommandCallback<String>) {
+    fun getEmail(global: Boolean = false, callback: LittleGitCommandCallback<String>) {
         commandRunner.runCommand(command = GitCommand.GetUserEmail(global)) {
             if (it is GitResult.Success) {
-                callback(name, it)
+                callback(it.lines[0], it)
             } else {
                 callback(null, it)
             }

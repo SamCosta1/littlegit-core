@@ -2,7 +2,7 @@ package org.littlegit.core.integration
 
 import org.junit.Test
 
-class ReadingTests: IntegrationBaseTest() {
+class ReadingTests: BaseIntegrationTest() {
 
     @Test fun test() {
 

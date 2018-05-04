@@ -5,7 +5,7 @@ import org.junit.Test
 import org.littlegit.core.shell.GitError
 import org.littlegit.core.shell.GitResult
 
-class CommitTests: IntegrationBaseTest() {
+class CommitTests: BaseIntegrationTest() {
 
 
     @Test fun testValidCommit() {

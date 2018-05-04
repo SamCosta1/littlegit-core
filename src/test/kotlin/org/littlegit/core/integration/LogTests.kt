@@ -2,7 +2,7 @@ package org.littlegit.core.integration
 
 import org.junit.Test
 
-class LogTests: IntegrationBaseTest() {
+class LogTests: BaseIntegrationTest() {
 
     @Test fun testLog() {
         TestCommandHelper(testFolder.root).init()

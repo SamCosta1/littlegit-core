@@ -6,7 +6,7 @@ import org.littlegit.core.shell.GitResult
 import java.nio.file.Files
 import java.nio.file.Paths
 
-class InitializeTests: IntegrationBaseTest() {
+class InitializeTests: BaseIntegrationTest() {
 
 
     @Test fun testInitRepo() {
