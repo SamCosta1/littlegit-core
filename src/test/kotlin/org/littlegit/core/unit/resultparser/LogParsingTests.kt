@@ -3,8 +3,8 @@ package org.littlegit.core.unit.resultparser
 import junit.framework.Assert.assertTrue
 import org.junit.Test
 import org.littlegit.core.model.RawCommit
-import org.littlegit.core.shell.GitCommand
 import org.littlegit.core.shell.InvalidCommitException
+import org.littlegit.core.shell.LogParser
 import java.time.Instant
 import java.time.OffsetDateTime
 import java.time.ZoneId
@@ -25,16 +25,16 @@ class LogParsingTests {
 
     @Test(expected = InvalidCommitException::class)
     fun missingCommitHashTest() {
-        GitCommand.Log.parse(MISSING_HASH)
+        LogParser.parse(MISSING_HASH)
     }
 
     @Test(expected = InvalidCommitException::class)
     fun garbageTest() {
-        GitCommand.Log.parse(GARBAGE)
+        LogParser.parse(GARBAGE)
     }
 
     @Test fun emptySubjectTest() {
-        val parsed = GitCommand.Log.parse(EMPTY_SUBJECT)
+        val parsed = LogParser.parse(EMPTY_SUBJECT)
 
         val correct = listOf(RawCommit("bb7058bb7e9214f2497336938ce2e4a9c43ca96d",
                 emptyList(),
@@ -51,7 +51,7 @@ class LogParsingTests {
     }
 
     @Test fun specialCharacterEmailTest() {
-        val parsed = GitCommand.Log.parse(SPECIAL_CHAR_EMAIL)
+        val parsed = LogParser.parse(SPECIAL_CHAR_EMAIL)
 
         val correct = listOf(RawCommit("159a78f59031cb814f83148d6f6aaebd2a186a22",
                                             emptyList(),
@@ -67,7 +67,7 @@ class LogParsingTests {
 
     @Test
     fun specialCharacterCommitSubjectTest() {
-        val parsed = GitCommand.Log.parse(SPECIAL_CHAR_SUBJECT)
+        val parsed = LogParser.parse(SPECIAL_CHAR_SUBJECT)
 
         val correct = listOf(RawCommit("bb7058bb7e9214f2497336938ce2e4a9c43ca96d",
                                                 emptyList(),
@@ -84,7 +84,7 @@ class LogParsingTests {
     }
 
     @Test fun noParentTest() {
-        val parsed = GitCommand.Log.parse(NO_PARENT)
+        val parsed = LogParser.parse(NO_PARENT)
 
         val correct = listOf(RawCommit("03e6c7df90e56aa5d721a14f8e8363397f17cc28",
                                 emptyList(),
@@ -101,7 +101,7 @@ class LogParsingTests {
 
     @Test
     fun headCommitTest() {
-        val parsed = GitCommand.Log.parse(HEAD_COMMIT)
+        val parsed = LogParser.parse(HEAD_COMMIT)
         val correct = listOf(RawCommit("428d62f5b7244454edfbf94fd99dee0972f130e8",
                                 listOf("refs/heads/master"),
                                 listOf("159a78f59031cb814f83148d6f6aaebd2a186a22", "bb7058bb7e9214f2497336938ce2e4a9c43ca96d"),
@@ -116,7 +116,7 @@ class LogParsingTests {
 
     @Test
     fun multipleParentCommitTest() {
-        val parsed = GitCommand.Log.parse(MULTI_PARENT)
+        val parsed = LogParser.parse(MULTI_PARENT)
 
         val correct = listOf(RawCommit("159a78f59031cb814f83148d6f6aaebd2a186a22",
                                         emptyList(),
@@ -133,7 +133,7 @@ class LogParsingTests {
 
     @Test
     fun emptyEmailTest() {
-        val parsed = GitCommand.Log.parse(EMPTY_EMAIL)
+        val parsed = LogParser.parse(EMPTY_EMAIL)
 
         val correctCommits = listOf(
                 RawCommit("03e6c7df90e56aa5d721a14f8e8363397f17cc28",
@@ -151,6 +151,6 @@ class LogParsingTests {
 
     @Test
     fun testEmptyList() {
-        assertTrue(GitCommand.Log.parse(emptyList()) == emptyList<RawCommit>())
+        assertTrue(LogParser.parse(emptyList()) == emptyList<RawCommit>())
     }
 }

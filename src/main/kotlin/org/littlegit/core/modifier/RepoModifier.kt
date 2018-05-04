@@ -12,4 +12,6 @@ class RepoModifier(private val commandRunner: GitCommandRunner) {
     fun commit(message: String, callback: GitCommandRunnerCallback? = null) {
         commandRunner.runCommand(command = GitCommand.Commit(message), callback = callback)
     }
+
+
 }
