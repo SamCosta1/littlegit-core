@@ -4,7 +4,6 @@ package org.littlegit.core.shell
 typealias CommitHash = String
 abstract class GitCommand {
 
-
     abstract val command: List<String>
 
     class IsInitialized : GitCommand() {
@@ -19,12 +18,20 @@ abstract class GitCommand {
         override val command: List<String> get() = listOf("git", "commit", "-m", message)
     }
 
-    class SetEmail(val email: String) : GitCommand() {
-        override val command: List<String> get() = listOf("git", "config", "user.email", email)
+    class SetUserEmail(val email: String, val global: Boolean = false) : GitCommand() {
+        override val command: List<String> get() = if (global) listOf("git", "config", "user.email", email) else listOf("git", "config", "--global", "user.email", email)
     }
 
-    class SetName(val name: String) : GitCommand() {
-        override val command: List<String> get() = listOf("git", "config", "user.name", name)
+    class SetUserName(val name: String, val global: Boolean = false) : GitCommand() {
+        override val command: List<String> get() = if (global) listOf("git", "config", "user.name", name) else listOf("git", "config", "--global", "user.name", name)
+    }
+
+    class GetUserName(val global: Boolean = false): GitCommand() {
+        override val command: List<String> get() = if (global) listOf("git", "config", "user.name") else listOf("git", "config", "--global", "user.name")
+    }
+
+    class GetUserEmail(val global: Boolean = false): GitCommand() {
+        override val command: List<String> get() = if (global) listOf("git", "config", "user.email") else listOf("git", "config", "--global", "user.email")
     }
 
     class Log : GitCommand() {
