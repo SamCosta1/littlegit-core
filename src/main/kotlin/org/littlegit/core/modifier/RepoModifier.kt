@@ -1,6 +1,8 @@
 package org.littlegit.core.modifier
 import org.littlegit.core.LittleGitCommandCallback
-import org.littlegit.core.shell.*
+import org.littlegit.core.commandrunner.GitCommand
+import org.littlegit.core.commandrunner.GitCommandRunner
+import org.littlegit.core.commandrunner.GitCommandRunnerCallback
 
 
 class RepoModifier(private val commandRunner: GitCommandRunner) {

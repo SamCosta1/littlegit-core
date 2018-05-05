@@ -1,9 +1,9 @@
 package org.littlegit.core.modifier
 
 import org.littlegit.core.LittleGitCommandCallback
-import org.littlegit.core.shell.GitCommand
-import org.littlegit.core.shell.GitCommandRunner
-import org.littlegit.core.shell.GitResult
+import org.littlegit.core.commandrunner.GitCommand
+import org.littlegit.core.commandrunner.GitCommandRunner
+import org.littlegit.core.commandrunner.GitResult
 
 class ConfigModifier(private val commandRunner: GitCommandRunner) {
 

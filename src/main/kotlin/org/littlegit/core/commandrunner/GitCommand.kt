@@ -1,4 +1,4 @@
-package org.littlegit.core.shell
+package org.littlegit.core.commandrunner
 
 
 typealias CommitHash = String
@@ -38,9 +38,9 @@ abstract class GitCommand {
         companion object {
             var deliminator = "@|@"
             //             | RawCommit hash | Parent Hashes | Refs |   Timestamp  | committer email | Subject line of message
-            var format = "%H$deliminator%P$deliminator%D$deliminator%ct$deliminator%ce$deliminator%s"
+            var format = "%H${deliminator}%P${deliminator}%D${deliminator}%ct${deliminator}%ce${deliminator}%s"
         }
 
-        override val command: List<String> get() = listOf("git", "log", "--all", "--decorate=full", "--format=$format")
+        override val command: List<String> get() = listOf("git", "log", "--all", "--decorate=full", "--format=${format}")
     }
 }

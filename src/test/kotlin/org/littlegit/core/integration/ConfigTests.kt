@@ -3,7 +3,7 @@ package org.littlegit.core.integration
 import junit.framework.TestCase.assertEquals
 import junit.framework.TestCase.assertTrue
 import org.junit.Test
-import org.littlegit.core.shell.GitResult
+import org.littlegit.core.commandrunner.GitResult
 
 class ConfigTests: BaseIntegrationTest() {
 

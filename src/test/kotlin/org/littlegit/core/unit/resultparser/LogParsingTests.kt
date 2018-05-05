@@ -3,8 +3,8 @@ package org.littlegit.core.unit.resultparser
 import junit.framework.Assert.assertTrue
 import org.junit.Test
 import org.littlegit.core.model.RawCommit
-import org.littlegit.core.shell.InvalidCommitException
-import org.littlegit.core.shell.LogParser
+import org.littlegit.core.commandrunner.InvalidCommitException
+import org.littlegit.core.parser.LogParser
 import java.time.Instant
 import java.time.OffsetDateTime
 import java.time.ZoneId

@@ -2,7 +2,7 @@ package org.littlegit.core.integration
 
 import org.junit.Assert.*
 import org.junit.Test
-import org.littlegit.core.shell.GitResult
+import org.littlegit.core.commandrunner.GitResult
 import java.nio.file.Files
 import java.nio.file.Paths
 

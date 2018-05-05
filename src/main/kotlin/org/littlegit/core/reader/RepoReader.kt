@@ -1,7 +1,8 @@
 package org.littlegit.core.reader
 import org.littlegit.core.LittleGitCommandCallback
+import org.littlegit.core.commandrunner.*
 import org.littlegit.core.model.RawCommit
-import org.littlegit.core.shell.*
+import org.littlegit.core.parser.LogParser
 
 class RepoReader(private val commandRunner: GitCommandRunner) {
 

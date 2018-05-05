@@ -1,5 +1,7 @@
-package org.littlegit.core.shell
+package org.littlegit.core.parser
 
+import org.littlegit.core.commandrunner.GitCommand
+import org.littlegit.core.commandrunner.InvalidCommitException
 import org.littlegit.core.model.RawCommit
 import java.time.Instant
 import java.time.OffsetDateTime

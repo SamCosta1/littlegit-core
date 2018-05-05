@@ -1,7 +1,7 @@
 package org.littlegit.core.reader
 
 import org.littlegit.core.model.RawCommit
-import org.littlegit.core.shell.CommitHash
+import org.littlegit.core.commandrunner.CommitHash
 import org.littlegit.core.util.weak
 import java.lang.ref.WeakReference
 
