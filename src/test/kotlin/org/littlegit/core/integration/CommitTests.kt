@@ -2,10 +2,10 @@ package org.littlegit.core.integration
 
 import org.junit.Assert.*
 import org.junit.Test
-import org.littlegit.core.shell.GitError
-import org.littlegit.core.shell.GitResult
+import org.littlegit.core.commandrunner.GitError
+import org.littlegit.core.commandrunner.GitResult
 
-class CommitTests: IntegrationBaseTest() {
+class CommitTests: BaseIntegrationTest() {
 
 
     @Test fun testValidCommit() {

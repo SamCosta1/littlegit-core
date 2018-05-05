@@ -1,7 +1,8 @@
 package org.littlegit.core.reader
 import org.littlegit.core.LittleGitCommandCallback
+import org.littlegit.core.commandrunner.*
 import org.littlegit.core.model.RawCommit
-import org.littlegit.core.shell.*
+import org.littlegit.core.parser.LogParser
 
 class RepoReader(private val commandRunner: GitCommandRunner) {
 
@@ -9,7 +10,7 @@ class RepoReader(private val commandRunner: GitCommandRunner) {
         commandRunner.runCommand(command = GitCommand.Log()) { result ->
 
             if (result is GitResult.Success) {
-                val commits = GitCommand.Log.parse(result.lines)
+                val commits = LogParser.parse(result.lines)
                 callback(GitGraph(commits), result)
             } else {
                 callback(null, result)
@@ -20,8 +21,8 @@ class RepoReader(private val commandRunner: GitCommandRunner) {
     fun getFullCommitList(callback: LittleGitCommandCallback<List<RawCommit>>) {
         commandRunner.runCommand(command = GitCommand.Log()) { result ->
             if (result is GitResult.Success) {
-                val commits = GitCommand.Log.parse(result.lines)
-                callback((commits, result)
+                val commits = LogParser.parse(result.lines)
+                callback(commits, result)
             } else {
                 callback(null, result)
             }

@@ -1,4 +1,8 @@
-package org.littlegit.core.shell
+package org.littlegit.core.parser
+
+import org.littlegit.core.commandrunner.GitError
+import org.littlegit.core.commandrunner.GitResult
+import org.littlegit.core.shell.ShellResult
 
 object GitResultParser {
 

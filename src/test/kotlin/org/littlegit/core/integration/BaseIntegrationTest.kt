@@ -5,7 +5,7 @@ import org.junit.Rule
 import org.junit.rules.TemporaryFolder
 import org.littlegit.core.LittleGitCore
 
-open class IntegrationBaseTest {
+open class BaseIntegrationTest {
 
     @Rule
     @JvmField var testFolder = TemporaryFolder()

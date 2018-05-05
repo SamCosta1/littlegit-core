@@ -1,4 +1,7 @@
-package org.littlegit.core.shell
+package org.littlegit.core.commandrunner
+
+import org.littlegit.core.parser.GitResultParser
+import org.littlegit.core.shell.ShellRunner
 
 typealias GitCommandRunnerCallback = (GitResult) -> Unit
 
