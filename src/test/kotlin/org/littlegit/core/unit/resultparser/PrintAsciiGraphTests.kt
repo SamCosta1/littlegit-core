@@ -6,8 +6,8 @@ import org.littlegit.core.helper.LocalResourceFile
 import org.littlegit.core.parser.LogParser
 import org.littlegit.core.reader.AsciiGraph
 
-class PrintAsciiGraph {
-    @Rule val largeRepo = LocalResourceFile("largeRepo.txt")
+class PrintAsciiGraphTests {
+    @get:Rule val largeRepo = LocalResourceFile("largeRepo.txt")
 
     @Test fun printRepo() {
         val commits = LogParser.parse(largeRepo.content)

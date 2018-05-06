@@ -6,6 +6,6 @@ object AsciiGraph {
 
 
     fun getAsciiGraph(commits: List<RawCommit>, newlineDelimiter: String = System.getProperty("line.separator")): String {
-        
+        return ""
     }
 }
