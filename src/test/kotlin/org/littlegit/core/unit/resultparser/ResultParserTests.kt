@@ -2,7 +2,7 @@ package org.littlegit.core.unit.resultparser
 
 import junit.framework.TestCase.assertTrue
 import org.junit.Test
-import org.littlegit.core.commandrunner.GitError
+import org.littlegit.core.model.GitError
 import org.littlegit.core.commandrunner.GitResult
 import org.littlegit.core.parser.GitResultParser
 import org.littlegit.core.shell.ShellResult

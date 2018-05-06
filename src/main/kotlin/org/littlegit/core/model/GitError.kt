@@ -1,4 +1,4 @@
-package org.littlegit.core.commandrunner
+package org.littlegit.core.model
 
 sealed class GitError(val error: List<String>) {
 

@@ -1,5 +1,6 @@
 package org.littlegit.core.commandrunner
 
+import org.littlegit.core.model.GitError
 import org.littlegit.core.parser.GitResultParser
 import org.littlegit.core.shell.ShellRunner
 

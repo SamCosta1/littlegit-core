@@ -34,6 +34,10 @@ abstract class GitCommand {
         override val command: List<String> get() = if (global) listOf("git", "config", "--global", "user.email") else listOf("git", "config", "user.email")
     }
 
+    class Push(val remote: String? = null, val branch: String? = null): GitCommand() {
+        override val command: List<String> get() = listOf("git", "push") + if (remote != null && branch != null) listOf(remote, branch) else emptyList()
+    }
+
     class Log : GitCommand() {
         companion object {
             var deliminator = "@|@"

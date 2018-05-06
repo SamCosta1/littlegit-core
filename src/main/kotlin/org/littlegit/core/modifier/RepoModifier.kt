@@ -15,5 +15,10 @@ class RepoModifier(private val commandRunner: GitCommandRunner) {
         commandRunner.runCommand(command = GitCommand.Commit(message), callback = callback)
     }
 
+    fun push(remote: String? = null, branch: String? = null, callback: LittleGitCommandCallback<Unit>? = null) {
+        commandRunner.runCommand(command = GitCommand.Push(remote, branch)) {
+            callback?.invoke(null, it)
+        }
+    }
 
 }

@@ -1,6 +1,7 @@
 package org.littlegit.core.reader
 import org.littlegit.core.LittleGitCommandCallback
 import org.littlegit.core.commandrunner.*
+import org.littlegit.core.model.GitError
 import org.littlegit.core.model.RawCommit
 import org.littlegit.core.parser.LogParser
 
@@ -16,6 +17,7 @@ class RepoReader(private val commandRunner: GitCommandRunner) {
                 callback(null, result)
             }
         }
+
     }
 
     fun getFullCommitList(callback: LittleGitCommandCallback<List<RawCommit>>) {
@@ -30,7 +32,6 @@ class RepoReader(private val commandRunner: GitCommandRunner) {
     }
 
     fun isInitialized(callback: LittleGitCommandCallback<Boolean>) {
-
         commandRunner.runCommand(command = GitCommand.IsInitialized()) { result ->
 
             when (result) {
@@ -38,5 +39,25 @@ class RepoReader(private val commandRunner: GitCommandRunner) {
                 is GitResult.Error -> callback(if (result.err is GitError.NotARepo) false else null, result)
             }
         }
+    }
+
+    fun getAsciiGraph(callback: LittleGitCommandCallback<String>) {
+        getFullCommitList { commits, result ->
+            if (result is GitResult.Error || commits == null) {
+                callback(null, result)
+            } else {
+                callback(AsciiGraph.getAsciiGraph(commits), result)
+            }
+        }
+    }
+
+    fun printAsciiGraph() {
+       getAsciiGraph { graph, result ->
+           if (graph == null) {
+               println(result)
+           } else {
+               println(graph)
+           }
+       }
     }
 }
