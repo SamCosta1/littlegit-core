@@ -1,0 +1,8 @@
+37a117d046c4247ed70b323d67e8bed664f9ec0e@|@afc4d944687d13a5813a7df522d47eb5f058ab76 1361c652a6c25c6ba7f57a7e9c840c61b368e86b@|@HEAD -> refs/heads/feature/remotes, refs/remotes/origin/develop, refs/heads/develop@|@1525504241@|@samuel.dacosta@student.manchester.ac.uk@|@Merge branch 'feature/config' into develop
+1361c652a6c25c6ba7f57a7e9c840c61b368e86b@|@94f12ebe05c0b299c2c5a35457184e3002b49068@|@refs/remotes/origin/feature/config@|@1525504106@|@samuel.dacosta@student.manchester.ac.uk@|@Refactor packages
+94f12ebe05c0b299c2c5a35457184e3002b49068@|@c626ebf25b4f8a4bc80300db0dd69f6bdffa1066@|@@|@1525446296@|@samdc@apadmi.com@|@Ensure global is only used when specified
+c626ebf25b4f8a4bc80300db0dd69f6bdffa1066@|@a3cc7ed78c8ca8147ad4e46baec1858736b67403@|@@|@1525445342@|@samdc@apadmi.com@|@Add simple config tests
+a3cc7ed78c8ca8147ad4e46baec1858736b67403@|@5cc05fc7d26f6431860884766c5903375d773249@|@@|@1525443018@|@samdc@apadmi.com@|@Add config reading / writing
+5cc05fc7d26f6431860884766c5903375d773249@|@afc4d944687d13a5813a7df522d47eb5f058ab76@|@@|@1525426276@|@samdc@apadmi.com@|@Refactor Log parsing to use helper and tidy up the commands class
+afc4d944687d13a5813a7df522d47eb5f058ab76@|@3650d29fbb53cd5b94dd7694899a56e68d8ca4a2@|@@|@1525424440@|@samdc@apadmi.com@|@Add public method to get the raw commit list
+3650d29fbb53cd5b94dd7694899a56e68d8ca4a2@|@@|@@|@1525423960@|@samdc@apadmi.com@|@Add exception throwing into the parsing code

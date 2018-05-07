@@ -1,6 +1,7 @@
 package org.littlegit.core.util
 
-class Grid<T> {
+class Grid<T>: Iterable<MutableList<T?>> {
+
     private val grid: MutableList<MutableList<T?>> = ArrayList()
 
     fun set(row: Int, column: Int, entry: T) {
@@ -8,6 +9,15 @@ class Grid<T> {
         addColumnsIfNeeded(row, column)
 
         grid[row][column] = entry
+    }
+
+    fun row(index: Int): List<T?> {
+        if (index > grid.size) {
+            return emptyList()
+        }
+
+        return grid[index].toList()
+
     }
 
     private fun addColumnsIfNeeded(row: Int, column: Int) {
@@ -37,5 +47,9 @@ class Grid<T> {
         }
 
         return grid[row][column]
+    }
+
+    override fun iterator(): Iterator<MutableList<T?>> {
+        return grid.iterator()
     }
 }
