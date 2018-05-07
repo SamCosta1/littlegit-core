@@ -12,6 +12,8 @@ sealed class GridEntry {
     class Horizontal: GridEntry()
 }
 
+data class GridIndex(val row: Int, val column: Int)
+
 class GridGraph(commits: List<RawCommit>) {
 
     val grid = Grid<GridEntry>()
@@ -19,12 +21,14 @@ class GridGraph(commits: List<RawCommit>) {
     init {
         var nextFreeRow = 0
         val reservedColumns = BiMap<Int, CommitHash>()
+        val commitPositions = HashMap<RawCommit, GridIndex>()
 
         commits.forEach { commit ->
             val column = getColumn(reservedColumns, commit)
 
             val row = nextFreeRow++
 
+            commitPositions.put(commit)
             grid.set(row, column, GridEntry.Commit(commit))
 
             commit.parentHashes.forEach { parentHash ->
