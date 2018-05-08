@@ -34,4 +34,8 @@ class BiMap<Key, Value> {
         value?.let { valueKey.remove(it) }
         keys.remove(key)
     }
+
+    override fun toString(): String {
+        return keyValue.toString()
+    }
 }
