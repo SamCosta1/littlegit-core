@@ -28,6 +28,10 @@ class GridIndex(val row: Int, val column: Int) {
         result = 31 * result + column
         return result
     }
+
+    override fun toString(): String {
+        return "{ row: $row, column: $column }"
+    }
 }
 
 class Grid<T>: Iterable<MutableList<T?>> {

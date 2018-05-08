@@ -44,12 +44,13 @@ class GridGraph(graph: GitGraph) {
                 weakNode.get()?.let { node ->
                     commitPositions[node.commit]?.let { childPos ->
 
+                        println(childPos)
                         var currentPathIndex: GridIndex = commitPos
 
-                        while (!currentPathIndex.isAdjacentTo(commitPos)) {
+                        while (!currentPathIndex.isAdjacentTo(childPos)) {
                             if (currentPathIndex.column < childPos.column) {
-                                val northEast = commitPos.northEast
-                                val east = commitPos.east
+                                val northEast = currentPathIndex.northEast
+                                val east = currentPathIndex.east
 
                                 if (grid.get(northEast) == null) {
                                     grid.set(northEast, GridEntry.Right())
@@ -57,10 +58,12 @@ class GridGraph(graph: GitGraph) {
                                 } else if (grid.get(east) == null) {
                                     grid.set(east, GridEntry.Horizontal())
                                     currentPathIndex = east
+                                } else {
+                                    currentPathIndex = currentPathIndex.north
                                 }
                             } else if (currentPathIndex.column > childPos.column) {
-                                val northWest = commitPos.northWest
-                                val west = commitPos.west
+                                val northWest = currentPathIndex.northWest
+                                val west = currentPathIndex.west
 
                                 if (grid.get(northWest) == null) {
                                     grid.set(northWest, GridEntry.Left())
@@ -70,10 +73,12 @@ class GridGraph(graph: GitGraph) {
                                     currentPathIndex = west
                                 }
                             } else {
-                                val north = childPos.north
-                                if (grid.get(north) == null) {
+                                val north = currentPathIndex.north
+                                if (north.isPositive && grid.get(north) == null) {
                                     grid.set(north, GridEntry.Vertical())
                                     currentPathIndex = north
+                                } else {
+                                    break
                                 }
                             }
                         }
@@ -97,7 +102,7 @@ class GridGraph(graph: GitGraph) {
     private fun getNextFreeColumn(reservedColumns: BiMap<Int, CommitHash>): Int {
         var nextCol = 0
         while (reservedColumns.contains(nextCol)) {
-            nextCol += 3
+            nextCol += 2
         }
 
         return nextCol
