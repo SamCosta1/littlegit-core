@@ -28,7 +28,7 @@ class GridGraph(commits: List<RawCommit>) {
 
             val row = nextFreeRow++
 
-            commitPositions.put(commit)
+            commitPositions[commit] = GridIndex(row, column)
             grid.set(row, column, GridEntry.Commit(commit))
 
             commit.parentHashes.forEach { parentHash ->
