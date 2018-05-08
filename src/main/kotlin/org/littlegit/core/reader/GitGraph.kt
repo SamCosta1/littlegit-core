@@ -8,16 +8,12 @@ import java.lang.ref.WeakReference
 typealias WeakNode = WeakReference<GraphNode?>
 data class GraphNode(val commit: RawCommit, val children: MutableList<WeakNode> = mutableListOf(), val parents: MutableList<WeakNode> = mutableListOf())
 
-class GitGraph(commits: List<RawCommit>) {
+class GitGraph(private val commits: List<RawCommit>): Iterable<GraphNode> {
 
     private val nodes: MutableMap<CommitHash, GraphNode> = mutableMapOf()
     private val initialCommits = mutableListOf<WeakNode>() // Nodes without parents, usually only 1
     private val endingCommits = mutableListOf<WeakNode>() // Nodes without children i.e. the ends of unmerged branches
 
-    fun getInitialCommits() = initialCommits.toList()
-    fun getEndingCommits() = endingCommits.toList()
-    fun getNode(commit: RawCommit) = nodes[commit.hash]
-    fun getNode(hash: CommitHash) = nodes[hash]
 
     init {
         commits.forEach { commit ->
@@ -42,4 +38,23 @@ class GitGraph(commits: List<RawCommit>) {
             }
         }
     }
+
+    override fun iterator(): Iterator<GraphNode> {
+        return object: Iterator<GraphNode> {
+            private var nextIndex = 0
+            override fun hasNext(): Boolean {
+                return nextIndex < commits.size
+            }
+
+            override fun next(): GraphNode {
+                return nodes[commits[nextIndex++].hash]!!
+            }
+        }
+    }
+
+
+    fun getInitialCommits() = initialCommits.toList()
+    fun getEndingCommits() = endingCommits.toList()
+    fun getNode(commit: RawCommit) = nodes[commit.hash]
+    fun getNode(hash: CommitHash) = nodes[hash]
 }

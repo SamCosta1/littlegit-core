@@ -42,11 +42,11 @@ class RepoReader(private val commandRunner: GitCommandRunner) {
     }
 
     fun getAsciiGraph(callback: LittleGitCommandCallback<String>) {
-        getFullCommitList { commits, result ->
-            if (result is GitResult.Error || commits == null) {
+        getGraph { graph, result ->
+            if (result is GitResult.Error || graph == null) {
                 callback(null, result)
             } else {
-                callback(AsciiGraph.getAsciiGraph(commits), result)
+                callback(AsciiGraph.getAsciiGraph(graph), result)
             }
         }
     }

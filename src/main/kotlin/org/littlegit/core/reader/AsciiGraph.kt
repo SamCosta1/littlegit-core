@@ -5,8 +5,8 @@ import org.littlegit.core.model.RawCommit
 object AsciiGraph {
 
 
-    fun getAsciiGraph(commits: List<RawCommit>, newlineDelimiter: String = System.getProperty("line.separator")): String {
-        val grid = GridGraph(commits).grid
+    fun getAsciiGraph(graph: GitGraph, newlineDelimiter: String = System.getProperty("line.separator")): String {
+        val grid = GridGraph(graph).grid
 
         val builder = StringBuilder()
         grid.forEach { row ->
@@ -19,8 +19,9 @@ object AsciiGraph {
                         builder.append('*')
                     }
                     is GridEntry.Horizontal -> builder.append('-')
-                    is GridEntry.Left -> builder.append('/')
-                    is GridEntry.Right -> builder.append('\\')
+                    is GridEntry.Left -> builder.append('\\')
+                    is GridEntry.Right -> builder.append('/')
+                    is GridEntry.Vertical -> builder.append('|')
                 else -> builder.append(" ")
                 }
 

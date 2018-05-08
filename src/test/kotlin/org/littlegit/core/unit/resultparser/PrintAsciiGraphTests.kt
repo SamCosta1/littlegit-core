@@ -5,6 +5,7 @@ import org.junit.Test
 import org.littlegit.core.helper.LocalResourceFile
 import org.littlegit.core.parser.LogParser
 import org.littlegit.core.reader.AsciiGraph
+import org.littlegit.core.reader.GitGraph
 
 class PrintAsciiGraphTests {
     @get:Rule val largeRepo = LocalResourceFile("largeRepo.txt")
@@ -12,6 +13,6 @@ class PrintAsciiGraphTests {
 
     @Test fun printRepo() {
         val commits = LogParser.parse(largeRepo.content)
-        println(AsciiGraph.getAsciiGraph(commits))
+        println(AsciiGraph.getAsciiGraph(GitGraph(commits)))
     }
 }
