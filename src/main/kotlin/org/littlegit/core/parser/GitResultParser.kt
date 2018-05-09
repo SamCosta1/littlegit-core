@@ -44,6 +44,14 @@ object GitResultParser {
             return GitResult.Error(GitError.CannotReadRemote(lines))
         }
 
+        if (lines.first().startsWith("fatal:") && lines.first().endsWith("is not a valid remote name")) {
+            return GitResult.Error(GitError.InvalidRemoteName(lines))
+        }
+
+        if (lines.first().startsWith("fatal: remote") && lines.first().endsWith("already exists.")) {
+            return GitResult.Error(GitError.RemoteAlreadyExists(lines))
+        }
+
         return GitResult.Error(GitError.Unknown(lines))
     }
 

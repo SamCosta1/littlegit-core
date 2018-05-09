@@ -13,7 +13,7 @@ open class BaseIntegrationTest {
     lateinit var littleGit: LittleGitCore
 
     @Before
-    fun setup() {
+    open fun setup() {
         littleGit = LittleGitCore(testFolder.root.path)
     }
 }

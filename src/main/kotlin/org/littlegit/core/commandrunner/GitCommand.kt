@@ -38,13 +38,21 @@ abstract class GitCommand {
         override val command: List<String> get() = listOf("git", "push") + if (remote != null && branch != null) listOf(remote, branch) else emptyList()
     }
 
+    class PushSetUpstream(val remote: String, val branch: String): GitCommand() {
+        override val command: List<String> get() = listOf("git", "push", "-u", remote, branch)
+    }
+
+    class AddRemote(val name: String = "origin", val url: String): GitCommand() {
+        override val command: List<String> get() = listOf("git", "remote", "add", name, url)
+    }
+
     class Log : GitCommand() {
         companion object {
             var deliminator = "@|@"
-            //             | RawCommit hash | Parent Hashes | Refs |   Timestamp  | committer email | Subject line of message
-            var format = "%H${deliminator}%P${deliminator}%D${deliminator}%ct${deliminator}%ce${deliminator}%s"
+            //     | RawCommit hash | Parent Hashes | Refs |   Timestamp  | committer email | Subject line of message
+            var format = "%H$deliminator%P$deliminator%D$deliminator%ct$deliminator%ce$deliminator%s"
         }
 
-        override val command: List<String> get() = listOf("git", "log", "--all", "--decorate=full", "--format=${format}")
+        override val command: List<String> get() = listOf("git", "log", "--all", "--decorate=full", "--format=$format")
     }
 }

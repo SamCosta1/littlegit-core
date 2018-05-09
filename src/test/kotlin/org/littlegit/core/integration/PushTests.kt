@@ -1,5 +1,6 @@
 package org.littlegit.core.integration
 
+import com.sun.javaws.exceptions.InvalidArgumentException
 import junit.framework.TestCase.assertTrue
 import org.junit.Test
 import org.littlegit.core.commandrunner.GitResult
@@ -14,6 +15,13 @@ class PushTests: BaseIntegrationTest() {
             assertTrue("Result is error", result is GitResult.Error)
             assertTrue("Result error is no remote", (result as GitResult.Error).err is GitError.NoRemote)
         }
+    }
+
+    @Test(expected = InvalidArgumentException::class)
+    fun testInvalidArgument() {
+        TestCommandHelper(testFolder.root).init()
+
+        littleGit.repoModifier.push(null, "", true)
     }
 
 }
