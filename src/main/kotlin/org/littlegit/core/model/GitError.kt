@@ -10,5 +10,6 @@ sealed class GitError(val error: List<String>) {
     data class NothingToCommit(private val err: List<String>): GitError(err)
     data class NoRemote(private val err: List<String>): GitError(err)
     data class NoUpstreamBranch(private val err: List<String>): GitError(err)
+    data class CannotReadRemote(private val err: List<String>): GitError(err)
 
 }

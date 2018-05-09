@@ -32,8 +32,16 @@ object GitResultParser {
             return GitResult.Error(GitError.NoRemote(lines))
         }
 
-        if (lines.first().startsWith("fatal: The current branch") && lines.last().endsWith("has no upstream branch")) {
+        if (lines.first().startsWith("fatal: The current branch") && lines.first().endsWith("has no upstream branch.")) {
             return GitResult.Error(GitError.NoUpstreamBranch(lines))
+        }
+
+        if (lines.first().startsWith("fatal: unable to access") && lines.first().contains("Could not resolve host")) {
+            return GitResult.Error(GitError.CannotReadRemote(lines))
+        }
+
+        if (lines.size > 1 && lines[1].startsWith("fatal: Could not read from remote repository.")) {
+            return GitResult.Error(GitError.CannotReadRemote(lines))
         }
 
         return GitResult.Error(GitError.Unknown(lines))
