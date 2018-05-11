@@ -4,6 +4,8 @@ import org.littlegit.core.commandrunner.*
 import org.littlegit.core.model.GitError
 import org.littlegit.core.model.RawCommit
 import org.littlegit.core.parser.LogParser
+import org.littlegit.core.parser.Remote
+import org.littlegit.core.parser.RemoteParser
 
 class RepoReader(private val commandRunner: GitCommandRunner) {
 
@@ -17,7 +19,18 @@ class RepoReader(private val commandRunner: GitCommandRunner) {
                 callback(null, result)
             }
         }
+    }
 
+    fun getRemotes(callback: LittleGitCommandCallback<List<Remote>>) {
+        commandRunner.runCommand(command = GitCommand.ListRemotes()) { result ->
+
+            if (result is GitResult.Success) {
+                val remotes = RemoteParser.parse(result.lines)
+                callback(remotes, result)
+            } else {
+                callback(null, result)
+            }
+        }
     }
 
     fun getFullCommitList(callback: LittleGitCommandCallback<List<RawCommit>>) {

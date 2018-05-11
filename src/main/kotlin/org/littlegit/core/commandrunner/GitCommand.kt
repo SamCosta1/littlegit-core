@@ -46,6 +46,10 @@ abstract class GitCommand {
         override val command: List<String> get() = listOf("git", "remote", "add", name, url)
     }
 
+    class ListRemotes : GitCommand() {
+        override val command: List<String> get() = listOf("git", "remote", "-vv")
+    }
+
     class Log : GitCommand() {
         companion object {
             var deliminator = "@|@"
@@ -55,4 +59,6 @@ abstract class GitCommand {
 
         override val command: List<String> get() = listOf("git", "log", "--all", "--decorate=full", "--format=$format")
     }
+
+
 }

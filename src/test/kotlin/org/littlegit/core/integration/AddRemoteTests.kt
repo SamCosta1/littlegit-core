@@ -1,5 +1,6 @@
 package org.littlegit.core.integration
 
+import junit.framework.TestCase.assertEquals
 import junit.framework.TestCase.assertTrue
 import org.junit.Test
 import org.littlegit.core.commandrunner.GitResult
@@ -13,8 +14,18 @@ class AddRemoteTests: BaseIntegrationTest() {
     }
 
     @Test fun validAddRemoteTest() {
-        littleGit.repoModifier.addRemote("origin", "www.remote.com") { _, result ->
+        val remoteName = "origin"
+        val remoteUrl = "www.remote.com"
+        littleGit.repoModifier.addRemote("origin", remoteUrl) { _, result ->
             assertTrue("Adding remote was successful", result is GitResult.Success)
+
+            littleGit.repoReader.getRemotes { remotes, res->
+                assertTrue("Getting remotes was successful", res is GitResult.Success)
+                assertTrue("One remote found", remotes?.size == 1)
+                assertEquals("name correct", remotes?.get(0)?.remoteName, remoteName)
+                assertEquals("push url correct", remotes?.get(0)?.pushUrl, remoteUrl)
+                assertEquals("fetch url correct", remotes?.get(0)?.fetchUrl, remoteUrl)
+            }
         }
     }
 
