@@ -13,4 +13,5 @@ sealed class GitError(val error: List<String>) {
     data class CannotReadRemote(private val err: List<String>): GitError(err)
     data class InvalidRemoteName(private val err: List<String>): GitError(err)
     data class RemoteAlreadyExists(private val err: List<String>): GitError(err)
+    data class FileNotInIndex(private val err: List<String>, val fileExistsOnDisk: Boolean): GitError(err)
 }

@@ -2,6 +2,7 @@ package org.littlegit.core.reader
 import org.littlegit.core.LittleGitCommandCallback
 import org.littlegit.core.commandrunner.*
 import org.littlegit.core.model.GitError
+import org.littlegit.core.model.LittleGitFile
 import org.littlegit.core.model.RawCommit
 import org.littlegit.core.parser.LogParser
 import org.littlegit.core.parser.Remote
@@ -72,5 +73,15 @@ class RepoReader(private val commandRunner: GitCommandRunner) {
                println(graph)
            }
        }
+    }
+
+    fun getFile(ref: String = "", file: String, callback: LittleGitCommandCallback<LittleGitFile>) {
+        commandRunner.runCommand(command = GitCommand.ShowFile(ref, file)) { result ->
+
+            when (result) {
+                is GitResult.Success -> callback(LittleGitFile(result.lines, file), result)
+                is GitResult.Error -> callback(null, result)
+            }
+        }
     }
 }
