@@ -1,6 +1,5 @@
 package org.littlegit.core.integration
 
-import com.sun.javaws.exceptions.InvalidArgumentException
 import junit.framework.TestCase.assertTrue
 import org.junit.Test
 import org.littlegit.core.commandrunner.GitResult
@@ -17,7 +16,7 @@ class PushTests: BaseIntegrationTest() {
         }
     }
 
-    @Test(expected = InvalidArgumentException::class)
+    @Test(expected = IllegalArgumentException::class)
     fun testInvalidArgument() {
         TestCommandHelper(testFolder.root).init()
 

@@ -1,5 +1,4 @@
 package org.littlegit.core.modifier
-import com.sun.javaws.exceptions.InvalidArgumentException
 import org.littlegit.core.LittleGitCommandCallback
 import org.littlegit.core.commandrunner.GitCommand
 import org.littlegit.core.commandrunner.GitCommandRunner
@@ -18,7 +17,8 @@ class RepoModifier(private val commandRunner: GitCommandRunner) {
 
     fun push(remote: String? = null, branch: String? = null, setUpstream: Boolean = false, callback: LittleGitCommandCallback<Unit>? = null) {
         if (setUpstream && ( branch.isNullOrBlank() || remote.isNullOrBlank() )) {
-            throw InvalidArgumentException(arrayOf("Remote and branch must be non empty when setting upstream"))
+
+            throw IllegalArgumentException("Remote and branch must be non empty when setting upstream")
         }
 
         val command = if (setUpstream) {
