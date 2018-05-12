@@ -17,7 +17,6 @@ class RepoModifier(private val commandRunner: GitCommandRunner) {
 
     fun push(remote: String? = null, branch: String? = null, setUpstream: Boolean = false, callback: LittleGitCommandCallback<Unit>? = null) {
         if (setUpstream && ( branch.isNullOrBlank() || remote.isNullOrBlank() )) {
-
             throw IllegalArgumentException("Remote and branch must be non empty when setting upstream")
         }
 
