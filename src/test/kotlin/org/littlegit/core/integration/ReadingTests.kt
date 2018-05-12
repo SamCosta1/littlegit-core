@@ -4,6 +4,7 @@ import org.junit.Test
 
 class ReadingTests: BaseIntegrationTest() {
 
+
     @Test fun test() {
 
         littleGit.repoReader.getGraph { gitGraph, gitResult ->

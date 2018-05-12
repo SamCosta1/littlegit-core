@@ -1,4 +1,4 @@
-package org.littlegit.core.commandrunner
+package org.littlegit.core.model
 
 sealed class GitError(val error: List<String>) {
 
@@ -10,5 +10,7 @@ sealed class GitError(val error: List<String>) {
     data class NothingToCommit(private val err: List<String>): GitError(err)
     data class NoRemote(private val err: List<String>): GitError(err)
     data class NoUpstreamBranch(private val err: List<String>): GitError(err)
-
+    data class CannotReadRemote(private val err: List<String>): GitError(err)
+    data class InvalidRemoteName(private val err: List<String>): GitError(err)
+    data class RemoteAlreadyExists(private val err: List<String>): GitError(err)
 }

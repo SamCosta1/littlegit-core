@@ -23,6 +23,11 @@ class TestCommandHelper(private val file: File) {
         return this
     }
 
+    fun addRemote(remote: String, url: String = "www.remote.com"): TestCommandHelper {
+        execute("git remote add $remote $url")
+        return this
+    }
+
     fun getLastCommitMessage(): String {
         return execute("git log -1 --pretty=%B")
     }

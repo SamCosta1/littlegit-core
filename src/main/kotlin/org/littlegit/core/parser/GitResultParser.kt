@@ -1,6 +1,6 @@
 package org.littlegit.core.parser
 
-import org.littlegit.core.commandrunner.GitError
+import org.littlegit.core.model.GitError
 import org.littlegit.core.commandrunner.GitResult
 import org.littlegit.core.shell.ShellResult
 
@@ -32,8 +32,24 @@ object GitResultParser {
             return GitResult.Error(GitError.NoRemote(lines))
         }
 
-        if (lines.first().startsWith("fatal: The current branch") && lines.last().endsWith("has no upstream branch")) {
+        if (lines.first().startsWith("fatal: The current branch") && lines.first().endsWith("has no upstream branch.")) {
             return GitResult.Error(GitError.NoUpstreamBranch(lines))
+        }
+
+        if (lines.first().startsWith("fatal: unable to access") && lines.first().contains("Could not resolve host")) {
+            return GitResult.Error(GitError.CannotReadRemote(lines))
+        }
+
+        if (lines.size > 1 && lines[1].startsWith("fatal: Could not read from remote repository.")) {
+            return GitResult.Error(GitError.CannotReadRemote(lines))
+        }
+
+        if (lines.first().startsWith("fatal:") && lines.first().endsWith("is not a valid remote name")) {
+            return GitResult.Error(GitError.InvalidRemoteName(lines))
+        }
+
+        if (lines.first().startsWith("fatal: remote") && lines.first().endsWith("already exists.")) {
+            return GitResult.Error(GitError.RemoteAlreadyExists(lines))
         }
 
         return GitResult.Error(GitError.Unknown(lines))
