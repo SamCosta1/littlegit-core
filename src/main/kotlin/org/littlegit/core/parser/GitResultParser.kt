@@ -43,6 +43,14 @@ object GitResultParser {
         if (lines.size > 1 && lines[1].startsWith("fatal: Could not read from remote repository.")) {
             return GitResult.Error(GitError.CannotReadRemote(lines))
         }
+        
+        if (lines.first().startsWith("fatal: Path ") && lines.first().endsWith("exists on disk, but not in the index.")) {
+            return GitResult.Error(GitError.FileNotInIndex(lines, true))
+        }
+
+        if (lines.first().startsWith("fatal: Path ") && lines.first().endsWith("does not exist (neither on disk nor in the index).")) {
+            return GitResult.Error(GitError.FileNotInIndex(lines, false))
+        }
 
         if (lines.first().startsWith("fatal:") && lines.first().endsWith("is not a valid remote name")) {
             return GitResult.Error(GitError.InvalidRemoteName(lines))

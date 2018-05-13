@@ -3,7 +3,9 @@ package org.littlegit.core.integration
 import java.io.File
 import java.io.InputStreamReader
 import java.io.BufferedReader
-
+import java.nio.charset.Charset
+import java.nio.file.Files
+import java.nio.file.Paths
 
 
 class TestCommandHelper(private val file: File) {
@@ -19,7 +21,7 @@ class TestCommandHelper(private val file: File) {
     }
 
     fun addAll(): TestCommandHelper {
-        execute("git add *")
+        execute("git add .")
         return this
     }
 
@@ -32,8 +34,14 @@ class TestCommandHelper(private val file: File) {
         return execute("git log -1 --pretty=%B")
     }
 
-    private fun execute(command: String): String {
+    fun writeToFile(file: String, content: String): TestCommandHelper {
 
+        val path = Paths.get("${this.file.absolutePath}/$file")
+        Files.write(path, listOf(content), Charset.forName("UTF-8"))
+        return this
+    }
+
+    fun execute(command: String): String {
         val output = StringBuffer()
 
         val p: Process
@@ -41,8 +49,16 @@ class TestCommandHelper(private val file: File) {
             p = Runtime.getRuntime().exec(command, emptyArray(), file)
             p.waitFor()
             val reader = BufferedReader(InputStreamReader(p.inputStream))
+            val error = BufferedReader(InputStreamReader(p.errorStream))
 
             var line: String? = ""
+            do {
+                line = error.readLine()
+                if (line != null && line.isNotBlank()) {
+                    println(line)
+                }
+            } while (line != null)
+
             do {
                 line = reader.readLine()
 
@@ -57,5 +73,10 @@ class TestCommandHelper(private val file: File) {
         }
 
         return output.toString().trim()
+    }
+
+    fun branchAndCheckout(branch: String): TestCommandHelper {
+        execute("git checkout -b $branch")
+        return this
     }
 }

@@ -6,6 +6,10 @@ abstract class GitCommand {
 
     abstract val command: List<String>
 
+    class ShowFile(val ref: String, val filePath: String): GitCommand() {
+        override val command: List<String> get() = listOf("git", "show", "$ref:$filePath")
+    }
+    
     class IsInitialized : GitCommand() {
         override val command: List<String> get() = listOf("git", "rev-parse", "--is-inside-work-tree")
     }

@@ -23,6 +23,4 @@ class PushTests: BaseIntegrationTest() {
 
         littleGit.repoModifier.push(null, "", true)
     }
-
-
 }
