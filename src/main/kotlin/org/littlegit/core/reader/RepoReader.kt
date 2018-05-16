@@ -1,9 +1,11 @@
 package org.littlegit.core.reader
 import org.littlegit.core.LittleGitCommandCallback
 import org.littlegit.core.commandrunner.*
+import org.littlegit.core.model.FullCommit
 import org.littlegit.core.model.GitError
 import org.littlegit.core.model.LittleGitFile
 import org.littlegit.core.model.RawCommit
+import org.littlegit.core.parser.FullCommitParser
 import org.littlegit.core.parser.LogParser
 import org.littlegit.core.parser.Remote
 import org.littlegit.core.parser.RemoteParser
@@ -82,6 +84,19 @@ class RepoReader(private val commandRunner: GitCommandRunner) {
                 is GitResult.Success -> callback(LittleGitFile(result.lines, file), result)
                 is GitResult.Error -> callback(null, result)
             }
+        }
+    }
+
+    fun getFullCommit(commit: RawCommit, callback: LittleGitCommandCallback<FullCommit>) = getFullCommit(commit.hash, callback)
+
+    fun getFullCommit(commit: CommitHash, callback: LittleGitCommandCallback<FullCommit>) {
+        commandRunner.runCommand(command = GitCommand.FullCommit(commit)) { result ->
+
+            when (result) {
+                is GitResult.Success -> callback(FullCommitParser.parse(result.lines), result)
+                is GitResult.Error -> callback(null, result)
+            }
+
         }
     }
 }
