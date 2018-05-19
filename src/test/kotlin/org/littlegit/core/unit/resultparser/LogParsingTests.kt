@@ -109,6 +109,7 @@ class LogParsingTests {
                                 "samdc@apadmi.com",
                                 "Merge branch 'feature'", true))
 
+
         parsed.forEachIndexed { index, rawCommit ->
             assertTrue("Commit is as expected", rawCommit == correct[index])
         }

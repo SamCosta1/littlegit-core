@@ -64,7 +64,7 @@ object GitResultParser {
     }
 
     private fun parseSuccessResult(successResult: ShellResult.Success): GitResult {
-        val lines = cleanLines(successResult.lines.toMutableList())
+        val lines = successResult.lines.toMutableList()
 
         if (lines.isNotEmpty()) {
             val lastLine = lines.last()

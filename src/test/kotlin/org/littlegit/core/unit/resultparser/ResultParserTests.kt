@@ -84,12 +84,4 @@ class ResultParserTests {
         assertTrue("lines are empty", error.err.error.isEmpty())
     }
 
-    @Test
-    fun testBlankLinesSuccess() {
-        val parsedResult = GitResultParser.parseShellResult(ShellResult.Success(listOf("   ", "", " ")))
-        assertTrue("Result result is success",  parsedResult is GitResult.Success)
-
-        val success = parsedResult as GitResult.Success
-        assertTrue("lines are empty", success.lines.isEmpty())
-    }
 }

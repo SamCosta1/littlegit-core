@@ -43,7 +43,7 @@ class ShellRunner {
         do {
             line = stdInput.readLine()
 
-            if (line != null && line.isNotBlank()) {
+            if (line != null) {
                 lines.add(line)
             }
         } while (line != null)

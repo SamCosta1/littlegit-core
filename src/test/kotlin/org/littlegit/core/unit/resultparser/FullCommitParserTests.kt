@@ -1,14 +1,15 @@
 package org.littlegit.core.unit.resultparser
 
+import org.junit.Rule
 import org.junit.Test
-import org.littlegit.core.integration.BaseIntegrationTest
-import org.littlegit.core.integration.TestCommandHelper
-import org.littlegit.core.shell.ShellResult
-import org.littlegit.core.shell.ShellRunner
+import org.littlegit.core.helper.LocalResourceFile
+import org.littlegit.core.parser.FullCommitParser
 
-class FullCommitParserTests: BaseIntegrationTest() {
+class FullCommitParserTests {
 
-    @Test fun test() {
-        TestCommandHelper(testFolder.root).init()
+    @get:Rule val fileCreated = LocalResourceFile("full-commit-create-one-file.txt")
+
+    @Test fun testFileCreated() {
+        FullCommitParser.parse(fileCreated.content)
     }
 }
