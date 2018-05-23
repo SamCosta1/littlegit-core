@@ -1,6 +1,6 @@
 package org.littlegit.core.unit.resultparser
 
-import junit.framework.Assert.assertTrue
+import junit.framework.TestCase.assertTrue
 import org.junit.Test
 import org.littlegit.core.model.RawCommit
 import org.littlegit.core.commandrunner.InvalidCommitException

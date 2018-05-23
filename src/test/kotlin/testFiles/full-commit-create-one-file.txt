@@ -1,8 +1,8 @@
-cd8a91b9dcaa85d993246bd408905650d464bfa5@|@d4ae6cdcba391e3c9f43dd9a5629427af5445911@|@HEAD -> refs/heads/master@|@1526744367@|@samuel.dacosta@student.manchester.ac.uk@|@This is a commit message On branch master Changes to be committed: 	new file:   helloWorld.txt
+cd8a91b9dcaa85d993246bd408905650d464bfa5@|@d4ae6cdcba391e3c9f43dd9a5629427af5445911@|@HEAD -> refs/heads/master@|@1526744367@|@samuel.dacosta@student.manchester.ac.uk@|@Commit subject
 This is a commit message
 On branch master
 Changes to be committed:
-	new file:   helloWorld.txt
+new file:   helloWorld.txt
 
 
 diff --git a/helloWorld.txt b/helloWorld.txt
