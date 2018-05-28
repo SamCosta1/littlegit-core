@@ -11,58 +11,44 @@ import org.littlegit.core.parser.RemoteParser
 class RepoReader(private val commandRunner: GitCommandRunner) {
 
     fun getGraph(callback: LittleGitCommandCallback<GitGraph>) {
-        commandRunner.runCommand(command = GitCommand.Log()) { result ->
-
-            if (result is GitResult.Success) {
-                val commits = LogParser.parse(result.lines)
-                callback(GitGraph(commits), result)
-            } else {
-                callback(null, result)
-            }
+        val resultProcessor = { result: GitResult.Success ->
+            val commits = LogParser.parse(result.lines)
+            GitGraph(commits)
         }
+
+        commandRunner.runCommand(command = GitCommand.Log(), resultProcessor = resultProcessor, callback = callback)
     }
 
     fun getRemotes(callback: LittleGitCommandCallback<List<Remote>>) {
-        commandRunner.runCommand(command = GitCommand.ListRemotes()) { result ->
-
-            if (result is GitResult.Success) {
-                val remotes = RemoteParser.parse(result.lines)
-                callback(remotes, result)
-            } else {
-                callback(null, result)
-            }
-        }
+        val resultProcessor = { result: GitResult.Success -> RemoteParser.parse(result.lines) }
+        commandRunner.runCommand(command = GitCommand.ListRemotes(), resultProcessor = resultProcessor, callback = callback)
     }
 
     fun getFullCommitList(callback: LittleGitCommandCallback<List<RawCommit>>) {
-        commandRunner.runCommand(command = GitCommand.Log()) { result ->
-            if (result is GitResult.Success) {
-                val commits = LogParser.parse(result.lines)
-                callback(commits, result)
-            } else {
-                callback(null, result)
-            }
-        }
+        val resultProcessor = { result: GitResult.Success -> LogParser.parse(result.lines) }
+
+        commandRunner.runCommand(command = GitCommand.Log(), resultProcessor = resultProcessor, callback = callback)
     }
 
     fun isInitialized(callback: LittleGitCommandCallback<Boolean>) {
-        commandRunner.runCommand(command = GitCommand.IsInitialized()) { result ->
+        val resultProcessor = { result: GitResult.Success -> result.lines[0] == "true" }
 
-            when (result) {
-                is GitResult.Success -> callback(result.lines[0] == "true", result)
-                is GitResult.Error -> callback(if (result.err is GitError.NotARepo) false else null, result)
+        commandRunner.runCommand(command = GitCommand.IsInitialized(), resultProcessor = resultProcessor) { initialized, gitResult ->
+            if (gitResult is GitResult.Error && gitResult.err is GitError.NotARepo) {
+                callback(false, gitResult)
+            } else {
+                callback(initialized, gitResult)
             }
         }
     }
 
     fun getAsciiGraph(callback: LittleGitCommandCallback<String>) {
-        getFullCommitList { commits, result ->
-            if (result is GitResult.Error || commits == null) {
-                callback(null, result)
-            } else {
-                callback(AsciiGraph.getAsciiGraph(commits), result)
-            }
+        val resultProcessor = { result: GitResult.Success ->
+            val commits = LogParser.parse(result.lines)
+            AsciiGraph.getAsciiGraph(commits)
         }
+
+        commandRunner.runCommand(command = GitCommand.Log(), resultProcessor = resultProcessor, callback = callback)
     }
 
     fun printAsciiGraph() {
@@ -76,12 +62,7 @@ class RepoReader(private val commandRunner: GitCommandRunner) {
     }
 
     fun getFile(ref: String = "", file: String, callback: LittleGitCommandCallback<LittleGitFile>) {
-        commandRunner.runCommand(command = GitCommand.ShowFile(ref, file)) { result ->
-
-            when (result) {
-                is GitResult.Success -> callback(LittleGitFile(result.lines, file), result)
-                is GitResult.Error -> callback(null, result)
-            }
-        }
+        val resultProcessor = { result: GitResult.Success -> LittleGitFile(result.lines, file) }
+        commandRunner.runCommand(command = GitCommand.ShowFile(ref, file), resultProcessor = resultProcessor, callback = callback);
     }
 }
