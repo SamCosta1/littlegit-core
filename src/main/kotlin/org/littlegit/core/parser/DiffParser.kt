@@ -76,6 +76,9 @@ object DiffParser {
                     line.startsWith("-") -> {
                         DiffLine(DiffLineType.Deletion, fromLineNum = fromLineNumber++, line = line.removePrefix("-"))
                     }
+                    line.startsWith("\\ No newline at end of file") -> {
+                        DiffLine(DiffLineType.NoNewLineAtEndOfFile, line = line)
+                    }
                     else -> {
                         DiffLine(DiffLineType.Unchanged, fromLineNum = fromLineNumber++, toLineNum = toLineNumber++, line = line.removePrefix(" "))
                     }

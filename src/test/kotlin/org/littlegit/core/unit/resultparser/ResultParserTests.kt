@@ -11,13 +11,13 @@ import org.littlegit.core.shell.ShellResult
 
 class ResultParserTests {
 
-    @get:Rule val localChangesError = LocalResourceFile("err-local-changes.txt")
-    @get:Rule val notARepoError = LocalResourceFile("err-not-a-repo.txt")
-    @get:Rule val nothingToCommit = LocalResourceFile("err-nothing-to-commit.txt")
-    @get:Rule val noRemoteError = LocalResourceFile("err-no-remote.txt")
-    @get:Rule val noUpstreamError = LocalResourceFile("err-no-upstream.txt")
-    @get:Rule val cannotReadRemoteError = LocalResourceFile("err-cannot-read-remote.txt")
-    @get:Rule val cannotReadRemoteHttpError = LocalResourceFile("err-cannot-read-remote-http.txt")
+    @get:Rule val localChangesError = LocalResourceFile("err/err-local-changes.txt")
+    @get:Rule val notARepoError = LocalResourceFile("err/err-not-a-repo.txt")
+    @get:Rule val nothingToCommit = LocalResourceFile("err/err-nothing-to-commit.txt")
+    @get:Rule val noRemoteError = LocalResourceFile("err/err-no-remote.txt")
+    @get:Rule val noUpstreamError = LocalResourceFile("err/err-no-upstream.txt")
+    @get:Rule val cannotReadRemoteError = LocalResourceFile("err/err-cannot-read-remote.txt")
+    @get:Rule val cannotReadRemoteHttpError = LocalResourceFile("err/err-cannot-read-remote-http.txt")
 
     @Test fun testLocalChangesWouldBeOverwritten() {
         val parsedResult = GitResultParser.parseShellResult(ShellResult.Error(localChangesError.content))

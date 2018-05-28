@@ -3,7 +3,8 @@ package org.littlegit.core.model
 enum class DiffLineType {
     Addition,
     Deletion,
-    Unchanged
+    Unchanged,
+    NoNewLineAtEndOfFile
 }
 
 // When type is unchanged, fromLineNum = toLineNum
