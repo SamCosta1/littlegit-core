@@ -9,6 +9,7 @@ class FullCommit(hash: String,
                  committerEmail: String,
                  commitSubject: String,
                  isHead: Boolean,
+                 val diff: Diff,
                  val commitBody: String)
     : RawCommit(hash,
         refs,
@@ -20,8 +21,8 @@ class FullCommit(hash: String,
 
 
     companion object {
-        fun from(raw: RawCommit, commitBody: List<String>): FullCommit {
-            return FullCommit(raw.hash, raw.refs, raw.parentHashes, raw.date, raw.committerEmail, raw.commitSubject, raw.isHead, commitBody.joinWithNewLines())
+        fun from(raw: RawCommit, diff: Diff, commitBody: List<String>): FullCommit {
+            return FullCommit(raw.hash, raw.refs, raw.parentHashes, raw.date, raw.committerEmail, raw.commitSubject, raw.isHead, diff, commitBody.joinWithNewLines())
         }
     }
 
@@ -32,9 +33,7 @@ class FullCommit(hash: String,
 
         other as FullCommit
 
-        if (commitBody != other.commitBody) return false
-
-        return true
+        return commitBody == other.commitBody && diff == other.diff
     }
 
     override fun hashCode(): Int {
@@ -42,4 +41,7 @@ class FullCommit(hash: String,
         result = 31 * result + commitBody.hashCode()
         return result
     }
+
+    override fun toString(): String = "FullCommit(${super.toString()} diff=$diff, commitBody='$commitBody')"
+
 }

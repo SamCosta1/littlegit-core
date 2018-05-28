@@ -38,4 +38,8 @@ open class RawCommit(
         result = 31 * result + isHead.hashCode()
         return result
     }
+
+    override fun toString(): String {
+        return "RawCommit(hash='$hash', refs=$refs, parentHashes=$parentHashes, date=$date, committerEmail='$committerEmail', commitSubject='$commitSubject', isHead=$isHead)"
+    }
 }

@@ -1,10 +1,12 @@
 package org.littlegit.core.model
 
-data class Diff(val files: List<FileDiff>)
+data class Diff(val fileDiffs: List<FileDiff>)
 
-sealed class FileDiff(val hunks: List<Hunk>)
+interface FileDiff {
+    val hunks: List<Hunk>
+}
 
-class NewFile(val filePath: String, hunk: List<Hunk>) : FileDiff(hunk)
-class DeletedFile(val filePath: String, hunk: List<Hunk>) : FileDiff(hunk)
-class RenamedFile(val originalPath: String, val newPath: String, hunk: List<Hunk>) : FileDiff(hunk)
-class ChangedFile(val filePath: String, hunks: List<Hunk>): FileDiff(hunks)
+data class NewFile(val filePath: String, override val hunks: List<Hunk>) : FileDiff
+data class DeletedFile(val filePath: String, override val hunks: List<Hunk>) : FileDiff
+data class RenamedFile(val originalPath: String, val newPath: String, override val hunks: List<Hunk>) : FileDiff
+data class ChangedFile(val filePath: String, override val hunks: List<Hunk>) : FileDiff
