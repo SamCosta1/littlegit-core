@@ -14,25 +14,24 @@ class CommitTests: BaseIntegrationTest() {
         testFolder.newFile("testFile")
         val commandHelper = TestCommandHelper(testFolder.root).init().addAll()
 
-        littleGit.repoModifier.commit(commitMessage) {
+        littleGit.repoModifier.commit(commitMessage) { _, result ->
 
-            assertTrue("Result was a success", it is GitResult.Success)
+            assertTrue("Result was a success", result is GitResult.Success)
             assertTrue("RawCommit message is as expected", commandHelper.getLastCommitMessage() == commitMessage)
         }
     }
 
     @Test fun testCommitBeforeInit() {
-        littleGit.repoModifier.commit("msg") {
-            assertTrue("RawCommit rejected", it is GitResult.Error && it.err is GitError.NotARepo)
+        littleGit.repoModifier.commit("msg") { _, result ->
+            assertTrue("RawCommit rejected", result is GitResult.Error && result.err is GitError.NotARepo)
         }
     }
 
     @Test fun testCommitAfterInitBeforeAdd() {
         TestCommandHelper(testFolder.root).init()
 
-        littleGit.repoModifier.commit("msg") {
-            print(it)
-            assertTrue("RawCommit rejected", it is GitResult.Error && it.err is GitError.NothingToCommit)
+        littleGit.repoModifier.commit("msg") { _, result ->
+            assertTrue("RawCommit rejected", result is GitResult.Error && result.err is GitError.NothingToCommit)
         }
     }
 }

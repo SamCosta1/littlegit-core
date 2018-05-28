@@ -2,16 +2,15 @@ package org.littlegit.core.modifier
 import org.littlegit.core.LittleGitCommandCallback
 import org.littlegit.core.commandrunner.GitCommand
 import org.littlegit.core.commandrunner.GitCommandRunner
-import org.littlegit.core.commandrunner.GitCommandRunnerCallback
 
 
 class RepoModifier(private val commandRunner: GitCommandRunner) {
 
-    fun initializeRepo(callback: LittleGitCommandCallback<Unit>?) {
-        commandRunner.runCommand(command = GitCommand.InitializeRepo()) { callback?.invoke(null, it) }
+    fun initializeRepo(callback: LittleGitCommandCallback<Unit>? = null) {
+        commandRunner.runCommand(command = GitCommand.InitializeRepo(), callback = callback)
     }
 
-    fun commit(message: String, callback: GitCommandRunnerCallback? = null) {
+    fun commit(message: String, callback: LittleGitCommandCallback<Unit>? = null) {
         commandRunner.runCommand(command = GitCommand.Commit(message), callback = callback)
     }
 
@@ -26,15 +25,10 @@ class RepoModifier(private val commandRunner: GitCommandRunner) {
             GitCommand.Push(remote, branch)
         }
 
-        commandRunner.runCommand(command = command) {
-            callback?.invoke(null, it)
-        }
+        commandRunner.runCommand(command = command, callback = callback)
     }
 
     fun addRemote(remoteName: String, remoteUrl: String, callback: LittleGitCommandCallback<Unit>?) {
-        commandRunner.runCommand(command = GitCommand.AddRemote(remoteName, remoteUrl)) {
-            callback?.invoke(null, it)
-        }
+        commandRunner.runCommand(command = GitCommand.AddRemote(remoteName, remoteUrl), callback = callback)
     }
-
 }

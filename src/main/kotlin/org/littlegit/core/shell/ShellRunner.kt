@@ -17,16 +17,7 @@ sealed class ShellResult {
 
 class ShellRunner {
 
-    fun runCommand(basePath: String, commands: List<String>, callback: ShellRunnerCallback) {
-
-        val runCommand = async { run(basePath, commands) }
-
-        runBlocking {
-            callback(runCommand.await())
-        }
-    }
-
-    private fun run(basePath: String, command: List<String>): ShellResult {
+    fun runCommand(basePath: String, command: List<String>): ShellResult {
         val pb = ProcessBuilder(command)
 
         val workingFolder = File(basePath)
