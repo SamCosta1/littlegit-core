@@ -3,52 +3,32 @@ package org.littlegit.core.unit.resultparser
 import org.junit.Rule
 import org.junit.Test
 import org.littlegit.core.helper.LocalResourceFile
-import org.littlegit.core.parser.FullCommitParser
 import junit.framework.TestCase.assertEquals
 import org.littlegit.core.model.*
-import java.time.Instant
-import java.time.OffsetDateTime
-import java.time.ZoneId
+import org.littlegit.core.parser.DiffParser
 
-class FullCommitParserTests {
+@Suppress("MemberVisibilityCanBePrivate")
+class DiffParserTests {
 
-    @get:Rule val singleFileCreated = LocalResourceFile("fullCommits/full-commit-create-one-file.txt")
-    @get:Rule val singleFileModified = LocalResourceFile("fullCommits/full-commit-modify-one-file.txt")
-    @get:Rule val singleFileRenamed = LocalResourceFile("fullCommits/full-commit-rename-one-file.txt")
-    @get:Rule val multipleFilesMultipleHunks = LocalResourceFile("fullCommits/full-commit-multiple-files-multiple-hunks.txt")
+    @get:Rule val singleFileCreated = LocalResourceFile("diffCommits/diff-commit-create-one-file.txt")
+    @get:Rule val singleFileModified = LocalResourceFile("diffCommits/diff-commit-modify-one-file.txt")
+    @get:Rule val singleFileRenamed = LocalResourceFile("diffCommits/diff-commit-rename-one-file.txt")
+    @get:Rule val singleFileRemoved = LocalResourceFile("diffCommits/diff-commit-delete-one-file.txt")
+    @get:Rule val multipleFilesMultipleHunks = LocalResourceFile("diffCommits/diff-commit-multiple-files-multiple-hunks.txt")
+    @get:Rule val specialCharacters = LocalResourceFile("diffCommits/diff-commit-special-characters.txt")
 
     @Test fun testSingleFileCreated() {
-        val fullCommit = FullCommitParser.parse(singleFileCreated.content)
-
-        val correctDateTime = OffsetDateTime.ofInstant(Instant.ofEpochMilli(1526744367000), ZoneId.systemDefault())
-        val correctCommitMessage = """
-        This is a commit message
-        On branch master
-        Changes to be committed:
-        new file:   helloWorld.txt""".trimIndent()
+        val diff = DiffParser.parse(singleFileCreated.content)
 
         val fileContent = listOf(DiffLine(DiffLineType.Addition, null, 1, "hellow"))
         val fileDiff = NewFile("helloWorld.txt", listOf(Hunk(0,0,1,0, "", fileContent)))
-        val diff = Diff(listOf(fileDiff))
+        val correctDiff = Diff(listOf(fileDiff))
 
-        assertEquals(FullCommit("cd8a91b9dcaa85d993246bd408905650d464bfa5",
-                                                listOf("refs/heads/master") ,
-                                                listOf("d4ae6cdcba391e3c9f43dd9a5629427af5445911"),
-                                                correctDateTime,
-                                                "samuel.dacosta@student.manchester.ac.uk",
-                                                "Commit subject",
-                                                true,
-                                                diff,
-                                                correctCommitMessage), fullCommit)
+        assertEquals(correctDiff, diff)
     }
 
     @Test fun testSingleFileModified() {
-        val fullCommit = FullCommitParser.parse(singleFileModified.content)
-
-        val correctDateTime = OffsetDateTime.ofInstant(Instant.ofEpochMilli(1526208525000), ZoneId.systemDefault())
-        val correctCommitMessage = """
-        ignore ds store
-        """.trimIndent()
+        val diff = DiffParser.parse(singleFileModified.content)
 
         val fileContent = listOf(
             DiffLine(DiffLineType.Unchanged, 108, 108, ""),
@@ -59,25 +39,13 @@ class FullCommitParserTests {
         )
 
         val fileDiff = ChangedFile(".gitignore", listOf(Hunk(108,3,108,5, "gradle-app.setting", fileContent)))
-        val diff = Diff(listOf(fileDiff))
+        val correctDiff = Diff(listOf(fileDiff))
 
-        assertEquals(FullCommit("c2d902b4dffb0a65d1778bb5f057bac9bdb433dc",
-                listOf("refs/remotes/origin/feature/git-show") ,
-                listOf("e09f03aaf99b2d4b5e3ba72a8ccb7ca81e0c8e82"),
-                correctDateTime,
-                "samuel.dacosta@student.manchester.ac.uk",
-                "ignore ds store",
-                false,
-                diff,
-                correctCommitMessage), fullCommit)
+        assertEquals(correctDiff, diff)
     }
 
     @Test fun testSingleFileRenamed() {
-        val fullCommit = FullCommitParser.parse(singleFileRenamed.content)
-
-        val correctDateTime = OffsetDateTime.ofInstant(Instant.ofEpochMilli(1527531388000), ZoneId.systemDefault())
-        val correctCommitMessage = """
-        Made the file into a js file""".trimIndent()
+        val diff = DiffParser.parse(singleFileRenamed.content)
 
         val fileContent = listOf(
             DiffLine(DiffLineType.Unchanged, 1, 1, "function helloWorld() {"),
@@ -89,25 +57,31 @@ class FullCommitParserTests {
         )
 
         val fileDiff = RenamedFile("helloworld.txt", "helloworld.js", listOf(Hunk(1,5,1,5, "", fileContent)))
-        val diff = Diff(listOf(fileDiff))
+        val correctDiff = Diff(listOf(fileDiff))
 
-        assertEquals(FullCommit("ee06970df7913f65dcd9a5e488d709177ec06e3f",
-                listOf("refs/heads/master") ,
-                listOf("9b0cac23347cf27fb2310d8765679fbd8fbcfa3c"),
-                correctDateTime,
-                "test@gmail.com",
-                "Made the file into a js file",
-                true,
-                diff,
-                correctCommitMessage), fullCommit)
+        assertEquals(correctDiff, diff)
+    }
+
+    @Test fun testSingleFileRemoved() {
+        val diff = DiffParser.parse(singleFileRemoved.content)
+
+        val fileContent = listOf(
+                DiffLine(DiffLineType.Deletion, 1, null, "function helloWorld() {"),
+                DiffLine(DiffLineType.Deletion, 2, null, "   var hello = \"Hello world!!!!\";"),
+                DiffLine(DiffLineType.Deletion, 3, null, "   console.log(hello);"),
+                DiffLine(DiffLineType.Deletion, 4, null, "}"),
+                DiffLine(DiffLineType.Deletion, 5, null, ""),
+                DiffLine(DiffLineType.Deletion, 6, null, "helloWorld();")
+        )
+
+        val fileDiff = DeletedFile("helloworld.js", listOf(Hunk(1,6,0,0, "", fileContent)))
+        val correctDiff = Diff(listOf(fileDiff))
+
+        assertEquals(correctDiff, diff)
     }
 
     @Test fun testMultipleFilesMultipleHunks() {
-        val fullCommit = FullCommitParser.parse(multipleFilesMultipleHunks.content)
-
-        val correctDateTime = OffsetDateTime.ofInstant(Instant.ofEpochMilli(1526047294000), ZoneId.systemDefault())
-        val correctCommitMessage = """
-        WIP: Adding remotes""".trimIndent()
+        val diff = DiffParser.parse(multipleFilesMultipleHunks.content)
 
         val file1Hunk1 = listOf(
             DiffLine(DiffLineType.Unchanged, 46, 46, "        override val command: List<String> get() = listOf(\"git\", \"remote\", \"add\", name, url)"),
@@ -151,16 +125,38 @@ class FullCommitParserTests {
             Hunk(0,0,1,7, "", file2Content)
         ))
 
-        val diff = Diff(listOf(file1Diff, file2Diff))
+        val correctDiff = Diff(listOf(file1Diff, file2Diff))
+        assertEquals(correctDiff, diff)
+    }
 
-        assertEquals(FullCommit("11dd41e66d4304469d61891a9d559002cfc24a4a",
-                listOf() ,
-                listOf("890982d2178b9b3b88f217560593447da54c8355"),
-                correctDateTime,
-                "samdc@apadmi.com",
-                "WIP: Adding remotes",
-                false,
-                diff,
-                correctCommitMessage).toString(), fullCommit.toString())
+    @Test fun testSpecialCharacters() {
+        val diff = DiffParser.parse(specialCharacters.content)
+
+        val file1Content = listOf(
+                DiffLine(DiffLineType.Addition, null, 1, "+plus"),
+                DiffLine(DiffLineType.Addition, null, 2, "-minus"),
+                DiffLine(DiffLineType.Addition, null, 3, "@@ats"),
+                DiffLine(DiffLineType.Addition, null, 4, "diff --git"),
+                DiffLine(DiffLineType.Addition, null, 5, ""),
+                DiffLine(DiffLineType.Addition, null, 6, "\$dollar")
+        )
+
+        val file2Content = listOf(
+                DiffLine(DiffLineType.Unchanged, 2, 2, "-bla"),
+                DiffLine(DiffLineType.Unchanged, 3, 3, "+bla"),
+                DiffLine(DiffLineType.Unchanged, 4, 4, " bla"),
+                DiffLine(DiffLineType.Addition , null, 5, "-hello")
+        )
+
+        val file1Diff = NewFile("file1.txt", listOf(
+            Hunk(0, 0,1, 6, "", file1Content)
+        ))
+
+        val file2Diff = ChangedFile("file2.txt", listOf(
+            Hunk(2,3,2,4, "", file2Content)
+        ))
+
+        val correctDiff = Diff(listOf(file1Diff, file2Diff))
+        assertEquals(correctDiff, diff)
     }
 }

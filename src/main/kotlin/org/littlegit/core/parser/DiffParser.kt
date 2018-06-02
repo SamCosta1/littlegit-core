@@ -95,7 +95,7 @@ object DiffParser {
 
         return when {
             aFilePath == "/dev/null" -> NewFile(bFilePath, hunks)
-            bFilePath == "/dev/null" -> DeletedFile(bFilePath, hunks)
+            bFilePath == "/dev/null" -> DeletedFile(aFilePath, hunks)
             aFilePath != bFilePath -> RenamedFile(aFilePath, bFilePath, hunks)
             else -> ChangedFile(aFilePath, hunks)
         }

@@ -6,7 +6,6 @@ import org.junit.Test
 import org.littlegit.core.helper.LocalResourceFile
 import org.littlegit.core.parser.LogParser
 import org.littlegit.core.reader.AsciiGraph
-import java.security.SecureRandom
 
 @Ignore
 class PrintAsciiGraph {

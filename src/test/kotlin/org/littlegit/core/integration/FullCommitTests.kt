@@ -7,7 +7,7 @@ import org.littlegit.core.commandrunner.GitCommand
 import org.littlegit.core.commandrunner.GitResult
 import org.littlegit.core.util.joinWithSpace
 
-class FullCommitParserTests: BaseIntegrationTest() {
+class FullCommitTests: BaseIntegrationTest() {
 
     @Test fun testValidCommit() {
         val commitMessage = "Message"
