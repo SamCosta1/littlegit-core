@@ -6,6 +6,7 @@ import org.littlegit.core.helper.LocalResourceFile
 import junit.framework.TestCase.assertEquals
 import org.littlegit.core.model.*
 import org.littlegit.core.parser.DiffParser
+import org.littlegit.core.parser.MalformedDiffException
 
 @Suppress("MemberVisibilityCanBePrivate")
 class DiffParserTests {
@@ -16,6 +17,8 @@ class DiffParserTests {
     @get:Rule val singleFileRemoved = LocalResourceFile("diffCommits/diff-commit-delete-one-file.txt")
     @get:Rule val multipleFilesMultipleHunks = LocalResourceFile("diffCommits/diff-commit-multiple-files-multiple-hunks.txt")
     @get:Rule val specialCharacters = LocalResourceFile("diffCommits/diff-commit-special-characters.txt")
+    @get:Rule val malformedDiff = LocalResourceFile("diffCommits/diff-commit-malformed.txt")
+    @get:Rule val noNewLineAtEndOfFile = LocalResourceFile("diffCommits/diff-commit-no-newline-at-end-of-file.txt")
 
     @Test fun testSingleFileCreated() {
         val diff = DiffParser.parse(singleFileCreated.content)
@@ -157,6 +160,29 @@ class DiffParserTests {
         ))
 
         val correctDiff = Diff(listOf(file1Diff, file2Diff))
+        assertEquals(correctDiff, diff)
+    }
+
+    @Test(expected = MalformedDiffException::class) fun testMalformedDiff() {
+        DiffParser.parse(malformedDiff.content)
+    }
+
+    @Test fun testNoNewLineAtEndOfFile() {
+        val diff = DiffParser.parse(noNewLineAtEndOfFile.content)
+
+        val file1Content = listOf(
+                DiffLine(DiffLineType.Deletion, 1, null, "name")
+        )
+
+        val file2Content = listOf(
+                DiffLine(DiffLineType.Addition, null, 1, "Some Name"),
+                DiffLine(DiffLineType.NoNewLineAtEndOfFile, null, null, "\\ No newline at end of file")
+        )
+
+        val file1Diff = DeletedFile("name", listOf(Hunk(1,0,0,0, "", file1Content)))
+        val file2Diff = NewFile("name.txt", listOf(Hunk(0,0,1,0, "", file2Content)))
+        val correctDiff = Diff(listOf(file1Diff, file2Diff))
+
         assertEquals(correctDiff, diff)
     }
 }
