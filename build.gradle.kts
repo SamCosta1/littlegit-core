@@ -7,8 +7,8 @@ group = "org.littlegit"
 version = "0.0.1"
 
 plugins {
-    `build-scan`
     `maven-publish`
+    jacoco
     kotlin("jvm") version "1.2.31"
     id("org.jetbrains.dokka") version "0.9.16"
 }
@@ -23,13 +23,6 @@ dependencies {
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:0.21")
 }
 
-buildScan {
-    setLicenseAgreementUrl("https://gradle.com/terms-of-service")
-    setLicenseAgree("yes")
-
-    publishAlways()
-}
-
 val dokka by tasks.getting(org.jetbrains.dokka.gradle.DokkaTask::class) {
     outputFormat = "html"
     outputDirectory = "$buildDir/javadoc"
@@ -41,6 +34,25 @@ val dokkaJar by tasks.creating(Jar::class) {
     description = "Assembles Kotlin docs with Dokka"
     classifier = "javadoc"
     from(dokka)
+}
+
+jacoco {
+    toolVersion = "0.7.9"
+    reportsDir = file("$buildDir/jacoco")
+}
+
+tasks {
+    "jacocoTestReport"(JacocoReport::class) {
+
+
+        reports {
+            html.isEnabled = true
+            html.destination = File("$buildDir/jacoco")
+        }
+
+        val check by tasks
+        check.dependsOn(this)
+    }
 }
 
 publishing {
