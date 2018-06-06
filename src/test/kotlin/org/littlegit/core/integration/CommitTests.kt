@@ -4,6 +4,7 @@ import org.junit.Assert.*
 import org.junit.Test
 import org.littlegit.core.model.GitError
 import org.littlegit.core.commandrunner.GitResult
+import org.littlegit.core.helper.TestCommandHelper
 
 class CommitTests: BaseIntegrationTest() {
 
