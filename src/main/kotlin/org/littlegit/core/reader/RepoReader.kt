@@ -65,19 +65,16 @@ class RepoReader(private val commandRunner: GitCommandRunner) {
 
     fun getFile(ref: String = "", file: String, callback: LittleGitCommandCallback<LittleGitFile>) {
         val resultProcessor = { result: GitResult.Success -> LittleGitFile(result.lines, file) }
-        commandRunner.runCommand(command = GitCommand.ShowFile(ref, file), resultProcessor = resultProcessor, callback = callback);
+        commandRunner.runCommand(command = GitCommand.ShowFile(ref, file), resultProcessor = resultProcessor, callback = callback)
     }
 
     fun getFullCommit(commit: RawCommit, callback: LittleGitCommandCallback<FullCommit>) = getFullCommit(commit.hash, callback)
 
     fun getFullCommit(commit: CommitHash, callback: LittleGitCommandCallback<FullCommit>) {
-        commandRunner.runCommand(command = GitCommand.FullCommit(commit)) { result ->
-
-            when (result) {
-                is GitResult.Success -> callback(FullCommitParser.parse(result.lines), result)
-                is GitResult.Error -> callback(null, result)
-            }
-
+        val resultProcessor = { result: GitResult.Success ->
+            FullCommitParser.parse(result.lines)
         }
+
+        commandRunner.runCommand(command = GitCommand.FullCommit(commit), resultProcessor = resultProcessor, callback = callback)
     }
 }
