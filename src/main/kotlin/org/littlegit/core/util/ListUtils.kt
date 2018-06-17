@@ -22,10 +22,10 @@ object ListUtils {
     }
 
     fun <T>firstOccurrenceAfterIndex(list: List<T>, index: Int, predicate: (T) -> Boolean): Int {
-        for (i in index..list.size)
+        for (i in index until list.size)
             if (predicate(list[i]))
                 return i
 
-        throw NoSuchElementException("Collection contains no element matching the predicate.")
+        return -1;
     }
 }

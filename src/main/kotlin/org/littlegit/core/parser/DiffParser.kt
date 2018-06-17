@@ -42,6 +42,11 @@ object DiffParser {
         val aFilePathIndex = ListUtils.firstOccurrenceAfterIndex(lines, startIndex) { it.startsWith("---") }
         val bFilePathIndex = aFilePathIndex + 1
 
+        // The file committed must have been empty and doesn't contain the normal structure
+        if (aFilePathIndex < 0) {
+            return parseEmptyFile(lines[startIndex])
+        }
+
         val hunks = mutableListOf<Hunk>()
         var currentHunk: Hunk? = null
 
@@ -99,6 +104,14 @@ object DiffParser {
             aFilePath != bFilePath -> RenamedFile(aFilePath, bFilePath, hunks)
             else -> ChangedFile(aFilePath, hunks)
         }
+    }
+
+    private fun parseEmptyFile(headerString: String): FileDiff {
+        val index = headerString.indexOf(" b/")
+        val fileNameWithPrefix = headerString.substring(index, headerString.length)
+        val fileName =  fileNameWithPrefix.removePrefix(" b/")
+
+        return NewFile(fileName, emptyList())
     }
 
     //private

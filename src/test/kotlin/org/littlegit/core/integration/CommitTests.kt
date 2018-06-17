@@ -5,6 +5,8 @@ import org.junit.Test
 import org.littlegit.core.model.GitError
 import org.littlegit.core.commandrunner.GitResult
 import org.littlegit.core.helper.TestCommandHelper
+import org.littlegit.core.model.Hunk
+import org.littlegit.core.model.NewFile
 
 class CommitTests: BaseIntegrationTest() {
 
@@ -13,7 +15,8 @@ class CommitTests: BaseIntegrationTest() {
         val commitMessage = "test message"
 
         testFolder.newFile("testFile")
-        val commandHelper = TestCommandHelper(testFolder.root).init().addAll()
+        val commandHelper = TestCommandHelper(testFolder.root)
+        commandHelper.init().addAll()
 
         littleGit.repoModifier.commit(commitMessage) { _, result ->
 
@@ -33,6 +36,32 @@ class CommitTests: BaseIntegrationTest() {
 
         littleGit.repoModifier.commit("msg") { _, result ->
             assertTrue("RawCommit rejected", result is GitResult.Error && result.err is GitError.NothingToCommit)
+        }
+    }
+
+    @Test fun testMultiLineCommitMessage() {
+        val fileName = "testFile.txt"
+        val commitMessage = """"This is a subject line
+        This is the main body
+        """.trimIndent()
+
+        testFolder.newFile(fileName)
+        val commandHelper = TestCommandHelper(testFolder.root)
+        commandHelper.init().addAll()
+
+        littleGit.repoModifier.commit(commitMessage) { _, result ->
+
+            littleGit.repoReader.getFullCommit(commandHelper.getLastCommitHash()) { fullCommit, res ->
+                assertEquals(commitMessage, fullCommit?.commitBody)
+
+                val fileDiffs = fullCommit?.diff?.fileDiffs
+                assertEquals(1, fileDiffs?.size)
+                assertTrue(fileDiffs?.get(0) is NewFile)
+
+                val newFile = fileDiffs?.get(0) as NewFile
+                assertEquals(fileName, newFile.filePath)
+                assertEquals(emptyList<Hunk>(), newFile.hunks)
+            }
         }
     }
 }
