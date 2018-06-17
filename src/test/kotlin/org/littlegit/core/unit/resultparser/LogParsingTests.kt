@@ -1,6 +1,6 @@
 package org.littlegit.core.unit.resultparser
 
-import junit.framework.Assert.assertTrue
+import junit.framework.TestCase.assertTrue
 import org.junit.Test
 import org.littlegit.core.model.RawCommit
 import org.littlegit.core.commandrunner.InvalidCommitException
@@ -108,6 +108,7 @@ class LogParsingTests {
                                 OffsetDateTime.ofInstant(Instant.ofEpochMilli(1525272325000), ZoneId.systemDefault()),
                                 "samdc@apadmi.com",
                                 "Merge branch 'feature'", true))
+
 
         parsed.forEachIndexed { index, rawCommit ->
             assertTrue("Commit is as expected", rawCommit == correct[index])

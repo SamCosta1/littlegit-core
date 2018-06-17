@@ -1,4 +1,4 @@
-package org.littlegit.core.integration
+package org.littlegit.core.helper
 
 import java.io.File
 import java.io.InputStreamReader
@@ -16,7 +16,7 @@ class TestCommandHelper(private val file: File) {
     }
 
     fun commit(message: String = "test message"): TestCommandHelper {
-        execute("git commit -m \"$message\"")
+        execute("git commit -m $message")
         return this
     }
 
@@ -32,6 +32,10 @@ class TestCommandHelper(private val file: File) {
 
     fun getLastCommitMessage(): String {
         return execute("git log -1 --pretty=%B")
+    }
+
+    fun getLastCommitHash(): String {
+        return execute("git log -1 --pretty=%H")
     }
 
     fun writeToFile(file: String, content: String): TestCommandHelper {

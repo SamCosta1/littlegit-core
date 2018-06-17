@@ -9,7 +9,7 @@ import org.littlegit.core.reader.AsciiGraph
 
 @Ignore
 class PrintAsciiGraph {
-    @Rule val largeRepo = LocalResourceFile("largeRepo.txt")
+    @get:Rule val largeRepo = LocalResourceFile("largeRepo.txt")
 
     @Test fun printRepo() {
         val commits = LogParser.parse(largeRepo.content)

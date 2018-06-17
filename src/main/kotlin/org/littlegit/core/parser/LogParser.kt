@@ -7,7 +7,7 @@ import java.time.Instant
 import java.time.OffsetDateTime
 import java.time.ZoneId
 
-private data class RefsResult(val refs: List<String>, val isHead: Boolean)
+data class RefsResult(val refs: List<String>, val isHead: Boolean)
 
 object LogParser {
     fun parse(rawLines: List<String>): List<RawCommit> {
@@ -29,7 +29,7 @@ object LogParser {
             val message = split.subList(5, split.size).joinToString(GitCommand.Log.deliminator)
 
             val date = OffsetDateTime.ofInstant(Instant.ofEpochMilli(split[3].toLong() * 1000), ZoneId.systemDefault())
-            val refResults = parseRef(split[2])
+            val refResults = RefsParser.parseRef(split[2])
             val committerEmail = split[4]
 
             if (commitHash.isBlank() || date == null) {
@@ -41,8 +41,10 @@ object LogParser {
 
         return commits.sortedByDescending { it.date }
     }
+}
 
-    private fun parseRef(rawRef: String): RefsResult {
+object RefsParser {
+    fun parseRef(rawRef: String): RefsResult {
         // Refs are split by spaces. But the first ref could be in the form HEAD -> [name]
 
         var split = rawRef.split(" ")

@@ -59,10 +59,15 @@ abstract class GitCommand {
             var deliminator = "@|@"
             //     | RawCommit hash | Parent Hashes | Refs |   Timestamp  | committer email | Subject line of message
             var format = "%H$deliminator%P$deliminator%D$deliminator%ct$deliminator%ce$deliminator%s"
+            var formatWithBody = "$format%n%B"
         }
 
         override val command: List<String> get() = listOf("git", "log", "--all", "--decorate=full", "--format=$format")
     }
 
+    class FullCommit(val commit: CommitHash) : GitCommand() {
+
+        override val command: List<String> get() = listOf("git", "show", commit, "--date=iso", "--decorate=full", "--format=${Log.formatWithBody}")
+    }
 
 }

@@ -4,6 +4,7 @@ import junit.framework.TestCase.assertEquals
 import junit.framework.TestCase.assertTrue
 import org.junit.Test
 import org.littlegit.core.commandrunner.GitResult
+import org.littlegit.core.helper.TestCommandHelper
 import org.littlegit.core.model.GitError
 
 class GetFileTests: BaseIntegrationTest() {
