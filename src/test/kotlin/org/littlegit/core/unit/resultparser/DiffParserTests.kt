@@ -13,6 +13,8 @@ class DiffParserTests {
 
     @get:Rule val singleFileCreated = LocalResourceFile("diffCommits/diff-commit-create-one-file.txt")
     @get:Rule val singleEmptyFileCreated = LocalResourceFile("diffCommits/diff-commit-create-empty-file.txt")
+    @get:Rule val singleEmptyFileDeleted = LocalResourceFile("diffCommits/diff-commit-remove-empty-file.txt")
+    @get:Rule val singleEmptyFileRenamed = LocalResourceFile("diffCommits/diff-commit-renamed-empty-file.txt")
     @get:Rule val singleFileModified = LocalResourceFile("diffCommits/diff-commit-modify-one-file.txt")
     @get:Rule val singleFileRenamed = LocalResourceFile("diffCommits/diff-commit-rename-one-file.txt")
     @get:Rule val singleFileRemoved = LocalResourceFile("diffCommits/diff-commit-delete-one-file.txt")
@@ -21,10 +23,29 @@ class DiffParserTests {
     @get:Rule val malformedDiff = LocalResourceFile("diffCommits/diff-commit-malformed.txt")
     @get:Rule val noNewLineAtEndOfFile = LocalResourceFile("diffCommits/diff-commit-no-newline-at-end-of-file.txt")
 
+
     @Test fun testEmptyFileCreated() {
+        val diff = DiffParser.parse(singleEmptyFileDeleted.content)
+
+        val fileDiff = DeletedFile("emptyFile.txt", emptyList())
+        val correctDiff = Diff(listOf(fileDiff))
+
+        assertEquals(correctDiff, diff)
+    }
+
+    @Test fun testEmptyFileDeleted() {
         val diff = DiffParser.parse(singleEmptyFileCreated.content)
 
         val fileDiff = NewFile("emptyFile.txt", emptyList())
+        val correctDiff = Diff(listOf(fileDiff))
+
+        assertEquals(correctDiff, diff)
+    }
+
+    @Test fun testEmptyFileRenamed() {
+        val diff = DiffParser.parse(singleEmptyFileRenamed.content)
+
+        val fileDiff = RenamedFile("file with spaces.txt", "renamed file.txt", emptyList())
         val correctDiff = Diff(listOf(fileDiff))
 
         assertEquals(correctDiff, diff)
