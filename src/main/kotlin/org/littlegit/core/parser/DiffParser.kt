@@ -43,7 +43,7 @@ object DiffParser {
         val bFilePathIndex = aFilePathIndex + 1
 
         // The file committed must have been empty and doesn't contain the normal structure
-        if (aFilePathIndex < 0) {
+        if (aFilePathIndex < 0 || aFilePathIndex > endIndex) {
             return parseEmptyFile(lines, startIndex)
         }
 
@@ -95,8 +95,11 @@ object DiffParser {
 
         currentHunk?.let { hunks.add(it) }
 
-        val aFilePath = lines[aFilePathIndex].removePrefix("--- ").removePrefix("a/")
-        val bFilePath = lines[bFilePathIndex].removePrefix("+++ ").removePrefix("b/")
+        var aFilePath = lines[aFilePathIndex].removePrefix("--- ")
+        var bFilePath = lines[bFilePathIndex].removePrefix("+++ ")
+
+        aFilePath = stripQuotesIfNeeded(aFilePath).removePrefix("a/")
+        bFilePath = stripQuotesIfNeeded(bFilePath).removePrefix("b/")
 
         return when {
             aFilePath == "/dev/null" -> NewFile(bFilePath, hunks)
@@ -104,6 +107,15 @@ object DiffParser {
             aFilePath != bFilePath -> RenamedFile(aFilePath, bFilePath, hunks)
             else -> ChangedFile(aFilePath, hunks)
         }
+    }
+
+    private fun stripQuotesIfNeeded(filePath: String): String {
+        // Sometimes the path is wrapped in quotes sometimes it isn't account for both cases
+        if (filePath.startsWith('"')) {
+            return filePath.removePrefix("\"").removeSuffix("\"")
+        }
+
+        return filePath;
     }
 
     private fun parseEmptyFile(lines: List<String>, startIndex: Int): FileDiff {
@@ -134,8 +146,11 @@ object DiffParser {
             }
             // The file name will be the same twice, the only reliable way of extracting it is to use the character count
             val pathLength = (filePaths.length - 1) / 2
+            var filePath = filePaths.substring(0, pathLength)
 
-            val path = filePaths.substring(0, pathLength).removePrefix("a/")
+            filePath = stripQuotesIfNeeded(filePath)
+
+            val path = filePath.removePrefix("a/")
 
             return if (newFile) {
                 NewFile(path, emptyList())
