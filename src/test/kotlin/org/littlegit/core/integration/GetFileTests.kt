@@ -2,6 +2,7 @@ package org.littlegit.core.integration
 
 import junit.framework.TestCase.assertEquals
 import junit.framework.TestCase.assertTrue
+import org.junit.Before
 import org.junit.Test
 import org.littlegit.core.commandrunner.GitResult
 import org.littlegit.core.helper.TestCommandHelper
@@ -9,12 +10,18 @@ import org.littlegit.core.model.GitError
 
 class GetFileTests: BaseIntegrationTest() {
 
+    override fun setup() {
+        super.setup()
+        TestCommandHelper(testFolder.root)
+                .init()
+                .initConfig()
+    }
+
     @Test fun lastCommitFileTest() {
         val testFileName = "file.txt"
         val content = "Ash nazg durbatulûk, ash nazg gimbatul,\n ash nazg thrakatulûk agh burzum-ishi krimpatul."
 
         TestCommandHelper(testFolder.root)
-                .init()
                 .writeToFile(testFileName, content)
                 .addAll()
                 .commit("Commit")
@@ -31,7 +38,6 @@ class GetFileTests: BaseIntegrationTest() {
         val content = "Ash nazg durbatulûk, ash nazg gimbatul,\n ash nazg thrakatulûk agh burzum-ishi krimpatul."
 
         TestCommandHelper(testFolder.root)
-                .init()
                 .writeToFile(testFileName, content)
 
         littleGit.repoReader.getFile(file = testFileName) { _, result ->
@@ -44,8 +50,6 @@ class GetFileTests: BaseIntegrationTest() {
     }
 
     @Test fun testNonExistingFile() {
-        TestCommandHelper(testFolder.root).init()
-
         littleGit.repoReader.getFile(file = "somefile") { _, result ->
             assertTrue("Result was error", result is GitResult.Error)
             assertTrue("Result was correct error type", (result as GitResult.Error).err is GitError.FileNotInIndex)
@@ -60,7 +64,6 @@ class GetFileTests: BaseIntegrationTest() {
         val content2 = "One ring to rule them all"
 
         TestCommandHelper(testFolder.root)
-                .init()
                 .writeToFile(testFileName, content1)
                 .addAll()
                 .commit("Commit1")

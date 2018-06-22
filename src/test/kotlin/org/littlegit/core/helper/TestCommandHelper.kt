@@ -10,6 +10,13 @@ import java.nio.file.Paths
 
 class TestCommandHelper(private val file: File) {
 
+    fun initConfig(name: String = "Frodo Baggins", email: String = "frodo.baggins@shire.com"): TestCommandHelper {
+        execute("git config user.name $name")
+        execute("git config user.email $email")
+
+        return this;
+    }
+
     fun init(): TestCommandHelper {
         execute("git init")
         return this
