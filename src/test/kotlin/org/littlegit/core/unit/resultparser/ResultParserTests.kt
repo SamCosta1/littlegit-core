@@ -9,6 +9,7 @@ import org.littlegit.core.helper.LocalResourceFile
 import org.littlegit.core.parser.GitResultParser
 import org.littlegit.core.shell.ShellResult
 
+@Suppress("MemberVisibilityCanBePrivate")
 class ResultParserTests {
 
     @get:Rule val localChangesError = LocalResourceFile("err/err-local-changes.txt")
@@ -22,7 +23,7 @@ class ResultParserTests {
 
     @Test fun testInvalidRemoteNameWindowsResult() {
         val parsedResult = GitResultParser.parseShellResult(ShellResult.Error(invalidRemoteName.content))
-        assertTrue(parsedResult is GitResult.Error && parsedResult.err is GitError.InvalidRemoteName)
+        assertTrue(parsedResult is GitResult.Error && parsedResult.err is GitError.InvalidRemoteInfo)
     }
 
     @Test fun testLocalChangesWouldBeOverwritten() {
