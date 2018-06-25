@@ -43,8 +43,8 @@ object DiffParser {
         val bFilePathIndex = aFilePathIndex + 1
 
         // The file committed must have been empty and doesn't contain the normal structure
-        if (aFilePathIndex < 0) {
-            return parseEmptyFile(lines[startIndex])
+        if (aFilePathIndex < 0 || aFilePathIndex > endIndex) {
+            return parseEmptyFile(lines, startIndex)
         }
 
         val hunks = mutableListOf<Hunk>()
@@ -95,8 +95,11 @@ object DiffParser {
 
         currentHunk?.let { hunks.add(it) }
 
-        val aFilePath = lines[aFilePathIndex].removePrefix("--- ").removePrefix("a/")
-        val bFilePath = lines[bFilePathIndex].removePrefix("+++ ").removePrefix("b/")
+        var aFilePath = lines[aFilePathIndex].removePrefix("--- ")
+        var bFilePath = lines[bFilePathIndex].removePrefix("+++ ")
+
+        aFilePath = stripQuotesIfNeeded(aFilePath).removePrefix("a/")
+        bFilePath = stripQuotesIfNeeded(bFilePath).removePrefix("b/")
 
         return when {
             aFilePath == "/dev/null" -> NewFile(bFilePath, hunks)
@@ -106,13 +109,54 @@ object DiffParser {
         }
     }
 
-    private fun parseEmptyFile(headerString: String): FileDiff {
-        val index = headerString.indexOf(" b/")
-        val fileNameWithPrefix = headerString.substring(index, headerString.length)
-        val fileName =  fileNameWithPrefix.removePrefix(" b/")
+    private fun stripQuotesIfNeeded(filePath: String): String {
+        // Sometimes the path is wrapped in quotes sometimes it isn't account for both cases
+        if (filePath.startsWith('"')) {
+            return filePath.removePrefix("\"").removeSuffix("\"")
+        }
 
-        return NewFile(fileName, emptyList())
+        return filePath;
     }
 
-    //private
+    private fun parseEmptyFile(lines: List<String>, startIndex: Int): FileDiff {
+        val deletedFile = lines[startIndex + 1].startsWith("deleted file mode")
+        val newFile = lines[startIndex + 1].startsWith("new file mode")
+        val renamedFile = !deletedFile && !newFile
+
+        // For renames can't take the file name from the diff line since the names by definition could be different lengths and
+        // There's no reliable way of pulling them out
+        // Luckily git provides the following two lines which we'll use
+        //rename from FROM_NAME
+        //rename to TO_NAME
+        if (renamedFile) {
+            val fromLineIndex = ListUtils.firstOccurrenceAfterIndex(lines, startIndex) { it.startsWith("rename from") }
+            val toLineIndex = ListUtils.firstOccurrenceAfterIndex(lines, startIndex) { it.startsWith("rename to") }
+
+            val fromPath = lines[fromLineIndex].removePrefix("rename from ")
+            val toPath = lines[toLineIndex].removePrefix("rename to ")
+            return RenamedFile(fromPath, toPath, emptyList())
+        } else {
+            // In this case we strip it out of the diff header line: diff --git a/FILE_PATH b/FILE_PATH
+
+            // Strip out the dif --git
+            val filePaths = lines[startIndex].removePrefix("diff --git ")
+
+            if (filePaths.isBlank()) {
+                throw IllegalStateException("File paths are blank")
+            }
+            // The file name will be the same twice, the only reliable way of extracting it is to use the character count
+            val pathLength = (filePaths.length - 1) / 2
+            var filePath = filePaths.substring(0, pathLength)
+
+            filePath = stripQuotesIfNeeded(filePath)
+
+            val path = filePath.removePrefix("a/")
+
+            return if (newFile) {
+                NewFile(path, emptyList())
+            } else {
+                DeletedFile(path, emptyList())
+            }
+        }
+    }
 }

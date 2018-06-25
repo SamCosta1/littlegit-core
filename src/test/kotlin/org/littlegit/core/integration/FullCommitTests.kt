@@ -14,6 +14,7 @@ class FullCommitTests: BaseIntegrationTest() {
         val commitMessage = "Message"
         val hash = TestCommandHelper(testFolder.root)
                         .init()
+                        .initConfig()
                         .writeToFile("file.txt", "Text")
                         .addAll()
                         .commit(commitMessage)

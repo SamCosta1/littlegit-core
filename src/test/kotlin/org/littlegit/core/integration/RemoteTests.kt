@@ -13,7 +13,9 @@ class RemoteTests: BaseIntegrationTest() {
 
     override fun setup() {
         super.setup()
-        TestCommandHelper(testFolder.root).init()
+        TestCommandHelper(testFolder.root)
+                .init()
+                .initConfig()
     }
 
     @Test fun validAddRemoteTest() {
@@ -35,7 +37,7 @@ class RemoteTests: BaseIntegrationTest() {
     @Test fun missingRemoteNameTest() {
         littleGit.repoModifier.addRemote("", "www.remote.com") { _, result ->
             assertTrue("Adding remote was unsuccessful", result is GitResult.Error)
-            assertTrue("error should be invalid Remote name", result is GitResult.Error && result.err is GitError.InvalidRemoteName)
+            assertTrue("error should be invalid Remote name", result is GitResult.Error && result.err is GitError.InvalidRemoteInfo)
         }
     }
 
@@ -44,7 +46,7 @@ class RemoteTests: BaseIntegrationTest() {
 
         TestCommandHelper(testFolder.root).addRemote(remoteName)
 
-        littleGit.repoModifier.addRemote(remoteName, "") { _, result ->
+        littleGit.repoModifier.addRemote(remoteName, "www.bla.com") { _, result ->
             assertTrue("Adding remote was unsuccessful", result is GitResult.Error)
             assertTrue("error should be remote already exists", result is GitResult.Error && result.err is GitError.RemoteAlreadyExists)
         }

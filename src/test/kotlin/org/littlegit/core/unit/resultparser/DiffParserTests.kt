@@ -13,6 +13,8 @@ class DiffParserTests {
 
     @get:Rule val singleFileCreated = LocalResourceFile("diffCommits/diff-commit-create-one-file.txt")
     @get:Rule val singleEmptyFileCreated = LocalResourceFile("diffCommits/diff-commit-create-empty-file.txt")
+    @get:Rule val singleEmptyFileDeleted = LocalResourceFile("diffCommits/diff-commit-remove-empty-file.txt")
+    @get:Rule val singleEmptyFileRenamed = LocalResourceFile("diffCommits/diff-commit-renamed-empty-file.txt")
     @get:Rule val singleFileModified = LocalResourceFile("diffCommits/diff-commit-modify-one-file.txt")
     @get:Rule val singleFileRenamed = LocalResourceFile("diffCommits/diff-commit-rename-one-file.txt")
     @get:Rule val singleFileRemoved = LocalResourceFile("diffCommits/diff-commit-delete-one-file.txt")
@@ -20,11 +22,53 @@ class DiffParserTests {
     @get:Rule val specialCharacters = LocalResourceFile("diffCommits/diff-commit-special-characters.txt")
     @get:Rule val malformedDiff = LocalResourceFile("diffCommits/diff-commit-malformed.txt")
     @get:Rule val noNewLineAtEndOfFile = LocalResourceFile("diffCommits/diff-commit-no-newline-at-end-of-file.txt")
+    @get:Rule val quotesInFileName = LocalResourceFile("diffCommits/diff-commit-quotes-in-filename.txt")
+
+    @Test fun testQuotesInFileName() {
+        val diff = DiffParser.parse(quotesInFileName.content)
+
+        val file1Diff = NewFile("some file . txt", emptyList())
+        val file2Diff = NewFile("some file . txt", emptyList())
+
+        val file3Content = listOf(
+                DiffLine(DiffLineType.Deletion, 1, null, "oeirjgoeij"),
+                DiffLine(DiffLineType.NoNewLineAtEndOfFile, null, null, "\\ No newline at end of file"),
+                DiffLine(DiffLineType.Addition, null, 1, "+"),
+                DiffLine(DiffLineType.Addition, null, 2, "+"),
+                DiffLine(DiffLineType.Addition, null, 3, "Stuff"),
+                DiffLine(DiffLineType.Addition, null, 4, "+"),
+                DiffLine(DiffLineType.Addition, null, 5, "\""),
+                DiffLine(DiffLineType.Addition, null, 6, "\""),
+                DiffLine(DiffLineType.Addition, null, 7, ")^%\$£@!")
+        )
+        val file3Diff = ChangedFile("\\\"directory\\\"/bla.txt", listOf(Hunk(1,0,1,7, "", file3Content)))
+        val correctDiff = Diff(listOf(file1Diff, file2Diff, file3Diff))
+
+        assertEquals(correctDiff, diff)
+    }
 
     @Test fun testEmptyFileCreated() {
+        val diff = DiffParser.parse(singleEmptyFileDeleted.content)
+
+        val fileDiff = DeletedFile("emptyFile.txt", emptyList())
+        val correctDiff = Diff(listOf(fileDiff))
+
+        assertEquals(correctDiff, diff)
+    }
+
+    @Test fun testEmptyFileDeleted() {
         val diff = DiffParser.parse(singleEmptyFileCreated.content)
 
         val fileDiff = NewFile("emptyFile.txt", emptyList())
+        val correctDiff = Diff(listOf(fileDiff))
+
+        assertEquals(correctDiff, diff)
+    }
+
+    @Test fun testEmptyFileRenamed() {
+        val diff = DiffParser.parse(singleEmptyFileRenamed.content)
+
+        val fileDiff = RenamedFile("file with spaces.txt", "renamed file.txt", emptyList())
         val correctDiff = Diff(listOf(fileDiff))
 
         assertEquals(correctDiff, diff)
@@ -169,7 +213,9 @@ class DiffParserTests {
             Hunk(2,3,2,4, "", file2Content)
         ))
 
-        val correctDiff = Diff(listOf(file1Diff, file2Diff))
+        val file3Diff = NewFile("a/b/awks file \\\\ name : +_)(*&^%\$\\302\\243@!/:\\\\:\\\\ :b !@\\302\\243\$%^&*()_+eroij    oif .txt", emptyList())
+
+        val correctDiff = Diff(listOf(file1Diff, file2Diff, file3Diff))
         assertEquals(correctDiff, diff)
     }
 
