@@ -42,12 +42,15 @@ class CommitTests: BaseIntegrationTest() {
         }
     }
 
-    @Ignore
     @Test fun testMultiLineCommitMessage() {
         val fileName = "testFile.txt"
-        val commitMessage = """"This is a subject line
-        This is the main body
-        """.trimIndent()
+        val commitSubject = "This is a subject line"
+        val commitMessage = listOf(
+                commitSubject,
+                "",
+                "First body line",
+                "Second body line"
+        )
 
         testFolder.newFile(fileName)
         val commandHelper = TestCommandHelper(testFolder.root)
@@ -65,6 +68,7 @@ class CommitTests: BaseIntegrationTest() {
                 val newFile = fileDiffs?.get(0) as FileDiff.NewFile
                 assertEquals(fileName, newFile.filePath)
                 assertEquals(emptyList<Hunk>(), newFile.hunks)
+                assertEquals(commitSubject, fullCommit.commitSubject)
             }
         }
     }

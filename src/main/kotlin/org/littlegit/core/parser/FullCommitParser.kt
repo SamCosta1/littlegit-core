@@ -20,6 +20,7 @@ object FullCommitParser {
         for (i in 1 until lines.size) {
             val line = lines[i]
             if (line.isBlank()) {
+                commitBody.add(line)
                 numConsecutiveBlankLines++
             } else {
                 numConsecutiveBlankLines = 0
@@ -34,6 +35,6 @@ object FullCommitParser {
 
         val diffLines = lines.subList(commitMessageEndIndex, lines.size).dropWhile { it.isBlank() }
         val diff = DiffParser.parse(diffLines)
-        return FullCommit.from(rawCommitInfo, diff, commitBody)
+        return FullCommit.from(rawCommitInfo, diff, commitBody.dropLastWhile { it.isBlank() })
     }
 }
