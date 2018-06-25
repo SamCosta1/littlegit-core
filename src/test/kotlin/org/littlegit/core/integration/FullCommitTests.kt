@@ -25,7 +25,7 @@ class FullCommitTests: BaseIntegrationTest() {
             assertTrue("Result was success", result is GitResult.Success)
 
             fullCommit?.let { commit ->
-                assertEquals("Commit message correct", commitMessage, commit.commitBody)
+                assertEquals("Commit message correct", listOf(commitMessage), commit.commitBody)
             }
         }
     }
