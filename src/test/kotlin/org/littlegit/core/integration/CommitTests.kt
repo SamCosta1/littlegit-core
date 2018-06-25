@@ -6,8 +6,8 @@ import org.junit.Test
 import org.littlegit.core.model.GitError
 import org.littlegit.core.commandrunner.GitResult
 import org.littlegit.core.helper.TestCommandHelper
+import org.littlegit.core.model.FileDiff
 import org.littlegit.core.model.Hunk
-import org.littlegit.core.model.NewFile
 
 class CommitTests: BaseIntegrationTest() {
 
@@ -60,9 +60,9 @@ class CommitTests: BaseIntegrationTest() {
 
                 val fileDiffs = fullCommit?.diff?.fileDiffs
                 assertEquals(1, fileDiffs?.size)
-                assertTrue(fileDiffs?.get(0) is NewFile)
+                assertTrue(fileDiffs?.get(0) is FileDiff.NewFile)
 
-                val newFile = fileDiffs?.get(0) as NewFile
+                val newFile = fileDiffs?.get(0) as FileDiff.NewFile
                 assertEquals(fileName, newFile.filePath)
                 assertEquals(emptyList<Hunk>(), newFile.hunks)
             }
