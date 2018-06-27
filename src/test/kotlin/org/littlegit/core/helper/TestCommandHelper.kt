@@ -10,7 +10,11 @@ import java.nio.file.Paths
 
 class TestCommandHelper(private val file: File) {
 
-    fun initConfig(name: String = "Frodo Baggins", email: String = "frodo.baggins@shire.com"): TestCommandHelper {
+    companion object {
+        const val DEFAULT_EMAIL =  "frodo.baggins@shire.com"
+        const val DEFAULT_NAME = "Frodo Baggins"
+    }
+    fun initConfig(name: String = DEFAULT_NAME, email: String = DEFAULT_EMAIL): TestCommandHelper {
         execute("git config user.name $name")
         execute("git config user.email $email")
 
@@ -43,6 +47,10 @@ class TestCommandHelper(private val file: File) {
 
     fun getLastCommitHash(): String {
         return execute("git log -1 --pretty=%H")
+    }
+
+    fun getLastCommitTimeStamp(): String {
+        return execute("git log -1 --date=iso --pretty=%ct")
     }
 
     fun writeToFile(file: String, content: String): TestCommandHelper {

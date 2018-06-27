@@ -9,7 +9,7 @@ class FullCommit(hash: String,
                  committerEmail: String,
                  commitSubject: String,
                  isHead: Boolean,
-                 val diff: Diff,
+                 val diff: Diff = Diff(emptyList()),
                  val commitBody: List<String>)
     : RawCommit(hash,
         refs,
