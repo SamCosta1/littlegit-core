@@ -62,6 +62,10 @@ object GitResultParser {
             return GitResult.Error(GitError.RemoteAlreadyExists(lines))
         }
 
+        if (lines.first().startsWith("fatal: cannot lock ref")) {
+            return GitResult.Error(GitError.CannotLockRef(lines))
+        }
+
         return GitResult.Error(GitError.Unknown(lines))
     }
 

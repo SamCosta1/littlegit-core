@@ -72,4 +72,38 @@ class CommitTests: BaseIntegrationTest() {
             }
         }
     }
+
+    // Lines with hashes are usually treated as comments and not included
+    // in commit messages, littlegit should ensure this doesn't happen and that the
+    // Lines beginning in hashes are present
+    @Test fun testMultiLineCommitMessageWithHashes() {
+        val fileName = "testFile.txt"
+        val commitSubject = "This is a subject line"
+        val commitMessage = listOf(
+                commitSubject,
+                "",
+                "#First body line",
+                "#Second body line"
+        )
+
+        testFolder.newFile(fileName)
+        val commandHelper = TestCommandHelper(testFolder.root)
+        commandHelper.init().initConfig().addAll()
+
+        littleGit.repoModifier.commit(commitMessage) { _, result ->
+
+            littleGit.repoReader.getFullCommit(commandHelper.getLastCommitHash()) { fullCommit, res ->
+                assertEquals(commitMessage, fullCommit?.commitBody)
+
+                val fileDiffs = fullCommit?.diff?.fileDiffs
+                assertEquals(1, fileDiffs?.size)
+                assertTrue(fileDiffs?.get(0) is FileDiff.NewFile)
+
+                val newFile = fileDiffs?.get(0) as FileDiff.NewFile
+                assertEquals(fileName, newFile.filePath)
+                assertEquals(emptyList<Hunk>(), newFile.hunks)
+                assertEquals(commitSubject, fullCommit.commitSubject)
+            }
+        }
+    }
 }

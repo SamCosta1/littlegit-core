@@ -2,12 +2,10 @@ package org.littlegit.core.integration
 
 import junit.framework.TestCase.*
 import org.junit.Test
-import org.littlegit.core.commandrunner.GitCommand
 import org.littlegit.core.commandrunner.GitResult
 import org.littlegit.core.helper.AssertHelper
 import org.littlegit.core.helper.TestCommandHelper
 import org.littlegit.core.model.FullCommit
-import org.littlegit.core.util.joinWithSpace
 import java.time.Instant
 import java.time.OffsetDateTime
 import java.time.ZoneId
@@ -36,7 +34,7 @@ class FullCommitTests: BaseIntegrationTest() {
                 true,
                 commitBody = listOf(commitMessage)
         )
-        println(GitCommand.FullCommit(hash).command.joinWithSpace())
+
         littleGit.repoReader.getFullCommit(hash) { fullCommit, result ->
             assertTrue("Result was success", result is GitResult.Success)
 
@@ -44,6 +42,4 @@ class FullCommitTests: BaseIntegrationTest() {
             AssertHelper.assertFullCommit(expectedCommit, fullCommit!!, ignoreDiff = true)
         }
     }
-
-
 }
