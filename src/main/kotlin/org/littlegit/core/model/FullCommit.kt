@@ -9,8 +9,8 @@ class FullCommit(hash: String,
                  committerEmail: String,
                  commitSubject: String,
                  isHead: Boolean,
-                 val diff: Diff,
-                 val commitBody: String)
+                 val diff: Diff = Diff(emptyList()),
+                 val commitBody: List<String>)
     : RawCommit(hash,
         refs,
         parentHashes,
@@ -22,7 +22,7 @@ class FullCommit(hash: String,
 
     companion object {
         fun from(raw: RawCommit, diff: Diff, commitBody: List<String>): FullCommit {
-            return FullCommit(raw.hash, raw.refs, raw.parentHashes, raw.date, raw.committerEmail, raw.commitSubject, raw.isHead, diff, commitBody.joinWithNewLines())
+            return FullCommit(raw.hash, raw.refs, raw.parentHashes, raw.date, raw.committerEmail, raw.commitSubject, raw.isHead, diff, commitBody)
         }
     }
 

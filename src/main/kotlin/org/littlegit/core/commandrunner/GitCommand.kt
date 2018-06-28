@@ -1,5 +1,6 @@
 package org.littlegit.core.commandrunner
 
+import java.io.File
 
 typealias CommitHash = String
 abstract class GitCommand {
@@ -18,8 +19,8 @@ abstract class GitCommand {
         override val command: List<String> get() = listOf("git", "init")
     }
 
-    class Commit(val message: String) : GitCommand() {
-        override val command: List<String> get() = listOf("git", "commit", "-m", message)
+    class Commit(val commitFile: File) : GitCommand() {
+        override val command: List<String> get() = listOf("git", "commit", "-F", commitFile.absolutePath)
     }
 
     class SetUserEmail(val email: String, val global: Boolean = false) : GitCommand() {

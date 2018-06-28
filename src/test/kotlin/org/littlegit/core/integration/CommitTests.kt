@@ -6,8 +6,8 @@ import org.junit.Test
 import org.littlegit.core.model.GitError
 import org.littlegit.core.commandrunner.GitResult
 import org.littlegit.core.helper.TestCommandHelper
+import org.littlegit.core.model.FileDiff
 import org.littlegit.core.model.Hunk
-import org.littlegit.core.model.NewFile
 
 class CommitTests: BaseIntegrationTest() {
 
@@ -42,12 +42,15 @@ class CommitTests: BaseIntegrationTest() {
         }
     }
 
-    @Ignore
     @Test fun testMultiLineCommitMessage() {
         val fileName = "testFile.txt"
-        val commitMessage = """"This is a subject line
-        This is the main body
-        """.trimIndent()
+        val commitSubject = "This is a subject line"
+        val commitMessage = listOf(
+                commitSubject,
+                "",
+                "First body line",
+                "Second body line"
+        )
 
         testFolder.newFile(fileName)
         val commandHelper = TestCommandHelper(testFolder.root)
@@ -60,11 +63,46 @@ class CommitTests: BaseIntegrationTest() {
 
                 val fileDiffs = fullCommit?.diff?.fileDiffs
                 assertEquals(1, fileDiffs?.size)
-                assertTrue(fileDiffs?.get(0) is NewFile)
+                assertTrue(fileDiffs?.get(0) is FileDiff.NewFile)
 
-                val newFile = fileDiffs?.get(0) as NewFile
+                val newFile = fileDiffs?.get(0) as FileDiff.NewFile
                 assertEquals(fileName, newFile.filePath)
                 assertEquals(emptyList<Hunk>(), newFile.hunks)
+                assertEquals(commitSubject, fullCommit.commitSubject)
+            }
+        }
+    }
+
+    // Lines with hashes are usually treated as comments and not included
+    // in commit messages, littlegit should ensure this doesn't happen and that the
+    // Lines beginning in hashes are present
+    @Test fun testMultiLineCommitMessageWithHashes() {
+        val fileName = "testFile.txt"
+        val commitSubject = "This is a subject line"
+        val commitMessage = listOf(
+                commitSubject,
+                "",
+                "#First body line",
+                "#Second body line"
+        )
+
+        testFolder.newFile(fileName)
+        val commandHelper = TestCommandHelper(testFolder.root)
+        commandHelper.init().initConfig().addAll()
+
+        littleGit.repoModifier.commit(commitMessage) { _, result ->
+
+            littleGit.repoReader.getFullCommit(commandHelper.getLastCommitHash()) { fullCommit, res ->
+                assertEquals(commitMessage, fullCommit?.commitBody)
+
+                val fileDiffs = fullCommit?.diff?.fileDiffs
+                assertEquals(1, fileDiffs?.size)
+                assertTrue(fileDiffs?.get(0) is FileDiff.NewFile)
+
+                val newFile = fileDiffs?.get(0) as FileDiff.NewFile
+                assertEquals(fileName, newFile.filePath)
+                assertEquals(emptyList<Hunk>(), newFile.hunks)
+                assertEquals(commitSubject, fullCommit.commitSubject)
             }
         }
     }

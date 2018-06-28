@@ -102,10 +102,10 @@ object DiffParser {
         bFilePath = stripQuotesIfNeeded(bFilePath).removePrefix("b/")
 
         return when {
-            aFilePath == "/dev/null" -> NewFile(bFilePath, hunks)
-            bFilePath == "/dev/null" -> DeletedFile(aFilePath, hunks)
-            aFilePath != bFilePath -> RenamedFile(aFilePath, bFilePath, hunks)
-            else -> ChangedFile(aFilePath, hunks)
+            aFilePath == "/dev/null" -> FileDiff.NewFile(bFilePath, hunks)
+            bFilePath == "/dev/null" -> FileDiff.DeletedFile(aFilePath, hunks)
+            aFilePath != bFilePath -> FileDiff.RenamedFile(aFilePath, bFilePath, hunks)
+            else -> FileDiff.ChangedFile(aFilePath, hunks)
         }
     }
 
@@ -134,7 +134,7 @@ object DiffParser {
 
             val fromPath = lines[fromLineIndex].removePrefix("rename from ")
             val toPath = lines[toLineIndex].removePrefix("rename to ")
-            return RenamedFile(fromPath, toPath, emptyList())
+            return FileDiff.RenamedFile(fromPath, toPath, emptyList())
         } else {
             // In this case we strip it out of the diff header line: diff --git a/FILE_PATH b/FILE_PATH
 
@@ -153,9 +153,9 @@ object DiffParser {
             val path = filePath.removePrefix("a/")
 
             return if (newFile) {
-                NewFile(path, emptyList())
+                FileDiff.NewFile(path, emptyList())
             } else {
-                DeletedFile(path, emptyList())
+                FileDiff.DeletedFile(path, emptyList())
             }
         }
     }

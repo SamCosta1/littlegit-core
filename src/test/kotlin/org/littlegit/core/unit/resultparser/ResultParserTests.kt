@@ -20,7 +20,13 @@ class ResultParserTests {
     @get:Rule val cannotReadRemoteError = LocalResourceFile("err/err-cannot-read-remote.txt")
     @get:Rule val cannotReadRemoteHttpError = LocalResourceFile("err/err-cannot-read-remote-http.txt")
     @get:Rule val invalidRemoteName = LocalResourceFile("err/err-invalid-remote-windows.txt")
+    @get:Rule val lockedCommit = LocalResourceFile("err/err-head-locked.txt")
 
+    @Test fun testLockedCommit() {
+        val parsedResult = GitResultParser.parseShellResult(ShellResult.Error(lockedCommit.content))
+        assertTrue(parsedResult is GitResult.Error && parsedResult.err is GitError.CannotLockRef)
+    }
+    
     @Test fun testInvalidRemoteNameWindowsResult() {
         val parsedResult = GitResultParser.parseShellResult(ShellResult.Error(invalidRemoteName.content))
         assertTrue(parsedResult is GitResult.Error && parsedResult.err is GitError.InvalidRemoteInfo)

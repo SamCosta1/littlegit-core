@@ -1,5 +1,7 @@
 package org.littlegit.core.util
 
+import java.io.File
+
 fun List<String>.joinWithNewLines(): String {
     return this.joinToString(System.lineSeparator())
 }
@@ -27,5 +29,14 @@ object ListUtils {
                 return i
 
         return -1;
+    }
+
+    fun writeToFile(message: List<String>, tempFile: File?) {
+        tempFile?.bufferedWriter().use { out ->
+            message.forEach {
+                out?.write(it)
+                out?.newLine()
+            }
+        }
     }
 }

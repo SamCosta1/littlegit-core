@@ -14,10 +14,9 @@ sealed class GitResult {
     data class Error(val err: GitError): GitResult()
 }
 
-class GitCommandRunner {
+class GitCommandRunner(private val shellRunner: ShellRunner) {
 
     private var repoPath: String? = null
-    private val shellRunner = ShellRunner()
 
     fun initializeRepoDirectory(path: String): GitCommandRunner {
         if (path.isNotBlank()) {
