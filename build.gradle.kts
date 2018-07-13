@@ -3,7 +3,7 @@ import org.jetbrains.kotlin.config.AnalysisFlag.Flags.experimental
 import org.jetbrains.kotlin.gradle.dsl.Coroutines
 
 
-group = "org.littlegit"
+group = "org.littlegit.core"
 version = "0.0.1"
 
 plugins {
