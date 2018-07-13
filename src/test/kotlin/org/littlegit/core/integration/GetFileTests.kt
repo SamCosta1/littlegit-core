@@ -26,11 +26,11 @@ class GetFileTests: BaseIntegrationTest() {
                 .addAll()
                 .commit("Commit")
 
-        littleGit.repoReader.getFile(file = testFileName) { file, result ->
-            assertTrue("Result was success", result is GitResult.Success)
-            assertEquals("Result file content is correct", file?.content, content.split("\n"))
-            assertEquals("Result file name is correct", file?.filePath, testFileName)
-        }
+        val gitResult = littleGit.repoReader.getFile(file = testFileName)
+            assertTrue("Result was success", gitResult.result is GitResult.Success)
+            assertEquals("Result file content is correct", gitResult.data?.content, content.split("\n"))
+            assertEquals("Result file name is correct", gitResult.data?.filePath, testFileName)
+
     }
 
     @Test fun testUnTrackedFile() {
@@ -40,21 +40,25 @@ class GetFileTests: BaseIntegrationTest() {
         TestCommandHelper(testFolder.root)
                 .writeToFile(testFileName, content)
 
-        littleGit.repoReader.getFile(file = testFileName) { _, result ->
-            assertTrue("Result was error", result is GitResult.Error)
+        val gitResult = littleGit.repoReader.getFile(file = testFileName)
+        assertTrue("Result was error", gitResult.result is GitResult.Error)
 
-            val error = result as GitResult.Error
-            assertTrue("Result was correct error type", error.err is GitError.FileNotInIndex)
-            assertTrue("File exists on disk", (error.err as GitError.FileNotInIndex).fileExistsOnDisk)
-        }
+        val error = gitResult.result as GitResult.Error
+        assertTrue("Result was correct error type", error.err is GitError.FileNotInIndex)
+        assertTrue("File exists on disk", (error.err as GitError.FileNotInIndex).fileExistsOnDisk)
+
     }
 
     @Test fun testNonExistingFile() {
-        littleGit.repoReader.getFile(file = "somefile") { _, result ->
-            assertTrue("Result was error", result is GitResult.Error)
-            assertTrue("Result was correct error type", (result as GitResult.Error).err is GitError.FileNotInIndex)
-            assertTrue("File exists on disk", !(result.err as GitError.FileNotInIndex).fileExistsOnDisk)
-        }
+        val gitResult = littleGit.repoReader.getFile(file = "somefile")
+        assertTrue("Result was error", gitResult.result is GitResult.Error)
+
+        val err = (gitResult.result as GitResult.Error).err
+        assertTrue("Result was correct error type", err is GitError.FileNotInIndex)
+
+        err as GitError.FileNotInIndex
+        assertTrue("File doesn't exists on disk", !err.fileExistsOnDisk)
+
     }
 
     @Test fun testOtherBranchVersion() {
@@ -72,16 +76,14 @@ class GetFileTests: BaseIntegrationTest() {
                 .addAll()
                 .commit("Commit2")
 
-        littleGit.repoReader.getFile("master", testFileName) { file, result ->
-            assertTrue("Result was success", result is GitResult.Success)
-            assertEquals("Result file content is correct", file?.content, content1.split("\n"))
-            assertEquals("Result file name is correct", file?.filePath, testFileName)
-        }
+        val branch1Res = littleGit.repoReader.getFile("master", testFileName)
+        assertTrue("Result was success", branch1Res.result is GitResult.Success)
+        assertEquals("Result file content is correct", branch1Res.data?.content, content1.split("\n"))
+        assertEquals("Result file name is correct", branch1Res.data?.filePath, testFileName)
 
-        littleGit.repoReader.getFile(branch, testFileName) { file, result ->
-            assertTrue("Result was success", result is GitResult.Success)
-            assertEquals("Result file content is correct", file?.content, content2.split("\n"))
-            assertEquals("Result file name is correct", file?.filePath, testFileName)
-        }
+        val branch2Res = littleGit.repoReader.getFile(branch, testFileName)
+        assertTrue("Result was success", branch1Res.result is GitResult.Success)
+        assertEquals("Result file content is correct", branch2Res.data?.content, content2.split("\n"))
+        assertEquals("Result file name is correct", branch2Res.data?.filePath, testFileName)
     }
 }

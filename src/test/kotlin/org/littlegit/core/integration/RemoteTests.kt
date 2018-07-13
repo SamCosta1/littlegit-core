@@ -21,24 +21,22 @@ class RemoteTests: BaseIntegrationTest() {
     @Test fun validAddRemoteTest() {
         val remoteName = "origin"
         val remoteUrl = "www.remote.com"
-        littleGit.repoModifier.addRemote("origin", remoteUrl) { _, result ->
-            assertTrue("Adding remote was successful", result is GitResult.Success)
+        val addResult = littleGit.repoModifier.addRemote("origin", remoteUrl)
+        assertTrue("Adding remote was successful", addResult.result is GitResult.Success)
 
-            littleGit.repoReader.getRemotes { remotes, res->
-                assertTrue("Getting remotes was successful", res is GitResult.Success)
-                assertTrue("One remote found", remotes?.size == 1)
-                assertEquals("name correct", remotes?.get(0)?.remoteName, remoteName)
-                assertEquals("push url correct", remotes?.get(0)?.pushUrl, remoteUrl)
-                assertEquals("fetch url correct", remotes?.get(0)?.fetchUrl, remoteUrl)
-            }
-        }
+        val getResult = littleGit.repoReader.getRemotes()
+        val remotes = getResult.data
+        assertTrue("Getting remotes was successful", getResult.result is GitResult.Success)
+        assertTrue("One remote found", remotes?.size == 1)
+        assertEquals("name correct", remotes?.get(0)?.remoteName, remoteName)
+        assertEquals("push url correct", remotes?.get(0)?.pushUrl, remoteUrl)
+        assertEquals("fetch url correct", remotes?.get(0)?.fetchUrl, remoteUrl)
     }
 
     @Test fun missingRemoteNameTest() {
-        littleGit.repoModifier.addRemote("", "www.remote.com") { _, result ->
-            assertTrue("Adding remote was unsuccessful", result is GitResult.Error)
-            assertTrue("error should be invalid Remote name", result is GitResult.Error && result.err is GitError.InvalidRemoteInfo)
-        }
+        val result = littleGit.repoModifier.addRemote("", "www.remote.com").result
+        assertTrue("Adding remote was unsuccessful", result is GitResult.Error)
+        assertTrue("error should be invalid Remote name", result is GitResult.Error && result.err is GitError.InvalidRemoteInfo)
     }
 
     @Test fun duplicateRemoteTest() {
@@ -46,10 +44,9 @@ class RemoteTests: BaseIntegrationTest() {
 
         TestCommandHelper(testFolder.root).addRemote(remoteName)
 
-        littleGit.repoModifier.addRemote(remoteName, "www.bla.com") { _, result ->
-            assertTrue("Adding remote was unsuccessful", result is GitResult.Error)
-            assertTrue("error should be remote already exists", result is GitResult.Error && result.err is GitError.RemoteAlreadyExists)
-        }
+        val result = littleGit.repoModifier.addRemote(remoteName, "www.bla.com").result
+        assertTrue("Adding remote was unsuccessful", result is GitResult.Error)
+        assertTrue("error should be remote already exists", result is GitResult.Error && result.err is GitError.RemoteAlreadyExists)
     }
 
     @Test fun testReadRemotes() {
@@ -61,24 +58,27 @@ class RemoteTests: BaseIntegrationTest() {
                 .addRemote(remote1, remote1Url)
                 .addRemote(remote2, remote2Url)
 
-        littleGit.repoReader.getRemotes { remotes, result ->
-            assertTrue("Result is successful", result is GitResult.Success)
-            TestCase.assertNotNull("Remotes non null", remotes)
-            assertEquals(2, remotes!!.size)
+        val gitResult = littleGit.repoReader.getRemotes()
+        val remotes = gitResult.data
+        val result = gitResult.result
 
-            assertTrue(remotes.contains(Remote(remote1, remote1Url, remote1Url)))
-            assertTrue(remotes.contains(Remote(remote2, remote2Url, remote2Url)))
+        assertTrue("Result is successful", result is GitResult.Success)
+        TestCase.assertNotNull("Remotes non null", remotes)
+        assertEquals(2, remotes!!.size)
 
-        }
+        assertTrue(remotes.contains(Remote(remote1, remote1Url, remote1Url)))
+        assertTrue(remotes.contains(Remote(remote2, remote2Url, remote2Url)))
     }
 
     @Test fun testReadNoRemotes() {
         TestCommandHelper(testFolder.root).init()
 
-        littleGit.repoReader.getRemotes { remotes, result ->
-            assertTrue("Result is successful", result is GitResult.Success)
-            TestCase.assertNotNull("Remotes non null", remotes)
-            assertEquals(0, remotes!!.size)
-        }
+        val gitResult = littleGit.repoReader.getRemotes()
+        val result = gitResult.result
+        val remotes = gitResult.data
+
+        assertTrue("Result is successful", result is GitResult.Success)
+        TestCase.assertNotNull("Remotes non null", remotes)
+        assertEquals(0, remotes!!.size)
     }
 }

@@ -35,11 +35,10 @@ class FullCommitTests: BaseIntegrationTest() {
                 commitBody = listOf(commitMessage)
         )
 
-        littleGit.repoReader.getFullCommit(hash) { fullCommit, result ->
-            assertTrue("Result was success", result is GitResult.Success)
+        val result = littleGit.repoReader.getFullCommit(hash)
+        assertTrue("Result was success", result.result is GitResult.Success)
 
-            assertNotNull(fullCommit)
-            AssertHelper.assertFullCommit(expectedCommit, fullCommit!!, ignoreDiff = true)
-        }
+        assertNotNull(result.data)
+        AssertHelper.assertFullCommit(expectedCommit, result.data!!, ignoreDiff = true)
     }
 }
