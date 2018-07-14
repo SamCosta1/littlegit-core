@@ -12,10 +12,9 @@ class PushTests: BaseIntegrationTest() {
     @Test fun testNoRemote() {
         TestCommandHelper(testFolder.root).init()
 
-        littleGit.repoModifier.push { _, result ->
-            assertTrue("Result is error", result is GitResult.Error)
-            assertTrue("Result error is no remote", (result as GitResult.Error).err is GitError.NoRemote)
-        }
+        val result = littleGit.repoModifier.push().result
+        assertTrue("Result is error", result is GitResult.Error)
+        assertTrue("Result error is no remote", (result as GitResult.Error).err is GitError.NoRemote)
     }
 
     @Test(expected = IllegalArgumentException::class)

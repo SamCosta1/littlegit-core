@@ -2,4 +2,4 @@ package org.littlegit.core
 
 import org.littlegit.core.commandrunner.GitResult
 
-typealias LittleGitCommandCallback<T> = (T?, GitResult) -> Unit
+data class LittleGitCommandResult<out T>(val data: T?, val result: GitResult)

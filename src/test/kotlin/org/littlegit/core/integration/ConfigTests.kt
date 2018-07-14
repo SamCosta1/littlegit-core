@@ -11,31 +11,34 @@ class ConfigTests: BaseIntegrationTest() {
     @Test fun testUserName() {
         TestCommandHelper(testFolder.root).init()
         val testName = "Larry Smartington"
-        littleGit.configModifier.setName(testName) { name, gitResult ->
+        val res = littleGit.configModifier.setName(testName)
+        val name = res.data
+        val setNameRes = res.result
 
-            assertTrue("Result is successful", gitResult is GitResult.Success)
-            assertEquals("Name matches", name, testName)
+        assertTrue("Result is successful", setNameRes is GitResult.Success)
+        assertEquals("Name matches", name, testName)
 
-            littleGit.configModifier.getName { data, result ->
-                assertTrue("Result is successful", result is GitResult.Success)
-                assertEquals("Name matches", data, testName)
-            }
-        }
+        val getNameRes = littleGit.configModifier.getName()
+        val retrievedName = getNameRes.data
+        val retrievedResult = getNameRes.result
+
+        assertTrue("Result is successful", retrievedResult is GitResult.Success)
+        assertEquals("Name matches", retrievedName, testName)
+
     }
 
     @Test fun testEmail() {
         TestCommandHelper(testFolder.root).init()
         val testEmail = "larry@scooby.com"
 
-        littleGit.configModifier.setEmail(testEmail) { name, gitResult ->
+        val setResult = littleGit.configModifier.setEmail(testEmail)
+        assertTrue("Result is successful", setResult.result is GitResult.Success)
+        assertEquals("Name matches", setResult.data, testEmail)
 
-            assertTrue("Result is successful", gitResult is GitResult.Success)
-            assertEquals("Name matches", name, testEmail)
+        val result = littleGit.configModifier.getEmail()
+        assertTrue("Result is successful", result.result is GitResult.Success)
+        assertEquals("Name matches", result.data, testEmail)
 
-            littleGit.configModifier.getEmail { data, result ->
-                assertTrue("Result is successful", result is GitResult.Success)
-                assertEquals("Name matches", data, testEmail)
-            }
-        }
+
     }
 }

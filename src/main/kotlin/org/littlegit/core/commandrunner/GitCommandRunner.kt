@@ -2,7 +2,7 @@ package org.littlegit.core.commandrunner
 
 import kotlinx.coroutines.experimental.async
 import kotlinx.coroutines.experimental.runBlocking
-import org.littlegit.core.LittleGitCommandCallback
+import org.littlegit.core.LittleGitCommandResult
 import org.littlegit.core.model.GitError
 import org.littlegit.core.parser.GitResultParser
 import org.littlegit.core.shell.ShellRunner
@@ -26,7 +26,7 @@ class GitCommandRunner(private val shellRunner: ShellRunner) {
         return this
     }
 
-    fun <T>runCommand(repoDir: String? = null, command: GitCommand, resultProcessor: ResultProcessor<T>? = null, callback: LittleGitCommandCallback<T>?) {
+    fun <T>runCommand(repoDir: String? = null, command: GitCommand, resultProcessor: ResultProcessor<T>? = null): LittleGitCommandResult<T> {
         val repoPath = repoPath
         if (repoPath == null && repoDir == null) {
             throw RuntimeException("Repo path must be supplied or GitCommandRunner initialised")
@@ -34,21 +34,14 @@ class GitCommandRunner(private val shellRunner: ShellRunner) {
 
         val basePath = repoDir ?: repoPath
 
-        val result =    async {
-                            val shellResult = shellRunner.runCommand(basePath!!, command.command)
-                            val gitResult = GitResultParser.parseShellResult(shellResult)
-                            val processedResult: T? = when (gitResult) {
-                                is GitResult.Success -> resultProcessor?.invoke(gitResult)
-                                else -> null
-                            }
-
-                            Pair(processedResult, gitResult)
-                        }
-
-        runBlocking {
-            val completedResult = result.await()
-            callback?.invoke(completedResult.first, completedResult.second)
+        val shellResult = shellRunner.runCommand(basePath!!, command.command)
+        val gitResult = GitResultParser.parseShellResult(shellResult)
+        val processedResult: T? = when (gitResult) {
+            is GitResult.Success -> resultProcessor?.invoke(gitResult)
+            else -> null
         }
+
+        return LittleGitCommandResult(processedResult, gitResult)
     }
 
 

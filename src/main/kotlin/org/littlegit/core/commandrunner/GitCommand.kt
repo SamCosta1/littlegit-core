@@ -15,8 +15,14 @@ abstract class GitCommand {
         override val command: List<String> get() = listOf("git", "rev-parse", "--is-inside-work-tree")
     }
 
-    class InitializeRepo : GitCommand() {
-        override val command: List<String> get() = listOf("git", "init")
+    class InitializeRepo(val bare: Boolean, val name: String? = null) : GitCommand() {
+        override val command: List<String> get()  {
+            val commands = mutableListOf("git", "init")
+            if (bare)         commands.add("--bare")
+            if (name != null) commands.add(name)
+
+            return commands
+        }
     }
 
     class Commit(val commitFile: File) : GitCommand() {

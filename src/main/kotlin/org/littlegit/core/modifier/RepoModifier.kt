@@ -1,42 +1,40 @@
 package org.littlegit.core.modifier
-import kotlinx.coroutines.experimental.async
-import kotlinx.coroutines.experimental.runBlocking
-import org.littlegit.core.LittleGitCommandCallback
+import org.littlegit.core.LittleGitCommandResult
 import org.littlegit.core.commandrunner.GitCommand
 import org.littlegit.core.commandrunner.GitCommandRunner
+import org.littlegit.core.commandrunner.GitResult
+import org.littlegit.core.model.GitError
 import org.littlegit.core.util.ListUtils
 import java.io.File
 
 
 class RepoModifier(private val commandRunner: GitCommandRunner) {
 
-    fun initializeRepo(callback: LittleGitCommandCallback<Unit>? = null) {
-        commandRunner.runCommand(command = GitCommand.InitializeRepo(), callback = callback)
-    }
+    fun initializeRepo(bare: Boolean = false, name: String? = null): LittleGitCommandResult<Unit>
+            = commandRunner.runCommand(command = GitCommand.InitializeRepo(bare, name))
 
-    fun commit(message: String, callback: LittleGitCommandCallback<Unit>? = null) {
-        commit(listOf(message), callback)
-    }
+    fun commit(message: String): LittleGitCommandResult<Unit> = commit(listOf(message))
 
-    fun commit(message: List<String>, callback: LittleGitCommandCallback<Unit>? = null) {
 
+    fun commit(message: List<String>): LittleGitCommandResult<Unit> {
+
+        var result: LittleGitCommandResult<Unit>? = null
         var tempFile: File? = null
         try {
             tempFile = File.createTempFile("littlegit-commit-message", System.nanoTime().toString())
-            async { ListUtils.writeToFile(message, tempFile) }
+            ListUtils.writeToFile(message, tempFile)
 
-            runBlocking {
-                commandRunner.runCommand<Unit>(command = GitCommand.Commit(tempFile), callback = { _, result ->
-                    tempFile.delete()
-                    callback?.invoke(null, result)
-                })
-            }
+            result  = commandRunner.runCommand(command = GitCommand.Commit(tempFile))
+            tempFile.delete()
+
         } catch(e: Exception)  {
             tempFile?.delete()
         }
+
+        return result ?: LittleGitCommandResult(null, GitResult.Error(GitError.Unknown(listOf())))
     }
 
-    fun push(remote: String? = null, branch: String? = null, setUpstream: Boolean = false, callback: LittleGitCommandCallback<Unit>? = null) {
+    fun push(remote: String? = null, branch: String? = null, setUpstream: Boolean = false): LittleGitCommandResult<Unit> {
         if (setUpstream && ( branch.isNullOrBlank() || remote.isNullOrBlank() )) {
             throw IllegalArgumentException("Remote and branch must be non empty when setting upstream")
         }
@@ -47,10 +45,10 @@ class RepoModifier(private val commandRunner: GitCommandRunner) {
             GitCommand.Push(remote, branch)
         }
 
-        commandRunner.runCommand(command = command, callback = callback)
+        return commandRunner.runCommand(command = command)
     }
 
-    fun addRemote(remoteName: String, remoteUrl: String, callback: LittleGitCommandCallback<Unit>?) {
-        commandRunner.runCommand(command = GitCommand.AddRemote(remoteName, remoteUrl), callback = callback)
-    }
+    fun addRemote(remoteName: String, remoteUrl: String): LittleGitCommandResult<Unit>
+            = commandRunner.runCommand(command = GitCommand.AddRemote(remoteName, remoteUrl))
+
 }
