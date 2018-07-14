@@ -16,6 +16,23 @@ class InitializeTests: BaseIntegrationTest() {
         assertTrue(".git directory created", Files.exists(Paths.get("${testFolder.root.path}/.git")))
     }
 
+    @Test fun testInitBareRepo() {
+        val gitResult = littleGit.repoModifier.initializeRepo(bare = true)
+
+        assertTrue("Repo is initialized", gitResult.result is GitResult.Success)
+        assertTrue("repo initialised", Files.exists(Paths.get("${testFolder.root.path}/HEAD")))
+    }
+
+    @Test fun testInitBareRepoWithName() {
+        val repoName = "testRepoName.git"
+        val gitResult = littleGit.repoModifier.initializeRepo(bare = true, name = repoName)
+
+        assertTrue("Repo is initialized", gitResult.result is GitResult.Success)
+        assertFalse(".git directory created", Files.exists(Paths.get("${testFolder.root.path}/.git")))
+        assertTrue("directory created", Files.exists(Paths.get("${testFolder.root.path}/$repoName")))
+        assertTrue("repo initialised", Files.exists(Paths.get("${testFolder.root.path}/$repoName/HEAD")))
+    }
+
     @Test fun testCheckRepoNotInitialized() {
         assertFalse("Directory not initially a git directory", Files.exists(Paths.get("${testFolder.root.path}/.git")))
 

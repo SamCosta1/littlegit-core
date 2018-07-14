@@ -10,7 +10,8 @@ import java.io.File
 
 class RepoModifier(private val commandRunner: GitCommandRunner) {
 
-    fun initializeRepo(): LittleGitCommandResult<Unit> = commandRunner.runCommand(command = GitCommand.InitializeRepo())
+    fun initializeRepo(bare: Boolean = false, name: String? = null): LittleGitCommandResult<Unit>
+            = commandRunner.runCommand(command = GitCommand.InitializeRepo(bare, name))
 
     fun commit(message: String): LittleGitCommandResult<Unit> = commit(listOf(message))
 
