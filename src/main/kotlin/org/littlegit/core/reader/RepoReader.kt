@@ -26,7 +26,7 @@ class RepoReader(private val commandRunner: GitCommandRunner) {
         return commandRunner.runCommand(command = GitCommand.ListRemotes(), resultProcessor = resultProcessor)
     }
 
-    fun getFullCommitList(): LittleGitCommandResult<List<RawCommit>> {
+    fun getCommitList(): LittleGitCommandResult<List<RawCommit>> {
         val resultProcessor = { result: GitResult.Success -> LogParser.parse(result.lines) }
 
         return commandRunner.runCommand(command = GitCommand.Log(), resultProcessor = resultProcessor)

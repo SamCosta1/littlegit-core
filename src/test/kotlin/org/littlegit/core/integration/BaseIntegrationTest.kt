@@ -14,6 +14,8 @@ open class BaseIntegrationTest {
 
     @Before
     open fun setup() {
-        littleGit = LittleGitCore(testFolder.root.path)
+        littleGit = LittleGitCore.Builder()
+                        .setRepoDirectoryPath(testFolder.root.path)
+                        .build()
     }
 }
