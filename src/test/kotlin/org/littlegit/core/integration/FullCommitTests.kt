@@ -2,6 +2,7 @@ package org.littlegit.core.integration
 
 import junit.framework.TestCase.*
 import org.junit.Test
+import org.littlegit.core.LittleGitCore
 import org.littlegit.core.commandrunner.GitResult
 import org.littlegit.core.helper.AssertHelper
 import org.littlegit.core.helper.TestCommandHelper
