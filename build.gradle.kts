@@ -41,20 +41,6 @@ jacoco {
     reportsDir = file("$buildDir/jacoco")
 }
 
-tasks {
-    "jacocoTestReport"(JacocoReport::class) {
-
-
-        reports {
-            html.isEnabled = true
-            html.destination = File("$buildDir/jacoco")
-        }
-
-        val check by tasks
-        check.dependsOn(this)
-    }
-}
-
 publishing {
     publications {
         create("default", MavenPublication::class.java) {
