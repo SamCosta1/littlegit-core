@@ -1,10 +1,14 @@
 import org.gradle.jvm.tasks.Jar
-group = "org.example"
+import org.jetbrains.kotlin.config.AnalysisFlag.Flags.experimental
+import org.jetbrains.kotlin.gradle.dsl.Coroutines
+
+
+group = "org.littlegit.core"
 version = "0.0.1"
 
 plugins {
-    `build-scan`
     `maven-publish`
+    jacoco
     kotlin("jvm") version "1.2.31"
     id("org.jetbrains.dokka") version "0.9.16"
 }
@@ -16,13 +20,7 @@ repositories {
 dependencies {
     implementation(kotlin("stdlib", "1.2.31"))
     testImplementation("junit:junit:4.12")
-}
-
-buildScan {
-    setLicenseAgreementUrl("https://gradle.com/terms-of-service")
-    setLicenseAgree("yes")
-
-    publishAlways()
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:0.21")
 }
 
 val dokka by tasks.getting(org.jetbrains.dokka.gradle.DokkaTask::class) {
@@ -38,6 +36,11 @@ val dokkaJar by tasks.creating(Jar::class) {
     from(dokka)
 }
 
+jacoco {
+    toolVersion = "0.7.9"
+    reportsDir = file("$buildDir/jacoco")
+}
+
 publishing {
     publications {
         create("default", MavenPublication::class.java) {
@@ -50,4 +53,8 @@ publishing {
             url = uri("$buildDir/repository")
         }
     }
+}
+
+kotlin {
+    experimental.coroutines = Coroutines.ENABLE
 }
