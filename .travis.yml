@@ -3,22 +3,20 @@ matrix:
   include:
   - os: linux
     jdk: oraclejdk8
-  - os: osx
-    osx_image: xcode8.3
+#  - os: osx
+#    osx_image: xcode8.3
 install: true
-deploy:
-  provider: releases
-  api_key:
-    secure: github-api-key
-  file: build/libs/*.jar
-  skip_cleanup: true
-  on:
-    tags: true
 script:
 - "./gradlew clean"
 - "./gradlew build"
 - "./gradlew test"
-
-env:
-  global:
-    - github-api-key=Lc7ugFMEvZjeRtUZwKwPBtVIkd+YioA3WFENPYwIoQpUWU7ojSG/vgkLFQSfiKMZdQ2UGk+9EmN6RiS1FyVbQJ+PAhwQ1dkbRymgjAjCONcmrj6GToutg6ENelidtV4+BtF2T0ArhfBjs3JYvhrf8+AIMmpZpDpBoPLvuiRczj2/PfMTLQpBWkpU76jq/IAp1RdpDFEOUp3WrBwupdPtv/5EPeiYP9BuEgXJGUkgUs4QzrW68SA9Goz8f7nRkLGEP1mYEmtG49b/ysBtIibjb1ApoEDmDrttsqOIHKWVW4hOA1H5ix1vjofGE6B8m79IKTHn1sU/5jAmvIJV7cfT+IoaDXIoGdpCVgAtDzspqCAd9zlNwXIC8Wj/z6MWztm0A6NZZTbIb23HxKfhDLIStlIg7eL9gzcak56AwaDHudIIYI+9b7rkZxzDe9USMUDb4NP06Mo+0kOJxcNnU4+XgJe2nwf+ZAwFZGVYXv4QUvMulYNtQgpzBUmIKwbWGf7ivUVuXMiTB8H6SXI+SssRVjwqerJJqLLky4UU+Dl4dYqvLHmm3ceo+UPmg290sREiovnumVCsVkYnijSnA/ZQRcZw92kL8jH8c7tQigf0gdnvsny6My9ImrZt0gEM+AIpojpC/ZtDP/sOJvLb2EHOPUUCxSq4+wJ0b1WCXdqKags=
+- "./gradlew jar"
+deploy:
+  provider: releases
+  api_key: $GITHUB_TOKEN
+  file_glob: true
+  file:
+   - "build/libs/*"
+  skip_cleanup: true
+  on:
+    tags: true

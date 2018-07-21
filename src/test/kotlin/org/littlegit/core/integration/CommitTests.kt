@@ -105,15 +105,4 @@ class CommitTests: BaseIntegrationTest() {
         assertEquals(emptyList<Hunk>(), newFile.hunks)
         assertEquals(commitSubject, fullCommit.commitSubject)
     }
-
-    @Test fun test() {
-        val core = LittleGitCore.Builder()
-                .setRemoteHost("ec2-34-254-60-101.eu-west-1.compute.amazonaws.com")
-                .setRemoteUser("ubuntu")
-                .setRepoDirectoryPath("~/test.git")
-                .build()
-
-        val commit = core.repoReader.getFullCommit("ea71e4a141891c61a813a56ab20be55b59ed3774")
-        println((commit.result as GitResult.Success).lines.joinWithNewLines())
-    }
 }
