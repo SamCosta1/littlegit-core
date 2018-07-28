@@ -73,8 +73,11 @@ abstract class GitCommand {
     }
 
     class FullCommit(val commit: CommitHash) : GitCommand() {
-
         override val command: List<String> get() = listOf("git", "show", commit, "--date=iso", "--decorate=full", "--format=\"${Log.formatWithBody}\"")
+    }
+
+    class StageFile(val file: File): GitCommand() {
+        override val command: List<String> get() = listOf("git", "add", file.absolutePath)
     }
 
 }

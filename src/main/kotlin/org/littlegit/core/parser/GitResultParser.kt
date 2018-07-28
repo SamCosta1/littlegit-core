@@ -37,6 +37,10 @@ object GitResultParser {
             return GitResult.Error(GitError.NoUpstreamBranch(lines))
         }
 
+        if (lines.first().startsWith("fatal: pathspec") && lines.first().endsWith("did not match any files")) {
+            return GitResult.Error(GitError.PathspecMatchesNoFiles(lines))
+        }
+
         if (lines.first().startsWith("fatal: unable to access") && lines.first().contains("Could not resolve host")) {
             return GitResult.Error(GitError.CannotReadRemote(lines))
         }

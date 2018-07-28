@@ -43,30 +43,42 @@ class TestCommandHelper(private val file: File) {
     }
 
     fun getLastCommitMessage(): String {
-        return execute("git log -1 --pretty=%B")
+        return execute("git log -1 --pretty=%B").first()
     }
 
     fun getLastCommitHash(): String {
-        return execute("git log -1 --pretty=%H")
+        return execute("git log -1 --pretty=%H").first()
     }
 
     fun getLastCommitTimeStamp(): String {
-        return execute("git log -1 --date=iso --pretty=%ct")
+        return execute("git log -1 --date=iso --pretty=%ct").first()
     }
 
-    fun run(command: String): String {
+    fun run(command: String): List<String> {
         return execute(command)
     }
 
     fun writeToFile(file: String, content: String): TestCommandHelper {
 
-        val path = Paths.get("${this.file.absolutePath}/$file")
-        Files.write(path, listOf(content), Charset.forName("UTF-8"))
+        writeToFileAndReturnIt(file, content)
         return this
     }
 
-    fun execute(command: String): String {
-        val output = StringBuffer()
+    fun writeToFileAndReturnIt(file: String, content: String): File {
+
+        val path = Paths.get("${this.file.absolutePath}/$file")
+        Files.write(path, listOf(content), Charset.forName("UTF-8"))
+        return path.toFile()
+    }
+
+    fun isStaged(file: File): Boolean {
+        val stagedFiles = execute("git diff --cached --name-only")
+
+        return stagedFiles.any { file.absoluteFile.endsWith(it) }
+    }
+
+    private fun execute(command: String): List<String> {
+        val output = mutableListOf<String>()
 
         val p: Process
         try {
@@ -87,7 +99,7 @@ class TestCommandHelper(private val file: File) {
                 line = reader.readLine()
 
                 if (line != null && line.isNotBlank()) {
-                    output.append(line)
+                    output.add(line)
                 }
 
             } while (line != null)
@@ -96,7 +108,7 @@ class TestCommandHelper(private val file: File) {
             e.printStackTrace()
         }
 
-        return output.toString().trim()
+        return output
     }
 
     fun branchAndCheckout(branch: String): TestCommandHelper {
