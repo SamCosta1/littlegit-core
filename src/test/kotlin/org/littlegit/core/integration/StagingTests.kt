@@ -58,4 +58,31 @@ class StagingTests: BaseIntegrationTest() {
         assertTrue(gitResult.err is GitError.PathspecMatchesNoFiles)
     }
 
+    fun testUnStageExistingFile() {
+        val fileName = "test.txt"
+
+        val file = commandHelper.writeToFileAndReturnIt(fileName, "Some content")
+
+        littleGit.repoModifier.stageFile(file)
+        assertTrue(commandHelper.isStaged(file))
+
+        val result = littleGit.repoModifier.unStageFile(file)
+        assertTrue(result.result is GitResult.Success)
+        assertFalse(commandHelper.isStaged(file))
+    }
+
+    @Test
+    fun testUnStageNonExistentFile() {
+        val fileName = "test.txt"
+
+        val file = File("${testFolder.root.absolutePath}/$fileName")
+
+        val gitResult = littleGit.repoModifier.stageFile(file).result
+        assertFalse(file.exists())
+        assertTrue(gitResult is GitResult.Error)
+
+        gitResult as GitResult.Error
+        assertTrue(gitResult.err is GitError.PathspecMatchesNoFiles)
+    }
+
 }

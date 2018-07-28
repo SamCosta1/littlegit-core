@@ -37,7 +37,8 @@ object GitResultParser {
             return GitResult.Error(GitError.NoUpstreamBranch(lines))
         }
 
-        if (lines.first().startsWith("fatal: pathspec") && lines.first().endsWith("did not match any files")) {
+        if (lines.first().startsWith("fatal: pathspec") && lines.first().endsWith("did not match any files") ||
+            lines.first().startsWith("fatal: ambiguous argument") && lines.first().endsWith("unknown revision or path not in the working tree.")) {
             return GitResult.Error(GitError.PathspecMatchesNoFiles(lines))
         }
 

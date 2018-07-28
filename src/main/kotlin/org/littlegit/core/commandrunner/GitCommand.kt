@@ -80,4 +80,7 @@ abstract class GitCommand {
         override val command: List<String> get() = listOf("git", "add", file.absolutePath)
     }
 
+    class UnStageFile(val file: File): GitCommand() {
+        override val command: List<String> get() = listOf("git", "reset", file.absolutePath)
+    }
 }

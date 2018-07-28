@@ -52,5 +52,6 @@ class RepoModifier(private val commandRunner: GitCommandRunner) {
             = commandRunner.runCommand(command = GitCommand.AddRemote(remoteName, remoteUrl))
 
     fun stageFile(file: File): LittleGitCommandResult<Unit> = commandRunner.runCommand(command = GitCommand.StageFile(file))
+    fun unStageFile(file: File): LittleGitCommandResult<Unit>  = commandRunner.runCommand(command = GitCommand.UnStageFile(file))
 
 }
