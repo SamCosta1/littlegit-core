@@ -4,6 +4,10 @@ import java.io.File
 import java.nio.file.Files
 import java.nio.file.Path
 import java.util.stream.Collectors
+import java.io.IOException
+import java.util.stream.Stream
+
+
 
 fun List<String>.joinWithNewLines(): String {
     return this.joinToString(System.lineSeparator())
@@ -43,6 +47,5 @@ object ListUtils {
         }
     }
 
-    fun readFromFile(path: Path) = Files.lines(path).collect(Collectors.toList())
-
+    fun readFromPath(path: Path) = path.toFile().readLines()
 }

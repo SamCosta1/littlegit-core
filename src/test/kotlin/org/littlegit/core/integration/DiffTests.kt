@@ -91,4 +91,70 @@ class DiffTests: BaseIntegrationTest() {
         assertEquals(1, unTrackedFiles?.first()?.content?.size)
         assertEquals(unTrackedFileContent, unTrackedFiles?.first()?.content?.first())
     }
+
+    @Test
+    fun testGetUnStagedChanges_NoUnTrackedFiles() {
+        val trackedFileName = "trackedFile.txt"
+
+        // Commit the tracked file
+        val originalLine = "Gandalf rocks"
+        val newLine = "Gandalf really rocks"
+
+        commandHelper
+                .writeToFile(trackedFileName, originalLine)
+                .addAll()
+                .commit("Commit")
+                .writeToFile(trackedFileName, newLine)
+
+        val unStagedChangesResult = littleGit.repoReader.getUnstagedChanges()
+        assertTrue(unStagedChangesResult.result is GitResult.Success)
+
+        // Assert tracked files correct
+        val trackedFiles = unStagedChangesResult.data?.trackedFilesDiff
+        assertEquals(1, trackedFiles?.fileDiffs?.size)
+
+        val file = trackedFiles?.fileDiffs?.first() as FileDiff.ChangedFile
+        assertEquals(trackedFileName, file.filePath)
+
+        assertEquals(listOf(
+                DiffLine(DiffLineType.Deletion,1, null, originalLine),
+                DiffLine(DiffLineType.Addition,null, 1, newLine)
+        ), file.hunks.first().lines)
+
+        // Assert un-tracked files correct
+        val unTrackedFiles = unStagedChangesResult.data?.unTrackedFiles
+        assertEquals(0, unTrackedFiles?.size)
+    }
+
+    @Test
+    fun testGetUnStagedChanges_NoTrackedFiles() {
+        val unTrackedFileName = "unTrackedFile.txt"
+
+        val unTrackedFileContent = "Saruman sucks"
+
+        commandHelper
+                .writeToFile(unTrackedFileName, unTrackedFileContent)
+
+        val unStagedChangesResult = littleGit.repoReader.getUnstagedChanges()
+        assertTrue(unStagedChangesResult.result is GitResult.Success)
+
+        // Assert tracked files correct
+        val trackedFiles = unStagedChangesResult.data?.trackedFilesDiff
+        assertEquals(0, trackedFiles?.fileDiffs?.size)
+
+        // Assert un-tracked files correct
+        val unTrackedFiles = unStagedChangesResult.data?.unTrackedFiles
+        assertEquals(1, unTrackedFiles?.size)
+        assertEquals(unTrackedFileName, unTrackedFiles?.first()?.filePath)
+        assertEquals(1, unTrackedFiles?.first()?.content?.size)
+        assertEquals(unTrackedFileContent, unTrackedFiles?.first()?.content?.first())
+    }
+
+    @Test
+    fun testGetUnStagedChanges_NoChanges() {
+        val unStagedChangesResult = littleGit.repoReader.getUnstagedChanges()
+        assertTrue(unStagedChangesResult.result is GitResult.Success)
+        assertEquals(0, unStagedChangesResult.data?.trackedFilesDiff?.fileDiffs?.size)
+        assertEquals(0, unStagedChangesResult.data?.unTrackedFiles?.size)
+    }
 }
