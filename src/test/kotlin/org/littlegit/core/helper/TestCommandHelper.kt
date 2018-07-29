@@ -66,7 +66,7 @@ class TestCommandHelper(private val file: File) {
 
     fun writeToFileAndReturnIt(file: String, content: String): File {
 
-        val path = Paths.get("${this.file.absolutePath}/$file")
+        val path = Paths.get(this.file.absolutePath, file)
         Files.write(path, listOf(content), Charset.forName("UTF-8"))
         return path.toFile()
     }
