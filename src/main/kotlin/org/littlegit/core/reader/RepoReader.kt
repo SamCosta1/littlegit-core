@@ -1,14 +1,8 @@
 package org.littlegit.core.reader
 import org.littlegit.core.LittleGitCommandResult
 import org.littlegit.core.commandrunner.*
-import org.littlegit.core.model.FullCommit
-import org.littlegit.core.model.GitError
-import org.littlegit.core.model.LittleGitFile
-import org.littlegit.core.model.RawCommit
-import org.littlegit.core.parser.FullCommitParser
-import org.littlegit.core.parser.LogParser
-import org.littlegit.core.parser.Remote
-import org.littlegit.core.parser.RemoteParser
+import org.littlegit.core.model.*
+import org.littlegit.core.parser.*
 
 class RepoReader(private val commandRunner: GitCommandRunner) {
 
@@ -67,5 +61,13 @@ class RepoReader(private val commandRunner: GitCommandRunner) {
         }
 
         return commandRunner.runCommand(command = GitCommand.FullCommit(commit), resultProcessor = resultProcessor)
+    }
+
+    fun getStagingAreaDiff(): LittleGitCommandResult<Diff> {
+        val resultProcessor = { result: GitResult.Success ->
+            DiffParser.parse(result.lines)
+        }
+
+        return commandRunner.runCommand(command = GitCommand.StagingAreaDiff(), resultProcessor = resultProcessor)
     }
 }

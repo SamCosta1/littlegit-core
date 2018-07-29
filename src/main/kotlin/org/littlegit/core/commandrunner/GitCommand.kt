@@ -83,4 +83,8 @@ abstract class GitCommand {
     class UnStageFile(val file: File): GitCommand() {
         override val command: List<String> get() = listOf("git", "reset", file.absolutePath)
     }
+
+    class StagingAreaDiff: GitCommand() {
+        override val command: List<String> get() = listOf("git", "diff", "--cached")
+    }
 }
