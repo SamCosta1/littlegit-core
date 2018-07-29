@@ -110,7 +110,7 @@ object DiffParser {
     }
 
     private fun stripQuotesIfNeeded(filePath: String): String {
-        // Sometimes the path is wrapped in quotes sometimes it isn't account for both cases
+        // Sometimes the path is wrapped in quotes sometimes it isn't, account for both cases
         if (filePath.startsWith('"')) {
             return filePath.removePrefix("\"").removeSuffix("\"")
         }

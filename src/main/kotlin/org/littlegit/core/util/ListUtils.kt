@@ -1,6 +1,9 @@
 package org.littlegit.core.util
 
 import java.io.File
+import java.nio.file.Files
+import java.nio.file.Path
+import java.util.stream.Collectors
 
 fun List<String>.joinWithNewLines(): String {
     return this.joinToString(System.lineSeparator())
@@ -39,4 +42,7 @@ object ListUtils {
             }
         }
     }
+
+    fun readFromFile(path: Path) = Files.lines(path).collect(Collectors.toList())
+
 }

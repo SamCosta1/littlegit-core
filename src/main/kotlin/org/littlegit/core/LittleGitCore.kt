@@ -8,7 +8,7 @@ import org.littlegit.core.shell.ShellRunner
 import org.littlegit.core.shell.ShellRunnerLocal
 import org.littlegit.core.shell.ShellRunnerRemote
 
-class LittleGitCore private constructor(shellRunner: ShellRunner) {
+class LittleGitCore private constructor(shellRunner: ShellRunner, repoPath: String) {
 
      class Builder {
         private var user: String? = null
@@ -39,18 +39,16 @@ class LittleGitCore private constructor(shellRunner: ShellRunner) {
             if (repoPath.isNullOrBlank()) throw IllegalStateException("You must specify a directory for the repo")
 
             return if (!host.isNullOrBlank()) {
-                LittleGitCore(ShellRunnerRemote(user!!, host!!, repoPath!!))
+                LittleGitCore(ShellRunnerRemote(user!!, host!!, repoPath!!), repoPath!!)
             } else {
-                LittleGitCore(ShellRunnerLocal(repoPath!!))
+                LittleGitCore(ShellRunnerLocal(repoPath!!), repoPath!!)
             }
-
         }
-
     }
 
     private val commandRunner = GitCommandRunner(shellRunner)
 
-    val repoReader = RepoReader(commandRunner)
+    val repoReader = RepoReader(commandRunner, repoPath)
     val repoModifier = RepoModifier(commandRunner)
     val configModifier = ConfigModifier(commandRunner)
 }

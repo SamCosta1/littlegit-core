@@ -3,8 +3,11 @@ import org.littlegit.core.LittleGitCommandResult
 import org.littlegit.core.commandrunner.*
 import org.littlegit.core.model.*
 import org.littlegit.core.parser.*
+import org.littlegit.core.util.ListUtils
+import java.nio.file.Paths
 
-class RepoReader(private val commandRunner: GitCommandRunner) {
+class RepoReader(private val commandRunner: GitCommandRunner,
+                 private val repoPath: String) {
 
     fun getGraph(): LittleGitCommandResult<GitGraph> {
         val resultProcessor = { result: GitResult.Success ->
@@ -69,5 +72,31 @@ class RepoReader(private val commandRunner: GitCommandRunner) {
         }
 
         return commandRunner.runCommand(command = GitCommand.StagingAreaDiff(), resultProcessor = resultProcessor)
+    }
+
+    fun getUnstagedChanges(): LittleGitCommandResult<UnstagedChanges> {
+        val unTrackedFilesProcessor = { result: GitResult.Success ->
+            result.lines.map {
+                LittleGitFile(ListUtils.readFromFile(Paths.get(repoPath, it)) , it)
+            }
+        }
+
+        val diffProcessor = { result: GitResult.Success ->
+            DiffParser.parse(result.lines)
+        }
+
+        val unTrackedFilesResult = commandRunner.runCommand(command = GitCommand.GetUnTrackedNonIgnoredFiles(), resultProcessor = unTrackedFilesProcessor)
+        val trackedFilesDiffResult = commandRunner.runCommand(command = GitCommand.UnStagedDiff(), resultProcessor = diffProcessor)
+
+        if (trackedFilesDiffResult.result is GitResult.Error) {
+            return LittleGitCommandResult(null, trackedFilesDiffResult.result)
+        }
+
+        if (unTrackedFilesResult.result is GitResult.Error) {
+            return LittleGitCommandResult(null, unTrackedFilesResult.result)
+        }
+
+        val unTrackedFiles = unTrackedFilesResult.data
+        return LittleGitCommandResult(UnstagedChanges(trackedFilesDiffResult.data!!, unTrackedFiles!!), unTrackedFilesResult.result)
     }
 }

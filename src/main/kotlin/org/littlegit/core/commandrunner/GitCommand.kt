@@ -58,7 +58,7 @@ abstract class GitCommand {
     }
 
     class ListRemotes : GitCommand() {
-        override val command: List<String> get() = listOf("git", "remote", "-vv")
+        override val command: List<String> = listOf("git", "remote", "-vv")
     }
 
     class Log : GitCommand() {
@@ -85,6 +85,14 @@ abstract class GitCommand {
     }
 
     class StagingAreaDiff: GitCommand() {
-        override val command: List<String> get() = listOf("git", "diff", "--cached")
+        override val command: List<String> = listOf("git", "diff", "--cached")
+    }
+
+    class GetUnTrackedNonIgnoredFiles: GitCommand() {
+        override val command: List<String> = listOf("git", "ls-files", "--exclude-standard", "--others")
+    }
+
+    class UnStagedDiff: GitCommand() {
+        override val command: List<String> = listOf("git", "diff")
     }
 }
