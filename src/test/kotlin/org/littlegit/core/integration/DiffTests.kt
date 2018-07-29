@@ -69,7 +69,7 @@ class DiffTests: BaseIntegrationTest() {
                 .writeToFile(unTrackedFileName, unTrackedFileContent)
                 .writeToFile(trackedFileName, newLine)
 
-        val unStagedChangesResult = littleGit.repoReader.getUnstagedChanges()
+        val unStagedChangesResult = littleGit.repoReader.getUnStagedChanges()
         assertTrue(unStagedChangesResult.result is GitResult.Success)
 
         // Assert tracked files correct
@@ -106,7 +106,7 @@ class DiffTests: BaseIntegrationTest() {
                 .commit("Commit")
                 .writeToFile(trackedFileName, newLine)
 
-        val unStagedChangesResult = littleGit.repoReader.getUnstagedChanges()
+        val unStagedChangesResult = littleGit.repoReader.getUnStagedChanges()
         assertTrue(unStagedChangesResult.result is GitResult.Success)
 
         // Assert tracked files correct
@@ -135,7 +135,7 @@ class DiffTests: BaseIntegrationTest() {
         commandHelper
                 .writeToFile(unTrackedFileName, unTrackedFileContent)
 
-        val unStagedChangesResult = littleGit.repoReader.getUnstagedChanges()
+        val unStagedChangesResult = littleGit.repoReader.getUnStagedChanges()
         assertTrue(unStagedChangesResult.result is GitResult.Success)
 
         // Assert tracked files correct
@@ -152,7 +152,7 @@ class DiffTests: BaseIntegrationTest() {
 
     @Test
     fun testGetUnStagedChanges_NoChanges() {
-        val unStagedChangesResult = littleGit.repoReader.getUnstagedChanges()
+        val unStagedChangesResult = littleGit.repoReader.getUnStagedChanges()
         assertTrue(unStagedChangesResult.result is GitResult.Success)
         assertEquals(0, unStagedChangesResult.data?.trackedFilesDiff?.fileDiffs?.size)
         assertEquals(0, unStagedChangesResult.data?.unTrackedFiles?.size)

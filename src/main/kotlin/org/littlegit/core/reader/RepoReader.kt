@@ -74,7 +74,7 @@ class RepoReader(private val commandRunner: GitCommandRunner,
         return commandRunner.runCommand(command = GitCommand.StagingAreaDiff(), resultProcessor = resultProcessor)
     }
 
-    fun getUnstagedChanges(): LittleGitCommandResult<UnstagedChanges> {
+    fun getUnStagedChanges(): LittleGitCommandResult<UnstagedChanges> {
         val unTrackedFilesProcessor = { result: GitResult.Success ->
             result.lines.map {
                 LittleGitFile(ListUtils.readFromPath(Paths.get(repoPath, it)) , it)
