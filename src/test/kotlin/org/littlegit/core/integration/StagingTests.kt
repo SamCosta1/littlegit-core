@@ -8,7 +8,6 @@ import org.littlegit.core.commandrunner.GitResult
 import org.littlegit.core.helper.TestCommandHelper
 import org.littlegit.core.model.FileDiff
 import org.littlegit.core.model.GitError
-import java.io.File
 
 class StagingTests: BaseIntegrationTest() {
     private lateinit var commandHelper: TestCommandHelper
@@ -57,7 +56,7 @@ class StagingTests: BaseIntegrationTest() {
         assertTrue(gitResult is GitResult.Error)
 
         gitResult as GitResult.Error
-        assertTrue(gitResult.err is GitError.PathspecMatchesNoFiles)
+        assertTrue(gitResult.err is GitError.PathSpecMatchesNoFiles)
     }
 
     @Test
@@ -85,7 +84,7 @@ class StagingTests: BaseIntegrationTest() {
         assertTrue(gitResult is GitResult.Error)
 
         gitResult as GitResult.Error
-        assertTrue(gitResult.err is GitError.PathspecMatchesNoFiles)
+        assertTrue(gitResult.err is GitError.PathSpecMatchesNoFiles)
     }
 
     @Test
@@ -240,5 +239,39 @@ class StagingTests: BaseIntegrationTest() {
 
         stagedDiff = littleGit.repoReader.getStagingAreaDiff()
         assertTrue(stagedDiff.data?.fileDiffs?.isEmpty()!!)
+    }
+
+    @Test
+    fun testStageAlreadyStagedHunk() {
+        val fileName = "rogue.txt"
+
+        val testContent = """
+            Ash nazg durbatulûk, ash nazg gimbatul
+            ash nazg thrakatulûk agh burzum-ishi krimpatul.
+        """.trimIndent()
+
+        val modifiedContent = testContent.split("\n").toMutableList().dropLast(1)
+
+        // First commit a change to the file since only file modifications create hunks (i.e. new files don't)
+        commandHelper.writeToFile(fileName, testContent.split("\n"))
+                .addAll()
+                .commit("Mordorrr")
+                .writeToFile(fileName, modifiedContent)
+
+        val diff = littleGit.repoReader.getUnStagedChanges()
+
+        // This generates one hunk
+        val fileDiff = diff.data?.trackedFilesDiff?.fileDiffs?.first()
+        assertTrue(fileDiff is FileDiff.ChangedFile); fileDiff as FileDiff.ChangedFile
+        val hunk = fileDiff.hunks.lastOrNull()
+        assertNotNull(hunk); hunk!!
+
+        // Stage everything
+        commandHelper.addAll()
+
+        val gitResult = littleGit.repoModifier.stageHunk(hunk, fileDiff)
+        val result = gitResult.result
+        assertTrue(result is GitResult.Error); result as GitResult.Error
+        assertTrue(result.err is GitError.PatchDoesNotApply)
     }
 }
