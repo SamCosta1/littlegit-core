@@ -1,5 +1,7 @@
 package org.littlegit.core.commandrunner
 
+import org.littlegit.core.model.FileDiff
+import org.littlegit.core.model.Hunk
 import java.io.File
 
 typealias CommitHash = String
@@ -95,4 +97,9 @@ abstract class GitCommand {
     class UnStagedDiff: GitCommand() {
         override val command: List<String> = listOf("git", "diff")
     }
+
+    class ApplyPatch(patchFile: File) : GitCommand() {
+        override val command: List<String> = listOf("git", "apply", "--cached", patchFile.canonicalPath)
+    }
+
 }

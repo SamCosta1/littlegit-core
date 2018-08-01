@@ -58,6 +58,7 @@ class StagingTests: BaseIntegrationTest() {
         assertTrue(gitResult.err is GitError.PathspecMatchesNoFiles)
     }
 
+    @Test
     fun testUnStageExistingFile() {
         val fileName = "test.txt"
 
