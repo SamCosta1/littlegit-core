@@ -59,15 +59,21 @@ class TestCommandHelper(private val file: File) {
     }
 
     fun writeToFile(file: String, content: String): TestCommandHelper {
-
         writeToFileAndReturnIt(file, content)
         return this
     }
 
-    fun writeToFileAndReturnIt(file: String, content: String): File {
+    fun writeToFile(file: String, content: List<String>): TestCommandHelper {
+        writeToFileAndReturnIt(file, content)
+        return this
+    }
+
+    fun writeToFileAndReturnIt(file: String, content: String): File  = writeToFileAndReturnIt(file, listOf(content))
+
+    fun writeToFileAndReturnIt(file: String, content: List<String>): File {
 
         val path = Paths.get(this.file.absolutePath, file)
-        Files.write(path, listOf(content), Charset.forName("UTF-8"))
+        Files.write(path, content, Charset.forName("UTF-8"))
         return path.toFile()
     }
 
