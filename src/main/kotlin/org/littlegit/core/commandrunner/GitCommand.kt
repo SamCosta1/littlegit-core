@@ -28,7 +28,7 @@ abstract class GitCommand {
     }
 
     class Commit(val commitFile: File) : GitCommand() {
-        override val command: List<String> get() = listOf("git", "commit", "-F", commitFile.absolutePath)
+        override val command: List<String> get() = listOf("git", "commit", "-F", commitFile.canonicalPath)
     }
 
     class SetUserEmail(val email: String, val global: Boolean = false) : GitCommand() {
@@ -79,11 +79,11 @@ abstract class GitCommand {
     }
 
     class StageFile(val file: File): GitCommand() {
-        override val command: List<String> get() = listOf("git", "add", file.absolutePath)
+        override val command: List<String> get() = listOf("git", "add", file.canonicalPath)
     }
 
     class UnStageFile(val file: File): GitCommand() {
-        override val command: List<String> get() = listOf("git", "reset", file.absolutePath)
+        override val command: List<String> get() = listOf("git", "reset", file.canonicalPath)
     }
 
     class StagingAreaDiff: GitCommand() {
