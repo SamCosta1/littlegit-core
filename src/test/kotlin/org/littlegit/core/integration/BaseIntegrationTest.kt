@@ -4,6 +4,8 @@ import org.junit.Before
 import org.junit.Rule
 import org.junit.rules.TemporaryFolder
 import org.littlegit.core.LittleGitCore
+import java.io.File
+import java.nio.file.Paths
 
 open class BaseIntegrationTest {
 
@@ -18,4 +20,6 @@ open class BaseIntegrationTest {
                         .setRepoDirectoryPath(testFolder.root.path)
                         .build()
     }
+
+    protected fun fileInTestFolder(name: String): File = Paths.get(testFolder.root.canonicalPath, name).toFile()
 }
