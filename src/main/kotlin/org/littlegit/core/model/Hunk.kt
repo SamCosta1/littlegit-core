@@ -13,7 +13,9 @@ data class Hunk(val fromStartLine: Int,
     fun generatePatch(fileDiff: FileDiff.ChangedFile): Patch {
         val patch = generatePatchHeaderLines(fileDiff)
 
-        patch.add("@@ -$fromStartLine,$numFromLines +$toStartLine,$numToLines @@")
+        val fromLinesSection = if (numFromLines != 0) ",$numFromLines" else ""
+        val toLinesSection = if (numToLines != 0) ",$numToLines" else ""
+        patch.add("@@ -$fromStartLine$fromLinesSection +$toStartLine$toLinesSection @@")
 
         lines.forEach {
             val lineStart = getDiffLineSymbol(it.type)
@@ -30,12 +32,13 @@ data class Hunk(val fromStartLine: Int,
         DiffLineType.NoNewLineAtEndOfFile -> '/'
     }
 
-
     // Generates a patch which undoes this hunk
     fun generateInversePatch(fileDiff: FileDiff.ChangedFile): Patch {
         val patch = generatePatchHeaderLines(fileDiff)
 
-        patch.add("@@ -$toStartLine,$numToLines +$fromStartLine,$numFromLines @@")
+        val fromLinesSection = if (numFromLines != 0) ",$numFromLines" else ""
+        val toLinesSection = if (numToLines != 0) ",$numToLines" else ""
+        patch.add("@@ -$toStartLine$toLinesSection +$fromStartLine$fromLinesSection @@")
 
         lines.forEach {
             val lineStart = getDiffLineSymbol(it.type.inverse)
@@ -65,8 +68,5 @@ data class Hunk(val fromStartLine: Int,
             "--- a/$fromPath",
             "+++ b/$toPath"
         )
-
-
     }
-
 }

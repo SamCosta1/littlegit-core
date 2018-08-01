@@ -136,7 +136,7 @@ class StagingTests: BaseIntegrationTest() {
         var stagedDiff = littleGit.repoReader.getStagingAreaDiff()
         assertTrue(stagedDiff.data?.fileDiffs?.first()?.hunks?.contains(hunk)!!)
 
-        // Now unstage it again
+        // Now un-stage it again
         val unStageResult = littleGit.repoModifier.unStageHunk(hunk, fileDiff)
         assertTrue(unStageResult.result is GitResult.Success)
 
@@ -148,4 +148,97 @@ class StagingTests: BaseIntegrationTest() {
         assertTrue(stagedDiff.data?.fileDiffs?.isEmpty()!!)
     }
 
+    @Test fun testStageUnStageHunk_AddLine_SmallFile() {
+        val fileName = "rogue.txt"
+
+        val testContent = """
+            Ash nazg durbatulûk, ash nazg gimbatul
+        """.trimIndent()
+
+        val modifiedContent = testContent.split("\n").toMutableList()
+        modifiedContent.add("ash nazg thrakatulûk agh burzum-ishi krimpatul.")
+
+        // First commit a change to the file since only file modifications create hunks (i.e. new files don't)
+        commandHelper.writeToFile(fileName, testContent.split("\n"))
+                .addAll()
+                .commit("Mordorrr")
+                .writeToFile(fileName, modifiedContent)
+
+        val diff = littleGit.repoReader.getUnStagedChanges()
+
+        // This generates one hunk
+        val fileDiff = diff.data?.trackedFilesDiff?.fileDiffs?.first()
+        assertTrue(fileDiff is FileDiff.ChangedFile); fileDiff as FileDiff.ChangedFile
+        val hunk = fileDiff.hunks.lastOrNull()
+        assertNotNull(hunk); hunk!!
+
+        // Now stage the hunk
+        val result = littleGit.repoModifier.stageHunk(hunk, fileDiff)
+        assertTrue(result.result is GitResult.Success)
+
+        // That hunk should now be gone from un-staged changes and appear in staged changes
+        var unStagedDiff = littleGit.repoReader.getUnStagedChanges()
+        assertTrue(unStagedDiff.data?.trackedFilesDiff?.fileDiffs?.isEmpty()!!)
+
+        var stagedDiff = littleGit.repoReader.getStagingAreaDiff()
+        assertTrue(stagedDiff.data?.fileDiffs?.first()?.hunks?.contains(hunk)!!)
+
+        // Now un-stage it again
+        val unStageResult = littleGit.repoModifier.unStageHunk(hunk, fileDiff)
+        assertTrue(unStageResult.result is GitResult.Success)
+
+        // That hunk should now be gone from staged changes and appear in un-staged changes
+        unStagedDiff = littleGit.repoReader.getUnStagedChanges()
+        assertTrue(unStagedDiff.data?.trackedFilesDiff?.fileDiffs?.first()?.hunks?.contains(hunk)!!)
+
+        stagedDiff = littleGit.repoReader.getStagingAreaDiff()
+        assertTrue(stagedDiff.data?.fileDiffs?.isEmpty()!!)
+    }
+
+    @Test fun testStageUnStageHunk_RemoveLine_SmallFile() {
+        val fileName = "rogue.txt"
+
+        val testContent = """
+            Ash nazg durbatulûk, ash nazg gimbatul
+            ash nazg thrakatulûk agh burzum-ishi krimpatul.
+        """.trimIndent()
+
+        val modifiedContent = testContent.split("\n").toMutableList().dropLast(1)
+
+        // First commit a change to the file since only file modifications create hunks (i.e. new files don't)
+        commandHelper.writeToFile(fileName, testContent.split("\n"))
+                .addAll()
+                .commit("Mordorrr")
+                .writeToFile(fileName, modifiedContent)
+
+        val diff = littleGit.repoReader.getUnStagedChanges()
+
+        // This generates one hunk
+        val fileDiff = diff.data?.trackedFilesDiff?.fileDiffs?.first()
+        assertTrue(fileDiff is FileDiff.ChangedFile); fileDiff as FileDiff.ChangedFile
+        val hunk = fileDiff.hunks.lastOrNull()
+        assertNotNull(hunk); hunk!!
+
+        // Now stage the hunk
+        val result = littleGit.repoModifier.stageHunk(hunk, fileDiff)
+        assertTrue(result.result is GitResult.Success)
+
+        // That hunk should now be gone from un-staged changes and appear in staged changes
+        var unStagedDiff = littleGit.repoReader.getUnStagedChanges()
+        assertTrue(unStagedDiff.data?.trackedFilesDiff?.fileDiffs?.isEmpty()!!)
+
+        var stagedDiff = littleGit.repoReader.getStagingAreaDiff()
+        assertTrue(stagedDiff.data?.fileDiffs?.first()?.hunks?.contains(hunk)!!)
+
+        // Now un-stage it again
+        val unStageResult = littleGit.repoModifier.unStageHunk(hunk, fileDiff)
+        assertTrue(unStageResult.result is GitResult.Success)
+
+        // That hunk should now be gone from staged changes and appear in un-staged changes
+        unStagedDiff = littleGit.repoReader.getUnStagedChanges()
+        assertTrue(unStagedDiff.data?.trackedFilesDiff?.fileDiffs?.first()?.hunks?.contains(hunk)!!)
+
+        stagedDiff = littleGit.repoReader.getStagingAreaDiff()
+        assertTrue(stagedDiff.data?.fileDiffs?.isEmpty()!!)
+    }
 }
