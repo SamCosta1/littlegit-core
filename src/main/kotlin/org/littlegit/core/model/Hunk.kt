@@ -8,19 +8,37 @@ data class Hunk(val fromStartLine: Int,
                 val hunkHeader: String,
                 val lines: List<DiffLine>) {
 
-    fun generatePatch(fileDiff: FileDiff): Patch {
+    // Only accept changed files. It doesn't makes sense to make patches for new, deleted or renamed files
+    // since we only use this to generate patches for staging and unstaging hunks and for whole files patches aren't needed
+    fun generatePatch(fileDiff: FileDiff.ChangedFile): Patch {
         val patch = generatePatchHeaderLines(fileDiff)
 
         patch.add("@@ -$fromStartLine,$numFromLines +$toStartLine,$numToLines @@")
 
         lines.forEach {
-            val lineStart = when(it.type) {
-                DiffLineType.Addition -> '+'
-                DiffLineType.Deletion -> '-'
-                DiffLineType.Unchanged -> ' '
-                DiffLineType.NoNewLineAtEndOfFile -> '/'
-            }
+            val lineStart = getDiffLineSymbol(it.type)
+            patch.add("$lineStart${it.line}")
+        }
 
+        return patch
+    }
+
+    private fun getDiffLineSymbol(it: DiffLineType) = when (it) {
+        DiffLineType.Addition -> '+'
+        DiffLineType.Deletion -> '-'
+        DiffLineType.Unchanged -> ' '
+        DiffLineType.NoNewLineAtEndOfFile -> '/'
+    }
+
+
+    // Generates a patch which undoes this hunk
+    fun generateInversePatch(fileDiff: FileDiff.ChangedFile): Patch {
+        val patch = generatePatchHeaderLines(fileDiff)
+
+        patch.add("@@ -$toStartLine,$numToLines +$fromStartLine,$numFromLines @@")
+
+        lines.forEach {
+            val lineStart = getDiffLineSymbol(it.type.inverse)
             patch.add("$lineStart${it.line}")
         }
 
