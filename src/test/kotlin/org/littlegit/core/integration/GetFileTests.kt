@@ -69,16 +69,16 @@ class GetFileTests: BaseIntegrationTest() {
         val content1 = "Ash nazg durbatulûk, ash nazg gimbatul,\n ash nazg thrakatulûk agh burzum-ishi krimpatul."
         val content2 = "One ring to rule them all"
 
-        val file = commandHelper.writeToFileAndReturnIt(testFileName, content1)
 
         commandHelper
+                .writeToFile(testFileName, content1)
                 .addAll()
                 .commit("Commit1")
                 .branchAndCheckout(branch)
                 .writeToFile(testFileName, content2)
                 .addAll()
                 .commit("Commit2")
- 
+        
         val branch1Res = littleGit.repoReader.getFile("master", testFileName)
         assertTrue("Result was success", branch1Res.result is GitResult.Success)
         assertEquals("Result file content is correct", branch1Res.data?.content, content1.split("\n"))
