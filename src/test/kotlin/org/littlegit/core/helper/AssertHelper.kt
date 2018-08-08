@@ -16,7 +16,7 @@ object AssertHelper {
         assertEquals(expected.hash, actual.hash)
     }
 
-    // Full commit parsing and diff parsing are usually seperate tests, so allow for ignoring the diff to keep things clean
+    // Full commit parsing and diff parsing are usually separate tests, so allow for ignoring the diff to keep things clean
     fun assertFullCommit(expected: FullCommit, actual: FullCommit, ignoreDiff: Boolean = false) {
         assertEquals(expected.commitBody, actual.commitBody)
         if (!ignoreDiff) {
