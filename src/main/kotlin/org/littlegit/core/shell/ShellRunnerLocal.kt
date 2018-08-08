@@ -1,16 +1,16 @@
 package org.littlegit.core.shell
 
 import java.io.BufferedReader
-import java.io.File
 import java.io.InputStreamReader
 import java.nio.charset.Charset
+import java.nio.file.Path
 
-class ShellRunnerLocal(private val basePath: String): ShellRunner {
+class ShellRunnerLocal(private val basePath: Path): ShellRunner {
 
     override fun runCommand(command: List<String>): ShellResult {
         val pb = ProcessBuilder(command)
 
-        val workingFolder = File(basePath)
+        val workingFolder = basePath.toFile()
         pb.directory(workingFolder)
 
         val proc = pb.start()

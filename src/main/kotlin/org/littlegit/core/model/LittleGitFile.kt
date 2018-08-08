@@ -1,3 +1,4 @@
 package org.littlegit.core.model
 
-data class LittleGitFile(val content: List<String>, val filePath: String)
+import java.io.File
+data class LittleGitFile(val content: List<String>, val file: File)

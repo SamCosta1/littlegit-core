@@ -87,7 +87,7 @@ class DiffTests: BaseIntegrationTest() {
         // Assert un-tracked files correct
         val unTrackedFiles = unStagedChangesResult.data?.unTrackedFiles
         assertEquals(1, unTrackedFiles?.size)
-        assertEquals(unTrackedFileName, unTrackedFiles?.first()?.filePath)
+        assertEquals(unTrackedFileName, unTrackedFiles?.first()?.file?.name)
         assertEquals(1, unTrackedFiles?.first()?.content?.size)
         assertEquals(unTrackedFileContent, unTrackedFiles?.first()?.content?.first())
     }
@@ -145,7 +145,7 @@ class DiffTests: BaseIntegrationTest() {
         // Assert un-tracked files correct
         val unTrackedFiles = unStagedChangesResult.data?.unTrackedFiles
         assertEquals(1, unTrackedFiles?.size)
-        assertEquals(unTrackedFileName, unTrackedFiles?.first()?.filePath)
+        assertEquals(unTrackedFileName, unTrackedFiles?.first()?.file?.name)
         assertEquals(1, unTrackedFiles?.first()?.content?.size)
         assertEquals(unTrackedFileContent, unTrackedFiles?.first()?.content?.first())
     }

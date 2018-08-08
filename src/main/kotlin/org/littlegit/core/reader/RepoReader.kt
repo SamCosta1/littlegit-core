@@ -4,10 +4,12 @@ import org.littlegit.core.commandrunner.*
 import org.littlegit.core.model.*
 import org.littlegit.core.parser.*
 import org.littlegit.core.util.ListUtils
+import java.io.File
+import java.nio.file.Path
 import java.nio.file.Paths
 
 class RepoReader(private val commandRunner: GitCommandRunner,
-                 private val repoPath: String) {
+                 private val repoPath: Path) {
 
     fun getGraph(): LittleGitCommandResult<GitGraph> {
         val resultProcessor = { result: GitResult.Success ->
@@ -51,9 +53,11 @@ class RepoReader(private val commandRunner: GitCommandRunner,
         return commandRunner.runCommand(command = GitCommand.Log(), resultProcessor = resultProcessor)
     }
 
-    fun getFile(ref: String = "", file: String): LittleGitCommandResult<LittleGitFile> {
+    fun getFile(ref: String = "", file: File): LittleGitCommandResult<LittleGitFile> {
         val resultProcessor = { result: GitResult.Success -> LittleGitFile(result.lines, file) }
-        return commandRunner.runCommand(command = GitCommand.ShowFile(ref, file), resultProcessor = resultProcessor)
+
+        val relativePath = commandRunner.pathRelativeToRepo(file)
+        return commandRunner.runCommand(command = GitCommand.ShowFile(ref, relativePath), resultProcessor = resultProcessor)
     }
 
     fun getFullCommit(commit: RawCommit) = getFullCommit(commit.hash)
@@ -76,8 +80,10 @@ class RepoReader(private val commandRunner: GitCommandRunner,
 
     fun getUnStagedChanges(): LittleGitCommandResult<UnstagedChanges> {
         val unTrackedFilesProcessor = { result: GitResult.Success ->
+            // Each line is a path relative to the repo
             result.lines.map {
-                LittleGitFile(ListUtils.readFromPath(Paths.get(repoPath, it)) , it)
+                val path = Paths.get(repoPath.toString(), it)
+                LittleGitFile(ListUtils.readFromPath(path) , path.toFile())
             }
         }
 

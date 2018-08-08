@@ -9,7 +9,7 @@ abstract class GitCommand {
 
     abstract val command: List<String>
 
-    class ShowFile(val ref: String, val filePath: String): GitCommand() {
+    class ShowFile(private val ref: String, private val filePath: String): GitCommand() {
         override val command: List<String> get() = listOf("git", "show", "$ref:$filePath")
     }
     
@@ -17,7 +17,7 @@ abstract class GitCommand {
         override val command: List<String> get() = listOf("git", "rev-parse", "--is-inside-work-tree")
     }
 
-    class InitializeRepo(val bare: Boolean, val name: String? = null) : GitCommand() {
+    class InitializeRepo(private val bare: Boolean, val name: String? = null) : GitCommand() {
         override val command: List<String> get()  {
             val commands = mutableListOf("git", "init")
             if (bare)         commands.add("--bare")
@@ -27,23 +27,23 @@ abstract class GitCommand {
         }
     }
 
-    class Commit(val commitFile: File) : GitCommand() {
+    class Commit(private val commitFile: File) : GitCommand() {
         override val command: List<String> get() = listOf("git", "commit", "-F", commitFile.canonicalPath)
     }
 
-    class SetUserEmail(val email: String, val global: Boolean = false) : GitCommand() {
+    class SetUserEmail(private val email: String, private val global: Boolean = false) : GitCommand() {
         override val command: List<String> get() = if (global) listOf("git", "config", "--global", "user.email", email) else listOf("git", "config", "user.email", email)
     }
 
-    class SetUserName(val name: String, val global: Boolean = false) : GitCommand() {
+    class SetUserName(val name: String, private val global: Boolean = false) : GitCommand() {
         override val command: List<String> get() = if (global) listOf("git", "config", "--global", "user.name", name) else listOf("git", "config", "user.name", name)
     }
 
-    class GetUserName(val global: Boolean = false): GitCommand() {
+    class GetUserName(private val global: Boolean = false): GitCommand() {
         override val command: List<String> get() = if (global) listOf("git", "config", "--global", "user.name") else listOf("git", "config", "user.name")
     }
 
-    class GetUserEmail(val global: Boolean = false): GitCommand() {
+    class GetUserEmail(private val global: Boolean = false): GitCommand() {
         override val command: List<String> get() = if (global) listOf("git", "config", "--global", "user.email") else listOf("git", "config", "user.email")
     }
 
@@ -55,7 +55,7 @@ abstract class GitCommand {
         override val command: List<String> get() = listOf("git", "push", "-u", remote, branch)
     }
 
-    class AddRemote(val name: String = "origin", val url: String): GitCommand() {
+    class AddRemote(val name: String = "origin", private val url: String): GitCommand() {
         override val command: List<String> get() = listOf("git", "remote", "add", name, url)
     }
 
