@@ -93,7 +93,7 @@ class TestCommandHelper(private val file: File) {
             val reader = BufferedReader(InputStreamReader(p.inputStream))
             val error = BufferedReader(InputStreamReader(p.errorStream))
 
-            var line: String? = ""
+            var line: String?
             do {
                 line = error.readLine()
                 if (line != null && line.isNotBlank()) {

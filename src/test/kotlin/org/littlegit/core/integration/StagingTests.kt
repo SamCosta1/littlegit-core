@@ -1,7 +1,7 @@
 package org.littlegit.core.integration
 
-import junit.framework.Assert.assertFalse
-import junit.framework.Assert.assertNotNull
+import junit.framework.TestCase.assertFalse
+import junit.framework.TestCase.assertNotNull
 import junit.framework.TestCase.assertTrue
 import org.junit.Test
 import org.littlegit.core.commandrunner.GitResult
