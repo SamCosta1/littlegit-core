@@ -45,7 +45,7 @@ abstract class Branch(
 }
 
 class RemoteBranch(refName: String, head: Boolean, commitHash: String?) : Branch(refName, head, commitHash) {
-    override val branchName: String; get() = fullRefName.removePrefix("refs/heads")
+    override val branchName: String; get() = fullRefName.removePrefix("refs/remotes/")
 
     override fun equals(other: Any?): Boolean {
         return super.equals(other) && other is RemoteBranch
@@ -54,7 +54,7 @@ class RemoteBranch(refName: String, head: Boolean, commitHash: String?) : Branch
 }
 
 class LocalBranch(refName: String, head: Boolean, val upstream: RemoteBranch?, commitHash: String?) : Branch(refName, head, commitHash) {
-    override val branchName: String; get() = fullRefName.removePrefix("refs/remotes")
+    override val branchName: String; get() = fullRefName.removePrefix("refs/heads/")
 
     override fun equals(other: Any?): Boolean {
         return super.equals(other) && other is LocalBranch && this.upstream == other.upstream

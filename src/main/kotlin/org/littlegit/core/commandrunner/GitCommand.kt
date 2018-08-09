@@ -73,7 +73,7 @@ abstract class GitCommand {
             private const val format = "%(refname)$deliminator%(HEAD)$deliminator%(upstream)$deliminator%(objectname)$deliminator%(objecttype)"
         }
 
-        override val command: List<String> = listOf("git", "for-each-ref", "--format='$format'", "refs/heads", "refs/remotes")
+        override val command: List<String> = listOf("git", "for-each-ref", "--format=$format", "refs/heads", "refs/remotes")
     }
 
     class Log : GitCommand() {

@@ -1,7 +1,6 @@
 package org.littlegit.core.unit.parser
 
 import junit.framework.TestCase.assertEquals
-import junit.framework.TestCase.assertTrue
 import org.junit.Rule
 import org.junit.Test
 import org.littlegit.core.helper.LocalResourceFile
