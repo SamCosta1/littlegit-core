@@ -27,7 +27,7 @@ class TestCommandHelper(private val file: File) {
         return this
     }
 
-    fun commit(message: String = "test message"): TestCommandHelper {
+    fun commit(message: String = "test-message"): TestCommandHelper {
         execute("git commit -m $message")
         return this
     }

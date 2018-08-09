@@ -63,6 +63,19 @@ abstract class GitCommand {
         override val command: List<String> = listOf("git", "remote", "-vv")
     }
 
+    class SymbolicRef(val symRefName: String) : GitCommand() {
+        override val command: List<String> = listOf("git", "symbolic-ref")
+    }
+
+    class ForEachBranchRef : GitCommand() {
+        companion object {
+            const val deliminator = ':'
+            private const val format = "%(refname)$deliminator%(HEAD)$deliminator%(upstream)$deliminator%(objectname)$deliminator%(objecttype)"
+        }
+
+        override val command: List<String> = listOf("git", "for-each-ref", "--format='$format'", "refs/heads", "refs/remotes")
+    }
+
     class Log : GitCommand() {
         companion object {
             var deliminator = "@|@"
