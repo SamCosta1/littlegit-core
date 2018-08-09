@@ -114,4 +114,32 @@ class BranchesTests: BaseIntegrationTest() {
         assertTrue("Result was error", result is GitResult.Error); result as GitResult.Error
         assertTrue("Result was error", result.err is GitError.InvalidHead)
     }
+
+    @Test
+    fun testCreateBranch_AtSpecifiedCommit() {
+        val branchName = "find-gimli"
+
+        val lastCommitHash = commandHelper
+                                .writeToFile("map.txt", "Route to gimli")
+                                .addAll()
+                                .commit()
+                                .writeToFile("map2.txt", "Escape route once we've got him")
+                                .addAll()
+                                .commit()
+                                .getLastCommitHash()
+
+        val commits = littleGit.repoReader.getCommitList().data!!
+
+        // Create a branch off he first commit
+        val result = littleGit.repoModifier.createBranch(branchName, commit = commits.first()).result
+        assertTrue("Result was success", result is GitResult.Success)
+
+        val branches = littleGit.repoReader.getBranches()
+        val branch = branches.data?.find { it.branchName == branchName }
+
+        assertTrue(branch != null)
+        assertTrue(branch is LocalBranch)
+        assertEquals(commits.first().hash, branch?.commitHash)
+        assertNotSame(lastCommitHash, commits.first().hash)
+    }
 }
