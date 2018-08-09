@@ -125,4 +125,9 @@ class TestCommandHelper(private val file: File) {
     fun deleteBranch(branchName: String) {
         execute("git branch -d $branchName")
     }
+
+    fun checkout(branch: String): TestCommandHelper {
+        execute("git checkout $branch")
+        return this
+    }
 }

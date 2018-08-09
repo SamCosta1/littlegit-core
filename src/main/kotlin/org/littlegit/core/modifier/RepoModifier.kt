@@ -82,7 +82,7 @@ class RepoModifier(private val commandRunner: GitCommandRunner) {
         return this.createBranch(branchName, commit.hash)
     }
 
-    fun createBranch(branchName: String, location: String): LittleGitCommandResult<Unit> {
+    private fun createBranch(branchName: String, location: String): LittleGitCommandResult<Unit> {
 
         val refName = if (branchName.startsWith("refs/heads/")) {
             branchName
@@ -93,4 +93,16 @@ class RepoModifier(private val commandRunner: GitCommandRunner) {
         return commandRunner.runCommand(command = GitCommand.UpdateRef(refName, location, true))
     }
 
+    fun checkoutBranch(branch: LocalBranch): LittleGitCommandResult<Unit> {
+
+        // First update the working directory of the new branch
+        val updateWDResult = commandRunner.runCommand<Unit>(command = GitCommand.ReadTreeHead(branch = branch))
+
+        if (updateWDResult.result is GitResult.Error) {
+            return updateWDResult
+        }
+
+        // Now update the HEAD to point at new branch
+        return commandRunner.runCommand<Unit>(command = GitCommand.SymbolicRef(branch = branch))
+    }
 }

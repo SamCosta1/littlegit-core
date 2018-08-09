@@ -1,7 +1,9 @@
 package org.littlegit.core.commandrunner
 
+import org.littlegit.core.model.Branch
 import org.littlegit.core.model.FileDiff
 import org.littlegit.core.model.Hunk
+import org.littlegit.core.model.LocalBranch
 import java.io.File
 
 typealias CommitHash = String
@@ -63,8 +65,12 @@ abstract class GitCommand {
         override val command: List<String> = listOf("git", "remote", "-vv")
     }
 
-    class SymbolicRef(val symRefName: String) : GitCommand() {
-        override val command: List<String> = listOf("git", "symbolic-ref")
+    class SymbolicRef(symRefName: String = "HEAD", branch: Branch) : GitCommand() {
+        override val command: List<String> = listOf("git", "symbolic-ref", symRefName, branch.fullRefName)
+    }
+
+    class ReadTreeHead(val branch: LocalBranch): GitCommand() {
+        override val command: List<String> = listOf("git", "read-tree", "-um", "HEAD", branch.fullRefName)
     }
 
     class UpdateRef(val refName: String, val refLocation: String, val enforceNewRefName: Boolean): GitCommand() {

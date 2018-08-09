@@ -83,8 +83,12 @@ object GitResultParser {
             return GitResult.Error(GitError.InvalidHead(lines))
         }
 
-        if (lines.first().startsWith("fatal: update_ref failed for ref") && lines.first().endsWith("reference already exists")) {
-            return GitResult.Error(GitError.ReferenceAlreadyExists(lines))
+        if (lines.first().startsWith("fatal: update_ref failed for ref")) {
+            if (lines.first().endsWith("reference already exists")) {
+                return GitResult.Error(GitError.ReferenceAlreadyExists(lines))
+            } else if (lines.first().contains("refusing to update ref with bad name")) {
+                return GitResult.Error(GitError.InvalidRefName(lines))
+            }
         }
 
         return GitResult.Error(GitError.Unknown(lines))

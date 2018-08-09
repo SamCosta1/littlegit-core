@@ -20,4 +20,5 @@ sealed class GitError(val error: List<String>) {
     data class CorruptPatch(private val err: List<String>) : GitError(err)
     data class InvalidHead(private val err: List<String>): GitError(err)
     data class ReferenceAlreadyExists(private val err: List<String>): GitError(err)
+    data class InvalidRefName(private val err: List<String>): GitError(err)
 }
