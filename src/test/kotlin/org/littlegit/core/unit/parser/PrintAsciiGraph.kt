@@ -1,4 +1,4 @@
-package org.littlegit.core.unit.resultparser
+package org.littlegit.core.unit.parser
 
 import org.junit.Ignore
 import org.junit.Rule

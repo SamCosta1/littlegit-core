@@ -1,4 +1,4 @@
-package org.littlegit.core.unit.resultparser
+package org.littlegit.core.unit.parser
 
 import junit.framework.TestCase.assertTrue
 import org.junit.Rule
