@@ -3,10 +3,7 @@ import org.littlegit.core.LittleGitCommandResult
 import org.littlegit.core.commandrunner.GitCommand
 import org.littlegit.core.commandrunner.GitCommandRunner
 import org.littlegit.core.commandrunner.GitResult
-import org.littlegit.core.model.FileDiff
-import org.littlegit.core.model.GitError
-import org.littlegit.core.model.Hunk
-import org.littlegit.core.model.Patch
+import org.littlegit.core.model.*
 import org.littlegit.core.util.FileUtils
 import org.littlegit.core.util.ListUtils
 import java.io.File
@@ -76,4 +73,24 @@ class RepoModifier(private val commandRunner: GitCommandRunner) {
         tempFile?.delete()
         return result ?: LittleGitCommandResult(null, GitResult.Error(GitError.Unknown(listOf())))
     }
+
+    fun createBranch(branchName: String): LittleGitCommandResult<Unit> {
+        return this.createBranch(branchName, "HEAD")
+    }
+
+    fun createBranch(branchName: String, commit: RawCommit): LittleGitCommandResult<Unit> {
+        return this.createBranch(branchName, commit.hash)
+    }
+
+    fun createBranch(branchName: String, location: String): LittleGitCommandResult<Unit> {
+
+        val refName = if (branchName.startsWith("refs/heads/")) {
+            branchName
+        } else {
+            "refs/heads/${branchName.removePrefix("/")}"
+        }
+
+        return commandRunner.runCommand(command = GitCommand.UpdateRef(refName, location, true))
+    }
+
 }

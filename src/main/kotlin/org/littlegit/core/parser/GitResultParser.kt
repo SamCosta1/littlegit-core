@@ -79,6 +79,14 @@ object GitResultParser {
             return GitResult.Error(GitError.CorruptPatch(lines))
         }
 
+        if (lines.first().startsWith("fatal: HEAD: not a valid SHA1")) {
+            return GitResult.Error(GitError.InvalidHead(lines))
+        }
+
+        if (lines.first().startsWith("fatal: update_ref failed for ref") && lines.first().endsWith("reference already exists")) {
+            return GitResult.Error(GitError.ReferenceAlreadyExists(lines))
+        }
+
         return GitResult.Error(GitError.Unknown(lines))
     }
 

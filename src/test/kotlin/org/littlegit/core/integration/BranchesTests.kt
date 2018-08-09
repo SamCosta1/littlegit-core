@@ -4,10 +4,10 @@ import junit.framework.TestCase.*
 import org.junit.Test
 import org.littlegit.core.commandrunner.GitResult
 import org.littlegit.core.helper.TestCommandHelper
+import org.littlegit.core.model.GitError
 import org.littlegit.core.model.LocalBranch
 
 class BranchesTests: BaseIntegrationTest() {
-
 
     private lateinit var commandHelper: TestCommandHelper
 
@@ -52,5 +52,66 @@ class BranchesTests: BaseIntegrationTest() {
         assertTrue("Result was success", result.result is GitResult.Success)
         assertNotNull(result.data)
         assertEquals(0, result.data!!.size)
+    }
+
+    @Test
+    fun testCreateBranch() {
+        commandHelper
+                .writeToFile("map.txt", "Route to gimli")
+                .addAll()
+                .commit()
+
+        val branchName = "find-gimli"
+        val createResult = littleGit.repoModifier.createBranch(branchName)
+        assertTrue("Result was success", createResult.result is GitResult.Success)
+
+        val branches = littleGit.repoReader.getBranches()
+        val branch = branches.data?.find { it.branchName == branchName }
+
+        assertTrue(branch != null)
+        assertTrue(branch is LocalBranch)
+    }
+
+    @Test
+    fun testCreateBranch_FullRefName() {
+        commandHelper
+                .writeToFile("map.txt", "Route to gimli")
+                .addAll()
+                .commit()
+
+        val branchName = "find-gimli"
+        val fullRefName = "refs/heads/$branchName"
+
+        val createResult = littleGit.repoModifier.createBranch(fullRefName)
+        assertTrue("Result was success", createResult.result is GitResult.Success)
+
+        val branches = littleGit.repoReader.getBranches()
+        val branch = branches.data?.find { it.branchName == branchName }
+
+        assertTrue(branch != null)
+        assertTrue(branch is LocalBranch)
+    }
+
+    @Test
+    fun testCreateBranch_AlreadyExists() {
+        val branchName = "find-gimli"
+
+        commandHelper
+                .writeToFile("map.txt", "Route to gimli")
+                .addAll()
+                .commit()
+                .branchAndCheckout(branchName)
+
+        val result = littleGit.repoModifier.createBranch(branchName).result
+        assertTrue("Result was error", result is GitResult.Error); result as GitResult.Error
+        assertTrue("Result was error", result.err is GitError.ReferenceAlreadyExists)
+    }
+
+    @Test
+    fun testCreateBranch_EmptyRepo() {
+        val branchName = "find-gimli"
+        val result = littleGit.repoModifier.createBranch(branchName).result
+        assertTrue("Result was error", result is GitResult.Error); result as GitResult.Error
+        assertTrue("Result was error", result.err is GitError.InvalidHead)
     }
 }

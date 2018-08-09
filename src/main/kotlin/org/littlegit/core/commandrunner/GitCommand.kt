@@ -67,6 +67,17 @@ abstract class GitCommand {
         override val command: List<String> = listOf("git", "symbolic-ref")
     }
 
+    class UpdateRef(val refName: String, val refLocation: String, val enforceNewRefName: Boolean): GitCommand() {
+        override val command: List<String>; get() {
+            val commands = mutableListOf("git", "update-ref", refName, refLocation)
+            if (enforceNewRefName) {
+                commands.add("") // Adding the empty string enforces that we're creating a branch not moving one
+            }
+
+            return commands
+        }
+    }
+
     class ForEachBranchRef : GitCommand() {
         companion object {
             const val deliminator = ':'
