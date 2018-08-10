@@ -4,12 +4,12 @@ import org.littlegit.core.commandrunner.GitCommand
 import org.littlegit.core.commandrunner.GitCommandRunner
 import org.littlegit.core.commandrunner.GitResult
 import org.littlegit.core.model.*
+import org.littlegit.core.reader.RepoReader
 import org.littlegit.core.util.FileUtils
-import org.littlegit.core.util.ListUtils
 import java.io.File
 
 
-class RepoModifier(private val commandRunner: GitCommandRunner) {
+class RepoModifier(private val commandRunner: GitCommandRunner, private val repoReader: RepoReader) {
 
     fun initializeRepo(bare: Boolean = false, name: String? = null): LittleGitCommandResult<Unit>
             = commandRunner.runCommand(command = GitCommand.InitializeRepo(bare, name))
@@ -95,6 +95,9 @@ class RepoModifier(private val commandRunner: GitCommandRunner) {
 
     fun checkoutBranch(branch: LocalBranch, moveUnCommittedChanes: Boolean = true): LittleGitCommandResult<Unit> {
 
+        // Check the branch exists first
+        val upToDateBranch = repoReader.getBranch(branch).data ?: return LittleGitCommandResult.buildError(GitError.BranchNotFound(emptyList()))
+
         // First update the working directory of the new branch
         val updateWDResult = commandRunner.runCommand<Unit>(command = GitCommand.ReadTreeHead(branch = branch))
 
@@ -103,6 +106,6 @@ class RepoModifier(private val commandRunner: GitCommandRunner) {
         }
 
         // Now update the HEAD to point at new branch
-        return commandRunner.runCommand(command = GitCommand.SymbolicRef(branch = branch))
+        return commandRunner.runCommand(command = GitCommand.SymbolicRef(branch = upToDateBranch))
     }
 }

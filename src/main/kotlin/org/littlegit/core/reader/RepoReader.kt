@@ -113,4 +113,14 @@ class RepoReader(private val commandRunner: GitCommandRunner,
 
         return commandRunner.runCommand(command = GitCommand.ForEachBranchRef(), resultProcessor = resultProcessor)
     }
+
+    // Gets an up to date version of the given branch (commitHash etc may have changed)
+    fun getBranch(branch: Branch): LittleGitCommandResult<Branch?> {
+
+        val resultProcessor = { result: GitResult.Success ->
+            BranchesParser.parse(result.lines).firstOrNull()
+        }
+
+        return commandRunner.runCommand(command = GitCommand.SearchForRef(branch.fullRefName), resultProcessor = resultProcessor)
+    }
 }

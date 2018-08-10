@@ -87,10 +87,14 @@ abstract class GitCommand {
     class ForEachBranchRef : GitCommand() {
         companion object {
             const val deliminator = ':'
-            private const val format = "%(refname)$deliminator%(HEAD)$deliminator%(upstream)$deliminator%(objectname)$deliminator%(objecttype)"
+            const val format = "%(refname)$deliminator%(HEAD)$deliminator%(upstream)$deliminator%(objectname)$deliminator%(objecttype)"
         }
 
         override val command: List<String> = listOf("git", "for-each-ref", "--format=$format", "refs/heads", "refs/remotes")
+    }
+
+    class SearchForRef(refName: String) : GitCommand() {
+        override val command: List<String> = listOf("git", "for-each-ref", "--format=${ForEachBranchRef.format}", refName)
     }
 
     class Log : GitCommand() {

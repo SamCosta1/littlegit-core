@@ -194,6 +194,29 @@ class BranchesTests: BaseIntegrationTest() {
     }
 
     @Test
+    fun testCheckoutBranch_NonExistingBranch() {
+        val branchName = "find-gimli"
+
+        commandHelper
+                .writeToFile("map.txt", "To gimliiii!")
+                .addAll()
+                .commit()
+                .branchAndCheckout(branchName)
+
+        val branches = littleGit.repoReader.getBranches().data!!
+        val branch = branches.find { it.branchName == branchName } as LocalBranch
+
+        commandHelper
+                .checkout("master")
+                .deleteBranch(branchName)
+
+        val result = littleGit.repoModifier.checkoutBranch(branch, false).result
+
+        assertTrue("Result was error", result is GitResult.Error); result as GitResult.Error
+        assertTrue("Result was error", result.err is GitError.BranchNotFound)
+    }
+
+    @Test
     fun testCheckoutBranch_DirtyWorkingTree_WithoutMovingChanges() {
         val branchName = "find-gimli"
 
