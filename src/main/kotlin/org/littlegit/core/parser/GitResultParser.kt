@@ -24,7 +24,8 @@ object GitResultParser {
             return GitResult.Error(GitError.NotARepo(lines))
         }
 
-        if (lines.first().startsWith("error: Your local changes to the following files would be overwritten by checkout", ignoreCase = true)) {
+        if (lines.first().startsWith("error: ") && lines.first().endsWith("not uptodate. Cannot merge.")
+                || lines.first().startsWith("error: Your local changes to the following files would be overwritten by checkout", ignoreCase = true)) {
             return GitResult.Error(GitError.LocalChangesWouldBeOverwritten(lines))
         }
 
@@ -77,6 +78,18 @@ object GitResultParser {
 
         if (lines.first().startsWith("error: corrupt patch at line")) {
             return GitResult.Error(GitError.CorruptPatch(lines))
+        }
+
+        if (lines.first().startsWith("fatal: HEAD: not a valid SHA1")) {
+            return GitResult.Error(GitError.InvalidHead(lines))
+        }
+
+        if (lines.first().startsWith("fatal: update_ref failed for ref")) {
+            if (lines.first().endsWith("reference already exists")) {
+                return GitResult.Error(GitError.ReferenceAlreadyExists(lines))
+            } else if (lines.first().contains("refusing to update ref with bad name")) {
+                return GitResult.Error(GitError.InvalidRefName(lines))
+            }
         }
 
         return GitResult.Error(GitError.Unknown(lines))

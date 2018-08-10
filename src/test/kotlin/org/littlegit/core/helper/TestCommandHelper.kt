@@ -27,7 +27,7 @@ class TestCommandHelper(private val file: File) {
         return this
     }
 
-    fun commit(message: String = "test message"): TestCommandHelper {
+    fun commit(message: String = "test-message"): TestCommandHelper {
         execute("git commit -m $message")
         return this
     }
@@ -119,6 +119,15 @@ class TestCommandHelper(private val file: File) {
 
     fun branchAndCheckout(branch: String): TestCommandHelper {
         execute("git checkout -b $branch")
+        return this
+    }
+
+    fun deleteBranch(branchName: String) {
+        execute("git branch -d $branchName")
+    }
+
+    fun checkout(branch: String): TestCommandHelper {
+        execute("git checkout $branch")
         return this
     }
 }

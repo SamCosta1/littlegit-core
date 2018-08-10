@@ -18,4 +18,8 @@ sealed class GitError(val error: List<String>) {
     data class CannotLockRef(private val err: List<String>) : GitError(err)
     data class PatchDoesNotApply(private val err: List<String>) : GitError(err)
     data class CorruptPatch(private val err: List<String>) : GitError(err)
+    data class InvalidHead(private val err: List<String>): GitError(err)
+    data class ReferenceAlreadyExists(private val err: List<String>): GitError(err)
+    data class InvalidRefName(private val err: List<String>): GitError(err)
+    data class BranchNotFound(private val err: List<String>): GitError(err)
 }

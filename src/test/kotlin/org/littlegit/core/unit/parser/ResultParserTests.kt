@@ -1,4 +1,4 @@
-package org.littlegit.core.unit.resultparser
+package org.littlegit.core.unit.parser
 
 import junit.framework.TestCase.assertTrue
 import org.junit.Rule
@@ -12,7 +12,8 @@ import org.littlegit.core.shell.ShellResult
 @Suppress("MemberVisibilityCanBePrivate")
 class ResultParserTests {
 
-    @get:Rule val localChangesError = LocalResourceFile("err/err-local-changes.txt")
+    @get:Rule val localChangesErrorV1 = LocalResourceFile("err/err-local-changes_v1.txt")
+    @get:Rule val localChangesErrorV2 = LocalResourceFile("err/err-local-changes_v2.txt")
     @get:Rule val notARepoError = LocalResourceFile("err/err-not-a-repo.txt")
     @get:Rule val nothingToCommit = LocalResourceFile("err/err-nothing-to-commit.txt")
     @get:Rule val noRemoteError = LocalResourceFile("err/err-no-remote.txt")
@@ -33,8 +34,13 @@ class ResultParserTests {
         assertTrue(parsedResult is GitResult.Error && parsedResult.err is GitError.InvalidRemoteInfo)
     }
 
-    @Test fun testLocalChangesWouldBeOverwritten() {
-        val parsedResult = GitResultParser.parseShellResult(ShellResult.Error(localChangesError.content))
+    @Test fun testLocalChangesWouldBeOverwritten_V1() {
+        val parsedResult = GitResultParser.parseShellResult(ShellResult.Error(localChangesErrorV1.content))
+        assertTrue(parsedResult is GitResult.Error && parsedResult.err is GitError.LocalChangesWouldBeOverwritten)
+    }
+
+    @Test fun testLocalChangesWouldBeOverwritten_V2() {
+        val parsedResult = GitResultParser.parseShellResult(ShellResult.Error(localChangesErrorV2.content))
         assertTrue(parsedResult is GitResult.Error && parsedResult.err is GitError.LocalChangesWouldBeOverwritten)
     }
 

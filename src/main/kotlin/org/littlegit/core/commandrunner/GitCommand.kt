@@ -1,7 +1,10 @@
 package org.littlegit.core.commandrunner
 
-import org.littlegit.core.model.FileDiff
-import org.littlegit.core.model.Hunk
+import org.littlegit.core.model.Branch
+import org.littlegit.core.model.LocalBranch
+import org.littlegit.core.model.ResetType
+import org.littlegit.core.util.OSType
+import org.littlegit.core.util.OperatingSystemUtils
 import java.io.File
 
 typealias CommitHash = String
@@ -63,6 +66,46 @@ abstract class GitCommand {
         override val command: List<String> = listOf("git", "remote", "-vv")
     }
 
+    class SymbolicRef(symRefName: String = "HEAD", branch: Branch) : GitCommand() {
+        override val command: List<String> = listOf("git", "symbolic-ref", symRefName, branch.fullRefName)
+    }
+
+    class ReadTreeHead(val branch: LocalBranch): GitCommand() {
+        override val command: List<String> = listOf("git", "read-tree", "-um", "HEAD", branch.fullRefName)
+    }
+
+    class UpdateRef(val refName: String, val refLocation: String, val enforceNewRefName: Boolean): GitCommand() {
+        override val command: List<String>; get() {
+            val commands = mutableListOf("git", "update-ref", refName, refLocation)
+            if (enforceNewRefName) {
+
+                /*
+                Adding the empty string enforces that we're creating a branch not moving one
+                Annoyingly windows and unix implementations of git seem to disagree on what the empty string is
+                 */
+                when (OperatingSystemUtils.osType) {
+                    OSType.Windows -> commands.add("\"\"")
+                    else -> commands.add("")
+                }
+            }
+
+            return commands
+        }
+    }
+
+    class ForEachBranchRef : GitCommand() {
+        companion object {
+            const val deliminator = ':'
+            const val format = "%(refname)$deliminator%(HEAD)$deliminator%(upstream)$deliminator%(objectname)$deliminator%(objecttype)"
+        }
+
+        override val command: List<String> = listOf("git", "for-each-ref", "--format=$format", "refs/heads", "refs/remotes")
+    }
+
+    class SearchForRef(refName: String) : GitCommand() {
+        override val command: List<String> = listOf("git", "for-each-ref", "--format=${ForEachBranchRef.format}", refName)
+    }
+
     class Log : GitCommand() {
         companion object {
             var deliminator = "@|@"
@@ -102,4 +145,15 @@ abstract class GitCommand {
         override val command: List<String> = listOf("git", "apply", "--cached", patchFile.canonicalPath)
     }
 
+    class ApplyStashCommit(stashCommitHash: CommitHash): GitCommand() {
+        override val command: List<String> = listOf("git", "stash", "apply", stashCommitHash)
+    }
+
+    class CreateStash: GitCommand() {
+        override val command: List<String> = listOf("git", "stash", "create")
+    }
+
+    class Reset(type: ResetType): GitCommand() {
+        override val command: List<String> = listOf("git", "reset", "--${type.raw}")
+    }
 }

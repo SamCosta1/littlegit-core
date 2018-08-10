@@ -105,4 +105,22 @@ class RepoReader(private val commandRunner: GitCommandRunner,
         val unTrackedFiles = unTrackedFilesResult.data
         return LittleGitCommandResult(UnstagedChanges(trackedFilesDiffResult.data!!, unTrackedFiles!!), unTrackedFilesResult.result)
     }
+
+    fun getBranches(): LittleGitCommandResult<List<Branch>> {
+        val resultProcessor = { result: GitResult.Success ->
+            BranchesParser.parse(result.lines)
+        }
+
+        return commandRunner.runCommand(command = GitCommand.ForEachBranchRef(), resultProcessor = resultProcessor)
+    }
+
+    // Gets an up to date version of the given branch (commitHash etc may have changed)
+    fun getBranch(branch: Branch): LittleGitCommandResult<Branch?> {
+
+        val resultProcessor = { result: GitResult.Success ->
+            BranchesParser.parse(result.lines).firstOrNull()
+        }
+
+        return commandRunner.runCommand(command = GitCommand.SearchForRef(branch.fullRefName), resultProcessor = resultProcessor)
+    }
 }
