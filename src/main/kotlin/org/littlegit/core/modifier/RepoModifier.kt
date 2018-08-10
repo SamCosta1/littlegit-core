@@ -1,5 +1,6 @@
 package org.littlegit.core.modifier
 import org.littlegit.core.LittleGitCommandResult
+import org.littlegit.core.commandrunner.CommitHash
 import org.littlegit.core.commandrunner.GitCommand
 import org.littlegit.core.commandrunner.GitCommandRunner
 import org.littlegit.core.commandrunner.GitResult
@@ -93,16 +94,35 @@ class RepoModifier(private val commandRunner: GitCommandRunner, private val repo
         return commandRunner.runCommand(command = GitCommand.UpdateRef(refName, location, true))
     }
 
+    /**
+     * @param branch The branch to checkout
+     * @param moveUnCommittedChanes When set to true, will attempt to move any unstaged changes to the new branch by stashing them
+     *                              When set to false, will error if git errors from being unable to merge the working tree
+     *
+     */
     fun checkoutBranch(branch: LocalBranch, moveUnCommittedChanes: Boolean = true): LittleGitCommandResult<Unit> {
 
         // Check the branch exists first
         val upToDateBranch = repoReader.getBranch(branch).data ?: return LittleGitCommandResult.buildError(GitError.BranchNotFound(emptyList()))
+
+        var stashCommitHash: CommitHash? = null
+
+        if (moveUnCommittedChanes) {
+            stashCommitHash = commandRunner.runCommand(GitCommand.CreateStash(), { success: GitResult.Success -> success.lines.firstOrNull() }).data
+            commandRunner.runCommand<Unit>(GitCommand.Reset(ResetType.Hard))
+        }
 
         // First update the working directory of the new branch
         val updateWDResult = commandRunner.runCommand<Unit>(command = GitCommand.ReadTreeHead(branch = branch))
 
         if (updateWDResult.result is GitResult.Error) {
             return updateWDResult
+        }
+
+        // Apply the changes from the stash back onto the working directory, if this command fails we'll still update the HEAD
+        // Because otherwise HEAD and the working tree will be out of sync
+        if (moveUnCommittedChanes && !stashCommitHash.isNullOrBlank()) {
+            commandRunner.runCommand<Unit>(GitCommand.ApplyStashCommit(stashCommitHash!!))
         }
 
         // Now update the HEAD to point at new branch

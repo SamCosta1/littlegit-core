@@ -7,7 +7,6 @@ import org.littlegit.core.helper.TestCommandHelper
 import org.littlegit.core.model.GitError
 import org.littlegit.core.model.LocalBranch
 import org.littlegit.core.util.ListUtils
-import java.nio.file.Paths
 
 class BranchesTests: BaseIntegrationTest() {
 
@@ -250,5 +249,56 @@ class BranchesTests: BaseIntegrationTest() {
         val newBranches = littleGit.repoReader.getBranches()
         assertEquals("master", newBranches.data?.find { it.isHead }?.branchName)
         assertEquals(dirtyContent, ListUtils.readFromPath(file.toPath()).first())
+    }
+
+    @Test
+    fun testCheckoutBranch_DirtyWorkingTree_WithMovingChanges() {
+        val branchName = "find-gimli"
+
+        val branchContent = "Rout to gimli via mines of moria"
+        val masterContent = "Route to gimli"
+        val dirtyContent = "Route to gimli unfinished"
+
+        val file = commandHelper.writeToFileAndReturnIt("map.txt", masterContent)
+        val dirtyContentAmended = "$dirtyContent amended"
+
+        commandHelper
+                .addAll()
+                .commit()
+                .branchAndCheckout(branchName)
+                .writeToFile(file.name, branchContent)
+                .addAll()
+                .commit()
+                .checkout("master")
+
+                // Test includes unstaged changes, staged changes and untracked files
+                .writeToFile(file.name, dirtyContent)
+                .addAll()
+                .writeToFile(file.name, dirtyContentAmended)
+
+        val newFileContent = "New plans to find gimli"
+        val newFile = commandHelper.writeToFileAndReturnIt("newFile.txt", newFileContent)
+
+        val branches = littleGit.repoReader.getBranches()
+
+        // Ensure we're currently on master
+        assertTrue(branches.data!!.find { it.isHead }?.branchName == "master")
+
+        val branchToCheckout = branches.data?.find { it.branchName == branchName }
+        val result = littleGit.repoModifier.checkoutBranch(branchToCheckout as LocalBranch, true)
+
+        assertTrue("Result was success", result.result is GitResult.Success)
+
+        val newBranches = littleGit.repoReader.getBranches()
+        assertEquals(branchName, newBranches.data?.find { it.isHead }?.branchName)
+        assertEquals("""
+        <<<<<<< Updated upstream
+        $branchContent
+        =======
+        $dirtyContentAmended
+        >>>>>>> Stashed changes
+            """.trimIndent().split("\n"), ListUtils.readFromPath(file.toPath()))
+
+        assertEquals(listOf(newFileContent), ListUtils.readFromPath(newFile.toPath()))
     }
 }

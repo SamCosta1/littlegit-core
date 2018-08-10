@@ -1,9 +1,8 @@
 package org.littlegit.core.commandrunner
 
 import org.littlegit.core.model.Branch
-import org.littlegit.core.model.FileDiff
-import org.littlegit.core.model.Hunk
 import org.littlegit.core.model.LocalBranch
+import org.littlegit.core.model.ResetType
 import java.io.File
 
 typealias CommitHash = String
@@ -136,4 +135,15 @@ abstract class GitCommand {
         override val command: List<String> = listOf("git", "apply", "--cached", patchFile.canonicalPath)
     }
 
+    class ApplyStashCommit(stashCommitHash: CommitHash): GitCommand() {
+        override val command: List<String> = listOf("git", "stash", "apply", stashCommitHash)
+    }
+
+    class CreateStash: GitCommand() {
+        override val command: List<String> = listOf("git", "stash", "create")
+    }
+
+    class Reset(type: ResetType): GitCommand() {
+        override val command: List<String> = listOf("git", "reset", "--${type.raw}")
+    }
 }
