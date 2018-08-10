@@ -24,7 +24,8 @@ object GitResultParser {
             return GitResult.Error(GitError.NotARepo(lines))
         }
 
-        if (lines.first().startsWith("error: Your local changes to the following files would be overwritten by checkout", ignoreCase = true)) {
+        if (lines.first().startsWith("error: ") && lines.first().endsWith("not uptodate. Cannot merge.")
+                || lines.first().startsWith("error: Your local changes to the following files would be overwritten by checkout", ignoreCase = true)) {
             return GitResult.Error(GitError.LocalChangesWouldBeOverwritten(lines))
         }
 

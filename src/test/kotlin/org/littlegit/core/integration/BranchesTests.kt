@@ -161,7 +161,7 @@ class BranchesTests: BaseIntegrationTest() {
     }
 
     @Test
-    fun testCheckoutBranch() {
+    fun testCheckoutBranch_CleanWorkingTree() {
         val branchName = "find-gimli"
 
         val branchContent = "Rout to gimli via mines of moria"
@@ -174,6 +174,8 @@ class BranchesTests: BaseIntegrationTest() {
                 .commit()
                 .branchAndCheckout(branchName)
                 .writeToFile(file.name, branchContent)
+                .addAll()
+                .commit()
                 .checkout("master")
 
         val branches = littleGit.repoReader.getBranches()
@@ -189,5 +191,41 @@ class BranchesTests: BaseIntegrationTest() {
         val newBranches = littleGit.repoReader.getBranches()
         assertEquals(branchName, newBranches.data?.find { it.isHead }?.branchName)
         assertEquals(branchContent, ListUtils.readFromPath(file.toPath()).first())
+    }
+
+    @Test
+    fun testCheckoutBranch_DirtyWorkingTree_WithoutMovingChanges() {
+        val branchName = "find-gimli"
+
+        val branchContent = "Rout to gimli via mines of moria"
+        val masterContent = "Route to gimli"
+        val dirtyContent = "Route to gimli unfinished"
+
+        val file = commandHelper.writeToFileAndReturnIt("map.txt", masterContent)
+
+        commandHelper
+                .addAll()
+                .commit()
+                .branchAndCheckout(branchName)
+                .writeToFile(file.name, branchContent)
+                .addAll()
+                .commit()
+                .checkout("master")
+                .writeToFile(file.name, dirtyContent)
+
+        val branches = littleGit.repoReader.getBranches()
+
+        // Ensure we're currently on master
+        assertTrue(branches.data!!.find { it.isHead }?.branchName == "master")
+
+        val branchToCheckout = branches.data?.find { it.branchName == branchName }
+        val result = littleGit.repoModifier.checkoutBranch(branchToCheckout as LocalBranch, false).result
+
+        assertTrue("Result was error", result is GitResult.Error); result as GitResult.Error
+        assertTrue("Result was error", result.err is GitError.LocalChangesWouldBeOverwritten)
+
+        val newBranches = littleGit.repoReader.getBranches()
+        assertEquals("master", newBranches.data?.find { it.isHead }?.branchName)
+        assertEquals(dirtyContent, ListUtils.readFromPath(file.toPath()).first())
     }
 }
