@@ -3,6 +3,8 @@ package org.littlegit.core.commandrunner
 import org.littlegit.core.model.Branch
 import org.littlegit.core.model.LocalBranch
 import org.littlegit.core.model.ResetType
+import org.littlegit.core.util.OSType
+import org.littlegit.core.util.OperatingSystemUtils
 import java.io.File
 
 typealias CommitHash = String
@@ -76,7 +78,15 @@ abstract class GitCommand {
         override val command: List<String>; get() {
             val commands = mutableListOf("git", "update-ref", refName, refLocation)
             if (enforceNewRefName) {
-                commands.add("") // Adding the empty string enforces that we're creating a branch not moving one
+
+                /*
+                Adding the empty string enforces that we're creating a branch not moving one
+                Annoyingly windows and unix implementations of git seem to disagree on what the empty string is
+                 */
+                when (OperatingSystemUtils.osType) {
+                    OSType.Windows -> commands.add("\"\"")
+                    else -> commands.add("")
+                }
             }
 
             return commands
