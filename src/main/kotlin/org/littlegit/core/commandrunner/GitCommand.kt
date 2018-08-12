@@ -70,7 +70,7 @@ abstract class GitCommand {
         override val command: List<String> = listOf("git", "symbolic-ref", symRefName, branch.fullRefName)
     }
 
-    class ReadTreeHead(val branch: LocalBranch): GitCommand() {
+    class ReadTreeHead(val branch: Branch): GitCommand() {
         override val command: List<String> = listOf("git", "read-tree", "-um", "HEAD", branch.fullRefName)
     }
 
@@ -156,4 +156,5 @@ abstract class GitCommand {
     class Reset(type: ResetType): GitCommand() {
         override val command: List<String> = listOf("git", "reset", "--${type.raw}")
     }
+
 }

@@ -183,7 +183,9 @@ class BranchesTests: BaseIntegrationTest() {
         assertTrue(branches.data!!.find { it.isHead }?.branchName == "master")
 
         val branchToCheckout = branches.data?.find { it.branchName == branchName }
-        val result = littleGit.repoModifier.checkoutBranch(branchToCheckout as LocalBranch)
+        assertNotNull(branchToCheckout); branchToCheckout!!
+
+        val result = littleGit.repoModifier.checkoutBranch(branchToCheckout)
 
         assertTrue("Result was success", result.result is GitResult.Success)
 
@@ -301,4 +303,6 @@ class BranchesTests: BaseIntegrationTest() {
 
         assertEquals(listOf(newFileContent), ListUtils.readFromPath(newFile.toPath()))
     }
+
+    
 }

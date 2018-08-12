@@ -100,7 +100,7 @@ class RepoModifier(private val commandRunner: GitCommandRunner, private val repo
      *                              When set to false, will error if git errors from being unable to merge the working tree
      *
      */
-    fun checkoutBranch(branch: LocalBranch, moveUnCommittedChanges: Boolean = true): LittleGitCommandResult<Unit> {
+    fun checkoutBranch(branch: Branch, moveUnCommittedChanges: Boolean = true): LittleGitCommandResult<Unit> {
 
         // Check the branch exists first
         val upToDateBranch = repoReader.getBranch(branch).data ?: return LittleGitCommandResult.buildError(GitError.BranchNotFound(emptyList()))
@@ -119,6 +119,22 @@ class RepoModifier(private val commandRunner: GitCommandRunner, private val repo
             return updateWDResult
         }
 
+        val branchToCheckout = if (branch is RemoteBranch) {
+            // Find the local branch that's tracking the given branch
+            val localBranch: LocalBranch = repoReader.getBranches().data?.find { it is LocalBranch && it.upstream == branch } as LocalBranch
+
+            // If the hashes are the same, they're at the same point in history so just return the local
+            if (localBranch.commitHash != branch.commitHash) {
+                // Move the local branch pointer to match the remote
+                commandRunner.runCommand<Unit>(command = GitCommand.UpdateRef(localBranch.fullRefName, branch.fullRefName, false))
+            }
+
+            localBranch
+        } else {
+            upToDateBranch
+        }
+
+        // If we're checking out a remote branch
         // Apply the changes from the stash back onto the working directory, if this command fails we'll still update the HEAD
         // Because otherwise HEAD and the working tree will be out of sync
         if (moveUnCommittedChanges && !stashCommitHash.isNullOrBlank()) {
@@ -126,7 +142,7 @@ class RepoModifier(private val commandRunner: GitCommandRunner, private val repo
         }
 
         // Now update the HEAD to point at new branch
-        return commandRunner.runCommand(command = GitCommand.SymbolicRef(branch = upToDateBranch))
+        return commandRunner.runCommand(command = GitCommand.SymbolicRef(branch = branchToCheckout))
     }
 
 }
