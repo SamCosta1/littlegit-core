@@ -173,13 +173,11 @@ class RepoModifier(private val commandRunner: GitCommandRunner, private val repo
                 return newLocalBranchResult.data
 
             }
-            localBranch.commitHash != remote.commitHash -> { // If the hashes are the same, they're at the same point in history so just return the local
-                // Move the local branch pointer to match the remote
-                commandRunner.runCommand<Unit>(command = GitCommand.UpdateRef(localBranch.fullRefName, remote.fullRefName, false))
-                localBranch
+            localBranch.commitHash != remote.commitHash -> {
+                // If the hashes are the same, then the history's diverged, don't handle this here, they'll have to do a pull manually
+                throw LittleGitException(GitResult.Error(GitError.RemoteDivergedFromLocal()))
             }
             else -> localBranch
         }
     }
-
 }

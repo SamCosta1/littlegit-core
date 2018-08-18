@@ -1,5 +1,7 @@
 package org.littlegit.core.helper
 
+import org.littlegit.core.commandrunner.CommitHash
+import org.littlegit.core.model.ResetType
 import java.io.File
 import java.io.InputStreamReader
 import java.io.BufferedReader
@@ -61,6 +63,11 @@ class TestCommandHelper(private val file: File) {
 
     fun run(command: String): List<String> {
         return execute(command)
+    }
+
+    fun reset(toHash: CommitHash, mode: ResetType): TestCommandHelper {
+        execute("git reset --${mode.raw} $toHash")
+        return this
     }
 
     fun writeToFile(file: String, content: String): TestCommandHelper {

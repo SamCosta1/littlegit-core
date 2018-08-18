@@ -7,6 +7,7 @@ import org.littlegit.core.helper.TestCommandHelper
 import org.littlegit.core.model.GitError
 import org.littlegit.core.model.LocalBranch
 import org.littlegit.core.model.RemoteBranch
+import org.littlegit.core.model.ResetType
 import org.littlegit.core.util.ListUtils
 
 class BranchesTests: BaseIntegrationTest() {
@@ -336,7 +337,7 @@ class BranchesTests: BaseIntegrationTest() {
     }
 
     @Test
-    fun testCheckoutBranch_RemoteBranch_WhenLocalDoesntExist() {
+    fun testCheckoutBranch_RemoteBranch_WhenLocalDoesNotExist() {
         val branchName = "find-gimli"
         val fileContent = "Route to gimli"
         commandHelper
@@ -366,4 +367,32 @@ class BranchesTests: BaseIntegrationTest() {
         assertEquals(branchName, currentBranch.branchName)
     }
 
+    @Test
+    fun testCheckoutBranch_RemoteBranch_WhenRemoteHasDivergedFromLocal() {
+        val branchName = "find-gimli"
+        val fileContent = "Route to gimli"
+
+        val localBranchCommitHash = commandHelper
+                                        .writeToFile("map.txt", fileContent)
+                                        .addAll()
+                                        .commit()
+                                        .branchAndCheckout(branchName)
+                                        .getLastCommitHash()
+        commandHelper
+            .writeToFile("map.txt", "$fileContent - 2")
+            .addAll()
+            .commit()
+            .addRemote("origin")
+            .createRemoteBranch(branchName, "origin")
+            .setupRemoteTracking("origin", branchName)
+            .reset(localBranchCommitHash, ResetType.Hard)
+            .checkout("master")
+
+        val remoteBranch = littleGit.repoReader.getBranches().data?.find { it is RemoteBranch && it.branchName == branchName }
+        assertNotNull(remoteBranch); remoteBranch!!
+
+        val result = littleGit.repoModifier.checkoutBranch(remoteBranch).result
+        assertTrue(result is GitResult.Error); result as GitResult.Error
+        assertTrue(result.err is GitError.RemoteDivergedFromLocal)
+    }
 }
