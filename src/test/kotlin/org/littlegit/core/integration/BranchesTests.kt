@@ -6,6 +6,8 @@ import org.littlegit.core.commandrunner.GitResult
 import org.littlegit.core.helper.TestCommandHelper
 import org.littlegit.core.model.GitError
 import org.littlegit.core.model.LocalBranch
+import org.littlegit.core.model.RemoteBranch
+import org.littlegit.core.model.ResetType
 import org.littlegit.core.util.ListUtils
 
 class BranchesTests: BaseIntegrationTest() {
@@ -183,7 +185,9 @@ class BranchesTests: BaseIntegrationTest() {
         assertTrue(branches.data!!.find { it.isHead }?.branchName == "master")
 
         val branchToCheckout = branches.data?.find { it.branchName == branchName }
-        val result = littleGit.repoModifier.checkoutBranch(branchToCheckout as LocalBranch)
+        assertNotNull(branchToCheckout); branchToCheckout!!
+
+        val result = littleGit.repoModifier.checkoutBranch(branchToCheckout)
 
         assertTrue("Result was success", result.result is GitResult.Success)
 
@@ -300,5 +304,95 @@ class BranchesTests: BaseIntegrationTest() {
             """.trimIndent().split("\n"), ListUtils.readFromPath(file.toPath()))
 
         assertEquals(listOf(newFileContent), ListUtils.readFromPath(newFile.toPath()))
+    }
+
+    @Test
+    fun testCheckoutBranch_RemoteBranch_WhenLocalExists() {
+        val branchName = "find-gimli"
+        val fileContent = "Route to gimli"
+        commandHelper
+                .writeToFile("map.txt", fileContent)
+                .addAll()
+                .commit()
+                .branchAndCheckout(branchName)
+                .addRemote("origin")
+                .createRemoteBranch(branchName, "origin")
+                .setupRemoteTracking("origin", branchName)
+                .checkout("master")
+
+        val remoteBranch = littleGit.repoReader.getBranches().data?.find { it is RemoteBranch && it.branchName == branchName }
+        assertNotNull(remoteBranch); remoteBranch!!
+
+        val result = littleGit.repoModifier.checkoutBranch(remoteBranch).result
+
+        assertTrue(result is GitResult.Success)
+
+        // Check correct branch checked out (i.e the local equivalent of the remote we specified)
+        val currentBranch = littleGit.repoReader.getBranches().data?.find { it.isHead }
+        assertNotNull(currentBranch); currentBranch!!
+
+        assertTrue(currentBranch is LocalBranch); currentBranch as LocalBranch
+        assertEquals(remoteBranch, currentBranch.upstream)
+        assertEquals(branchName, currentBranch.branchName)
+    }
+
+    @Test
+    fun testCheckoutBranch_RemoteBranch_WhenLocalDoesNotExist() {
+        val branchName = "find-gimli"
+        val fileContent = "Route to gimli"
+        commandHelper
+                .writeToFile("map.txt", fileContent)
+                .addAll()
+                .commit()
+                .branchAndCheckout(branchName)
+                .addRemote("origin")
+                .createRemoteBranch(branchName, "origin")
+                .setupRemoteTracking("origin", branchName)
+                .checkout("master")
+                .deleteBranch(branchName)
+
+        val remoteBranch = littleGit.repoReader.getBranches().data?.find { it is RemoteBranch && it.branchName == branchName }
+        assertNotNull(remoteBranch); remoteBranch!!
+
+        val result = littleGit.repoModifier.checkoutBranch(remoteBranch).result
+
+        assertTrue(result is GitResult.Success)
+
+        // Check correct branch checked out (i.e the local equivalent of the remote we specified)
+        val currentBranch = littleGit.repoReader.getBranches().data?.find { it.isHead }
+        assertNotNull(currentBranch); currentBranch!!
+
+        assertTrue(currentBranch is LocalBranch); currentBranch as LocalBranch
+        assertEquals(remoteBranch, currentBranch.upstream)
+        assertEquals(branchName, currentBranch.branchName)
+    }
+
+    @Test
+    fun testCheckoutBranch_RemoteBranch_WhenRemoteHasDivergedFromLocal() {
+        val branchName = "find-gimli"
+        val fileContent = "Route to gimli"
+
+        val localBranchCommitHash = commandHelper
+                                        .writeToFile("map.txt", fileContent)
+                                        .addAll()
+                                        .commit()
+                                        .branchAndCheckout(branchName)
+                                        .getLastCommitHash()
+        commandHelper
+            .writeToFile("map.txt", "$fileContent - 2")
+            .addAll()
+            .commit()
+            .addRemote("origin")
+            .createRemoteBranch(branchName, "origin")
+            .setupRemoteTracking("origin", branchName)
+            .reset(localBranchCommitHash, ResetType.Hard)
+            .checkout("master")
+
+        val remoteBranch = littleGit.repoReader.getBranches().data?.find { it is RemoteBranch && it.branchName == branchName }
+        assertNotNull(remoteBranch); remoteBranch!!
+
+        val result = littleGit.repoModifier.checkoutBranch(remoteBranch).result
+        assertTrue(result is GitResult.Error); result as GitResult.Error
+        assertTrue(result.err is GitError.RemoteDivergedFromLocal)
     }
 }

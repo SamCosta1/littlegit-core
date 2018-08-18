@@ -6,7 +6,7 @@ import org.littlegit.core.model.RemoteBranch
 
 object BranchesParser {
 
-    fun parse(raw: List<String>): List<Branch> {
+    fun parse(raw: List<String>, remotes: List<Remote>?): List<Branch> {
 
         // RefName -> RemoteBranch object
         val remoteBranches = mutableMapOf<String, RemoteBranch>()
@@ -23,7 +23,7 @@ object BranchesParser {
             val objectName = split[3]
             val objectType = split[4]
 
-            val branch = Branch.createFrom(refName, isHead, objectName, objectType, remoteBranches[upstream])
+            val branch = Branch.createFrom(refName, isHead, objectName, objectType, remoteBranches[upstream], remotes)
 
             if (branch is RemoteBranch) {
                 remoteBranches[branch.fullRefName] = branch

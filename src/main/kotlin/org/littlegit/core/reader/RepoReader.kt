@@ -107,20 +107,32 @@ class RepoReader(private val commandRunner: GitCommandRunner,
     }
 
     fun getBranches(): LittleGitCommandResult<List<Branch>> {
+        val remotesResult = getRemotes()
+
+        if (remotesResult.result is GitResult.Error) {
+            return LittleGitCommandResult.buildError(remotesResult.result.err)
+        }
+
         val resultProcessor = { result: GitResult.Success ->
-            BranchesParser.parse(result.lines)
+            BranchesParser.parse(result.lines, remotesResult.data)
         }
 
         return commandRunner.runCommand(command = GitCommand.ForEachBranchRef(), resultProcessor = resultProcessor)
     }
 
-    // Gets an up to date version of the given branch (commitHash etc may have changed)
-    fun getBranch(branch: Branch): LittleGitCommandResult<Branch?> {
+    fun getBranch(branch: Branch): LittleGitCommandResult<Branch?> = getBranch(branch.fullRefName)
 
-        val resultProcessor = { result: GitResult.Success ->
-            BranchesParser.parse(result.lines).firstOrNull()
+    fun getBranch(fullRefName: String): LittleGitCommandResult<Branch?> {
+        val remotesResult = getRemotes()
+
+        if (remotesResult.result is GitResult.Error) {
+            return LittleGitCommandResult.buildError(remotesResult.result.err)
         }
 
-        return commandRunner.runCommand(command = GitCommand.SearchForRef(branch.fullRefName), resultProcessor = resultProcessor)
+        val resultProcessor = { result: GitResult.Success ->
+            BranchesParser.parse(result.lines, remotesResult.data).firstOrNull()
+        }
+
+        return commandRunner.runCommand(command = GitCommand.SearchForRef(fullRefName), resultProcessor = resultProcessor)
     }
 }

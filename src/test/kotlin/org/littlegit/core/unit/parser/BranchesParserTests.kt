@@ -7,6 +7,7 @@ import org.littlegit.core.helper.LocalResourceFile
 import org.littlegit.core.model.LocalBranch
 import org.littlegit.core.model.RemoteBranch
 import org.littlegit.core.parser.BranchesParser
+import org.littlegit.core.parser.Remote
 
 @Suppress("MemberVisibilityCanBePrivate")
 class BranchesParserTests {
@@ -15,10 +16,12 @@ class BranchesParserTests {
 
     @Test
     fun testValidRef_WitHead_WithRemotes() {
-        val parsed = BranchesParser.parse(refHeadAndRemotes.content)
+        val expectedOriginRemote = Remote("origin")
+        val expectedUpstreamRemote = Remote("upstream")
+        val parsed = BranchesParser.parse(refHeadAndRemotes.content, listOf(expectedOriginRemote, expectedUpstreamRemote))
 
-        val expectedOriginBranch1Remote = RemoteBranch("refs/remotes/origin/branch1", false, "ef2063e28a7c4c51b90c52537f0e6070424defd2")
-        val expectedUpstreamBranch1Remote = RemoteBranch("refs/remotes/upstream/branch1", false, "ef2063e28a7c4c51b90c52537f0e6070424defd2")
+        val expectedOriginBranch1Remote = RemoteBranch("refs/remotes/origin/branch1", false, "ef2063e28a7c4c51b90c52537f0e6070424defd2", expectedOriginRemote)
+        val expectedUpstreamBranch1Remote = RemoteBranch("refs/remotes/upstream/branch1", false, "ef2063e28a7c4c51b90c52537f0e6070424defd2", expectedUpstreamRemote)
 
         val expectedBranches = listOf(
             expectedUpstreamBranch1Remote,

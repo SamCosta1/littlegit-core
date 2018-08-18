@@ -2,6 +2,7 @@ package org.littlegit.core.commandrunner
 
 import org.littlegit.core.model.Branch
 import org.littlegit.core.model.LocalBranch
+import org.littlegit.core.model.RemoteBranch
 import org.littlegit.core.model.ResetType
 import org.littlegit.core.util.OSType
 import org.littlegit.core.util.OperatingSystemUtils
@@ -70,7 +71,7 @@ abstract class GitCommand {
         override val command: List<String> = listOf("git", "symbolic-ref", symRefName, branch.fullRefName)
     }
 
-    class ReadTreeHead(val branch: LocalBranch): GitCommand() {
+    class ReadTreeHead(val branch: Branch): GitCommand() {
         override val command: List<String> = listOf("git", "read-tree", "-um", "HEAD", branch.fullRefName)
     }
 
@@ -155,5 +156,9 @@ abstract class GitCommand {
 
     class Reset(type: ResetType): GitCommand() {
         override val command: List<String> = listOf("git", "reset", "--${type.raw}")
+    }
+
+    class SetLocalBranchUpstream(local: LocalBranch, remote: RemoteBranch): GitCommand() {
+        override val command: List<String> = listOf("git", "branch", local.branchName, "-u", remote.branchNameWithRemote)
     }
 }

@@ -4,6 +4,7 @@ import org.littlegit.core.commandrunner.CommitHash
 import org.littlegit.core.commandrunner.GitCommand
 import org.littlegit.core.commandrunner.GitCommandRunner
 import org.littlegit.core.commandrunner.GitResult
+import org.littlegit.core.exception.LittleGitException
 import org.littlegit.core.model.*
 import org.littlegit.core.reader.RepoReader
 import org.littlegit.core.util.FileUtils
@@ -75,15 +76,15 @@ class RepoModifier(private val commandRunner: GitCommandRunner, private val repo
         return result ?: LittleGitCommandResult(null, GitResult.Error(GitError.Unknown(listOf())))
     }
 
-    fun createBranch(branchName: String): LittleGitCommandResult<Unit> {
+    fun createBranch(branchName: String): LittleGitCommandResult<Branch?> {
         return this.createBranch(branchName, "HEAD")
     }
 
-    fun createBranch(branchName: String, commit: RawCommit): LittleGitCommandResult<Unit> {
+    fun createBranch(branchName: String, commit: RawCommit): LittleGitCommandResult<Branch?> {
         return this.createBranch(branchName, commit.hash)
     }
 
-    private fun createBranch(branchName: String, location: String): LittleGitCommandResult<Unit> {
+    private fun createBranch(branchName: String, location: String): LittleGitCommandResult<Branch?> {
 
         val refName = if (branchName.startsWith("refs/heads/")) {
             branchName
@@ -91,16 +92,22 @@ class RepoModifier(private val commandRunner: GitCommandRunner, private val repo
             "refs/heads/${branchName.removePrefix("/")}"
         }
 
-        return commandRunner.runCommand(command = GitCommand.UpdateRef(refName, location, true))
+        val result = commandRunner.runCommand<Unit>(command = GitCommand.UpdateRef(refName, location, true))
+
+        return if (result.result is GitResult.Error) {
+            LittleGitCommandResult.buildError(result.result.err)
+        } else {
+            repoReader.getBranch(refName)
+        }
     }
 
     /**
      * @param branch The branch to checkout
      * @param moveUnCommittedChanges When set to true, will attempt to move any unstaged changes to the new branch by stashing them
-     *                              When set to false, will error if git errors from being unable to merge the working tree
+     *                               When set to false, will error if git errors from being unable to merge the working tree
      *
      */
-    fun checkoutBranch(branch: LocalBranch, moveUnCommittedChanges: Boolean = true): LittleGitCommandResult<Unit> {
+    fun checkoutBranch(branch: Branch, moveUnCommittedChanges: Boolean = true): LittleGitCommandResult<Unit> {
 
         // Check the branch exists first
         val upToDateBranch = repoReader.getBranch(branch).data ?: return LittleGitCommandResult.buildError(GitError.BranchNotFound(emptyList()))
@@ -119,6 +126,17 @@ class RepoModifier(private val commandRunner: GitCommandRunner, private val repo
             return updateWDResult
         }
 
+        val branchToCheckout = if (branch is RemoteBranch) {
+            try {
+                getLocalBranchForRemote(branch)
+            } catch (e: LittleGitException) {
+                return LittleGitCommandResult.buildError(e.error.err)
+            }
+        } else {
+            upToDateBranch
+        }
+
+        // If we're checking out a remote branch
         // Apply the changes from the stash back onto the working directory, if this command fails we'll still update the HEAD
         // Because otherwise HEAD and the working tree will be out of sync
         if (moveUnCommittedChanges && !stashCommitHash.isNullOrBlank()) {
@@ -126,7 +144,40 @@ class RepoModifier(private val commandRunner: GitCommandRunner, private val repo
         }
 
         // Now update the HEAD to point at new branch
-        return commandRunner.runCommand(command = GitCommand.SymbolicRef(branch = upToDateBranch))
+        return commandRunner.runCommand(command = GitCommand.SymbolicRef(branch = branchToCheckout))
     }
 
+    @Throws(LittleGitException::class)
+    private fun getLocalBranchForRemote(remote: RemoteBranch): LocalBranch {
+        // Find the local branch that's tracking the given branch
+        val localBranch = repoReader.getBranches().data?.find { it is LocalBranch && it.upstream == remote } as? LocalBranch?
+
+        return when {
+            // If no local branch exists to track the given remote, we create it
+            localBranch == null -> {
+                val newLocalBranchResult = createBranch(remote.branchName)
+
+                if (newLocalBranchResult.result is GitResult.Error) {
+                    throw LittleGitException(newLocalBranchResult.result)
+                }
+
+                val newLocalBranch = newLocalBranchResult.data as LocalBranch
+
+                // Set the local branch to track the remote
+                val setUpstreamResult = commandRunner.runCommand<Unit>(GitCommand.SetLocalBranchUpstream(newLocalBranch, remote)).result
+
+                if (setUpstreamResult is GitResult.Error) {
+                    throw LittleGitException(setUpstreamResult)
+                }
+
+                return newLocalBranchResult.data
+
+            }
+            localBranch.commitHash != remote.commitHash -> {
+                // If the hashes are the same, then the history's diverged, don't handle this here, they'll have to do a pull manually
+                throw LittleGitException(GitResult.Error(GitError.RemoteDivergedFromLocal()))
+            }
+            else -> localBranch
+        }
+    }
 }

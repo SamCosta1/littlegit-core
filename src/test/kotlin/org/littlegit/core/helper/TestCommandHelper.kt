@@ -1,5 +1,7 @@
 package org.littlegit.core.helper
 
+import org.littlegit.core.commandrunner.CommitHash
+import org.littlegit.core.model.ResetType
 import java.io.File
 import java.io.InputStreamReader
 import java.io.BufferedReader
@@ -42,6 +44,11 @@ class TestCommandHelper(private val file: File) {
         return this
     }
 
+    fun createRemoteBranch(branchName: String, remote: String): TestCommandHelper {
+        execute(("git update-ref refs/remotes/$remote/$branchName HEAD"))
+        return this
+    }
+
     fun getLastCommitMessage(): String {
         return execute("git log -1 --pretty=%B").first()
     }
@@ -56,6 +63,11 @@ class TestCommandHelper(private val file: File) {
 
     fun run(command: String): List<String> {
         return execute(command)
+    }
+
+    fun reset(toHash: CommitHash, mode: ResetType): TestCommandHelper {
+        execute("git reset --${mode.raw} $toHash")
+        return this
     }
 
     fun writeToFile(file: String, content: String): TestCommandHelper {
@@ -128,6 +140,11 @@ class TestCommandHelper(private val file: File) {
 
     fun checkout(branch: String): TestCommandHelper {
         execute("git checkout $branch")
+        return this
+    }
+
+    fun setupRemoteTracking(remote: String, branchName: String): TestCommandHelper {
+        execute("git branch -u $remote/$branchName")
         return this
     }
 }

@@ -22,4 +22,5 @@ sealed class GitError(val error: List<String>) {
     data class ReferenceAlreadyExists(private val err: List<String>): GitError(err)
     data class InvalidRefName(private val err: List<String>): GitError(err)
     data class BranchNotFound(private val err: List<String>): GitError(err)
+         class RemoteDivergedFromLocal: GitError(listOf("Remote has diverged from the local, try checking out the local branch and then pulling"))
 }
