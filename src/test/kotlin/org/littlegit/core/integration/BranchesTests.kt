@@ -6,6 +6,7 @@ import org.littlegit.core.commandrunner.GitResult
 import org.littlegit.core.helper.TestCommandHelper
 import org.littlegit.core.model.GitError
 import org.littlegit.core.model.LocalBranch
+import org.littlegit.core.model.RemoteBranch
 import org.littlegit.core.util.ListUtils
 
 class BranchesTests: BaseIntegrationTest() {
@@ -304,5 +305,65 @@ class BranchesTests: BaseIntegrationTest() {
         assertEquals(listOf(newFileContent), ListUtils.readFromPath(newFile.toPath()))
     }
 
-    
+    @Test
+    fun testCheckoutBranch_RemoteBranch_WhenLocalExists() {
+        val branchName = "find-gimli"
+        val fileContent = "Route to gimli"
+        commandHelper
+                .writeToFile("map.txt", fileContent)
+                .addAll()
+                .commit()
+                .branchAndCheckout(branchName)
+                .addRemote("origin")
+                .createRemoteBranch(branchName, "origin")
+                .setupRemoteTracking("origin", branchName)
+                .checkout("master")
+
+        val remoteBranch = littleGit.repoReader.getBranches().data?.find { it is RemoteBranch && it.branchName == branchName }
+        assertNotNull(remoteBranch); remoteBranch!!
+
+        val result = littleGit.repoModifier.checkoutBranch(remoteBranch).result
+
+        assertTrue(result is GitResult.Success)
+
+        // Check correct branch checked out (i.e the local equivalent of the remote we specified)
+        val currentBranch = littleGit.repoReader.getBranches().data?.find { it.isHead }
+        assertNotNull(currentBranch); currentBranch!!
+
+        assertTrue(currentBranch is LocalBranch); currentBranch as LocalBranch
+        assertEquals(remoteBranch, currentBranch.upstream)
+        assertEquals(branchName, currentBranch.branchName)
+    }
+
+    @Test
+    fun testCheckoutBranch_RemoteBranch_WhenLocalDoesntExist() {
+        val branchName = "find-gimli"
+        val fileContent = "Route to gimli"
+        commandHelper
+                .writeToFile("map.txt", fileContent)
+                .addAll()
+                .commit()
+                .branchAndCheckout(branchName)
+                .addRemote("origin")
+                .createRemoteBranch(branchName, "origin")
+                .setupRemoteTracking("origin", branchName)
+                .checkout("master")
+                .deleteBranch(branchName)
+
+        val remoteBranch = littleGit.repoReader.getBranches().data?.find { it is RemoteBranch && it.branchName == branchName }
+        assertNotNull(remoteBranch); remoteBranch!!
+
+        val result = littleGit.repoModifier.checkoutBranch(remoteBranch).result
+
+        assertTrue(result is GitResult.Success)
+
+        // Check correct branch checked out (i.e the local equivalent of the remote we specified)
+        val currentBranch = littleGit.repoReader.getBranches().data?.find { it.isHead }
+        assertNotNull(currentBranch); currentBranch!!
+
+        assertTrue(currentBranch is LocalBranch); currentBranch as LocalBranch
+        assertEquals(remoteBranch, currentBranch.upstream)
+        assertEquals(branchName, currentBranch.branchName)
+    }
+
 }

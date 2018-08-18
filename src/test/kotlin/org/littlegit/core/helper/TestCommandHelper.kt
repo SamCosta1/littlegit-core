@@ -42,6 +42,11 @@ class TestCommandHelper(private val file: File) {
         return this
     }
 
+    fun createRemoteBranch(branchName: String, remote: String): TestCommandHelper {
+        execute(("git update-ref refs/remotes/$remote/$branchName HEAD"))
+        return this
+    }
+
     fun getLastCommitMessage(): String {
         return execute("git log -1 --pretty=%B").first()
     }
@@ -128,6 +133,11 @@ class TestCommandHelper(private val file: File) {
 
     fun checkout(branch: String): TestCommandHelper {
         execute("git checkout $branch")
+        return this
+    }
+
+    fun setupRemoteTracking(remote: String, branchName: String): TestCommandHelper {
+        execute("git branch -u $remote/$branchName")
         return this
     }
 }
