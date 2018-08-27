@@ -17,7 +17,7 @@ object ConflictFilesParser {
         var theirsBlobHash: String? = null
         var baseBlobHash: String? = null
 
-        val allHashesNonNull: Boolean = oursBlobHash != null && theirsBlobHash != null && baseBlobHash != null
+        val allHashesNonNull: Boolean; get() = oursBlobHash != null && theirsBlobHash != null && baseBlobHash != null
     }
 
     fun parse(repoPath: Path, lines: List<String>): MergeResult {
@@ -26,28 +26,31 @@ object ConflictFilesParser {
 
         try {
 
-            lines.forEach { line ->
-                val spaceSplit = line.split("-")
+            for (line in lines) {
+                if (line.isBlank()) {
+                    continue
+                }
+                val spaceSplit = line.split(" ")
 
                 // TODO: Do something with this and actually handle binary files
                 val fileMode = spaceSplit[0]
                 val hash = spaceSplit[1]
-                val conflictMode = ConflictMode.from(spaceSplit[2])
 
-                val tabSplit = line.split("\t")
+                val tabSplit = spaceSplit[2].split("\t")
+                val conflictMode = ConflictMode.from(tabSplit[0])
                 val pathRelativeToRepo = tabSplit[1]
 
-                val conflictFile = resultMap.getOrDefault(pathRelativeToRepo, TempConflictFileVersion())
+                val conflictFile = resultMap.getOrPut(pathRelativeToRepo) { TempConflictFileVersion() }
 
                 when (conflictMode) {
-                    ConflictMode.Ours ->    conflictFile.oursBlobHash = hash
+                    ConflictMode.Ours   ->  conflictFile.oursBlobHash = hash
                     ConflictMode.Theirs ->  conflictFile.theirsBlobHash = hash
-                    ConflictMode.Base ->    conflictFile.baseBlobHash = hash
+                    ConflictMode.Base   ->  conflictFile.baseBlobHash = hash
                 }
             }
 
         } catch (e: Exception) {
-            throw MalformedConflictListException()
+            throw MalformedConflictListException(exception = e)
         }
 
         return MergeResult(resultMap.entries.map {
