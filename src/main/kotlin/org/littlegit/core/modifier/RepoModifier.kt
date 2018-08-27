@@ -4,6 +4,7 @@ import org.littlegit.core.commandrunner.CommitHash
 import org.littlegit.core.commandrunner.GitCommand
 import org.littlegit.core.commandrunner.GitCommandRunner
 import org.littlegit.core.commandrunner.GitResult
+import org.littlegit.core.exception.DirtyWorkingDirectoryException
 import org.littlegit.core.exception.LittleGitException
 import org.littlegit.core.model.*
 import org.littlegit.core.reader.RepoReader
@@ -26,7 +27,6 @@ class RepoModifier(private val commandRunner: GitCommandRunner, private val repo
         var result: LittleGitCommandResult<Unit>? = null
         tempFile?.let {
             result = commandRunner.runCommand(command = GitCommand.Commit(it))
-
         }
 
         tempFile?.delete()
@@ -157,8 +157,8 @@ class RepoModifier(private val commandRunner: GitCommandRunner, private val repo
             localBranch == null -> {
                 val newLocalBranchResult = createBranch(remote.branchName)
 
-                if (newLocalBranchResult.result is GitResult.Error) {
-                    throw LittleGitException(newLocalBranchResult.result)
+                if (newLocalBranchResult.result.isError) {
+                    throw LittleGitException(newLocalBranchResult.result as GitResult.Error)
                 }
 
                 val newLocalBranch = newLocalBranchResult.data as LocalBranch
@@ -179,5 +179,28 @@ class RepoModifier(private val commandRunner: GitCommandRunner, private val repo
             }
             else -> localBranch
         }
+    }
+
+    @Throws(DirtyWorkingDirectoryException::class)
+    fun merge(otherBranch: Branch, noFastForward: Boolean = false): LittleGitCommandResult<MergeResult> {
+
+        // Don't allow merging with un-staged changes, just leads to problems
+        val unstagedChangesResult = repoReader.getUnStagedChanges()
+
+        if (unstagedChangesResult.result is GitResult.Error) {
+            return LittleGitCommandResult.buildError(unstagedChangesResult.result.err)
+        }
+
+        if (unstagedChangesResult.data?.hasTrackedChanges == true) {
+            throw DirtyWorkingDirectoryException("merging")
+        }
+
+        val mergingResult = commandRunner.runCommand<MergeResult>(GitCommand.Merge(otherBranch, noFastForward))
+
+        if (mergingResult.isError) {
+            return mergingResult
+        }
+
+        return repoReader.getConflictFiles()
     }
 }

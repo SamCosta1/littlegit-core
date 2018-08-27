@@ -4,9 +4,9 @@ import org.junit.Rule
 import org.junit.Test
 import org.littlegit.core.helper.LocalResourceFile
 import junit.framework.TestCase.assertEquals
+import org.littlegit.core.exception.MalformedDiffException
 import org.littlegit.core.model.*
 import org.littlegit.core.parser.DiffParser
-import org.littlegit.core.parser.MalformedDiffException
 
 @Suppress("MemberVisibilityCanBePrivate")
 class DiffParserTests {
