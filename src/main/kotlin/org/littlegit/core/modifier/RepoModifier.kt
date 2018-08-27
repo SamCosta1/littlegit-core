@@ -201,8 +201,6 @@ class RepoModifier(private val commandRunner: GitCommandRunner, private val repo
             return mergingResult
         }
 
-        return null!!
-
-
+        return repoReader.getConflictFiles()
     }
 }
