@@ -161,4 +161,13 @@ abstract class GitCommand {
     class SetLocalBranchUpstream(local: LocalBranch, remote: RemoteBranch): GitCommand() {
         override val command: List<String> = listOf("git", "branch", local.branchName, "-u", remote.branchNameWithRemote)
     }
+
+    class Merge(private val other: Branch, private val noFastForward: Boolean): GitCommand() {
+        override val command: List<String> = listOf("git", "merge", if (noFastForward) "--no-ff" else "--ff", ref)
+        private val ref: String; get() = if (other is RemoteBranch) other.branchNameWithRemote else other.branchName
+    }
+
+    class GetConflictFiles(): GitCommand() {
+        override val command: List<String>; get() = listOf("git", "ls-files", "-unmerged", "--full-name")
+    }
 }

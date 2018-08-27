@@ -10,6 +10,8 @@ import java.nio.file.Path
 typealias ResultProcessor<T> = (GitResult.Success) -> T
 
 sealed class GitResult {
+    val isError: Boolean; get() = this is Error
+
     data class Success(val lines: List<String>): GitResult()
     data class Error(val err: GitError): GitResult()
 }
