@@ -135,4 +135,12 @@ class RepoReader(private val commandRunner: GitCommandRunner,
 
         return commandRunner.runCommand(command = GitCommand.SearchForRef(fullRefName), resultProcessor = resultProcessor)
     }
+
+    fun getConflictFiles(): LittleGitCommandResult<MergeResult> {
+        val resultProcessor = { result: GitResult.Success ->
+            ConflictFilesParser.parse(repoPath, result.lines)
+        }
+
+        return commandRunner.runCommand(command = GitCommand.GetConflictFiles(), resultProcessor = resultProcessor)
+    }
 }

@@ -1,15 +1,10 @@
 package org.littlegit.core.model
 
 import java.io.File
+import java.nio.file.Path
 
 data class MergeResult(val conflictFiles: List<ConflictFile>) {
     val hasConflicts: Int; get() = conflictFiles.size
 }
 
-data class ConflictFile(val blobHash: String, val type: ConflictFileType, val file: File)
-
-enum class ConflictFileType {
-    Ours,
-    Theirs,
-    Base
-}
+data class ConflictFile(val file: Path, val oursBlobHash: String, val theirsBlobHash: String, val baseBlobHash: String)
