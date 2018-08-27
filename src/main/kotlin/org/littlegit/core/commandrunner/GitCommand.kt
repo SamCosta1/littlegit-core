@@ -168,6 +168,6 @@ abstract class GitCommand {
     }
 
     class GetConflictFiles(): GitCommand() {
-        override val command: List<String>; get() = listOf("git", "ls-files", "-unmerged", "--full-name")
+        override val command: List<String>; get() = listOf("git", "ls-files", "--unmerged", "--full-name")
     }
 }
