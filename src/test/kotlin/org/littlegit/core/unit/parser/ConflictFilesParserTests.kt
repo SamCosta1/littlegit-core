@@ -18,11 +18,11 @@ class ConflictFilesParserTests {
 
     @Test
     fun testWithFilesInSubDirs() {
-        val dummyPath = "/Users/gandalf/Projects/toTheMountain/testFiles"
-        val parsed = ConflictFilesParser.parse(Paths.get(dummyPath), filesInSubDirs.content)
+        val dummyPath = Paths.get("/Users/gandalf/Projects/toTheMountain/testFiles")
+        val parsed = ConflictFilesParser.parse(dummyPath, filesInSubDirs.content)
 
         val expectedFile = ConflictFile(
-                Paths.get(dummyPath, "subdir/sub.txt"),
+                Paths.get(dummyPath.toFile().canonicalPath, "subdir/sub.txt"),
                 "30844b63e5f1bec58ef2ce01db1311d17699988e",
                 "9f34a0f0645fa9afd22f02be37cc5031a079d308",
                 "c64c940750ba8809f15c21250f1ed55bd4dcb95d")
