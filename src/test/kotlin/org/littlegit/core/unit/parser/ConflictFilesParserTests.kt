@@ -1,9 +1,9 @@
 package org.littlegit.core.unit.parser
 
+import junit.framework.Assert.assertFalse
 import junit.framework.TestCase.assertEquals
 import org.junit.Rule
 import org.junit.Test
-import org.junit.rules.TemporaryFolder
 import org.littlegit.core.helper.LocalResourceFile
 import org.littlegit.core.model.ConflictFile
 import org.littlegit.core.model.MergeResult
@@ -28,5 +28,23 @@ class ConflictFilesParserTests {
                 "c64c940750ba8809f15c21250f1ed55bd4dcb95d")
 
         assertEquals(MergeResult(listOf(expectedFile)), parsed)
+    }
+
+    @Test
+    fun testEmptyRawOutput() {
+        val dummyPath = "/Users/gandalf/Projects/toTheMountain/testFiles"
+
+        val parsed = ConflictFilesParser.parse(Paths.get(dummyPath), listOf())
+        assertFalse(parsed.hasConflicts)
+        assertEquals(0, parsed.conflictFiles.size)
+    }
+
+    @Test
+    fun testBlankRawOutput() {
+        val dummyPath = "/Users/gandalf/Projects/toTheMountain/testFiles"
+
+        val parsed = ConflictFilesParser.parse(Paths.get(dummyPath), listOf("", "   "))
+        assertFalse(parsed.hasConflicts)
+        assertEquals(0, parsed.conflictFiles.size)
     }
 }
