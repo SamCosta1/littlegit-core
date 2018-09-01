@@ -60,14 +60,9 @@ publishing {
         }
     }
     repositories {
-        maven {
-            url = uri("$buildDir/repository")
-        }
 
-        mavenWriteUrl?.let {
-            maven {
-                url = it
-            }
+        maven {
+            url = mavenWriteUrl!!
         }
     }
 }
