@@ -11,6 +11,7 @@ script:
 - "./gradlew build"
 - "./gradlew test"
 - "./gradlew jar"
+- if [ "$TRAVIS_BRANCH" = release/* ]; then ./gradlew publish; fi
 deploy:
   provider: releases
   api_key: $GITHUB_TOKEN
