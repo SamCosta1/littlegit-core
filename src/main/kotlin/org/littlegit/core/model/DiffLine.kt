@@ -4,7 +4,13 @@ enum class DiffLineType {
     Addition,
     Deletion,
     Unchanged,
-    NoNewLineAtEndOfFile
+    NoNewLineAtEndOfFile;
+
+    val inverse get() = when(this) {
+        Addition -> Deletion
+        Deletion -> Addition
+        else -> this
+    }
 }
 
 // When type is unchanged, fromLineNum = toLineNum

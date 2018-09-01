@@ -1,5 +1,7 @@
 package org.littlegit.core.helper
 
+import org.littlegit.core.commandrunner.CommitHash
+import org.littlegit.core.model.ResetType
 import java.io.File
 import java.io.InputStreamReader
 import java.io.BufferedReader
@@ -27,7 +29,7 @@ class TestCommandHelper(private val file: File) {
         return this
     }
 
-    fun commit(message: String = "test message"): TestCommandHelper {
+    fun commit(message: String = "test-message"): TestCommandHelper {
         execute("git commit -m $message")
         return this
     }
@@ -42,31 +44,59 @@ class TestCommandHelper(private val file: File) {
         return this
     }
 
-    fun getLastCommitMessage(): String {
-        return execute("git log -1 --pretty=%B")
-    }
-
-    fun getLastCommitHash(): String {
-        return execute("git log -1 --pretty=%H")
-    }
-
-    fun getLastCommitTimeStamp(): String {
-        return execute("git log -1 --date=iso --pretty=%ct")
-    }
-
-    fun run(command: String): String {
-        return execute(command)
-    }
-
-    fun writeToFile(file: String, content: String): TestCommandHelper {
-
-        val path = Paths.get("${this.file.absolutePath}/$file")
-        Files.write(path, listOf(content), Charset.forName("UTF-8"))
+    fun createRemoteBranch(branchName: String, remote: String): TestCommandHelper {
+        execute(("git update-ref refs/remotes/$remote/$branchName HEAD"))
         return this
     }
 
-    fun execute(command: String): String {
-        val output = StringBuffer()
+    fun getLastCommitMessage(): String {
+        return execute("git log -1 --pretty=%B").first()
+    }
+
+    fun getLastCommitHash(): String {
+        return execute("git log -1 --pretty=%H").first()
+    }
+
+    fun getLastCommitTimeStamp(): String {
+        return execute("git log -1 --date=iso --pretty=%ct").first()
+    }
+
+    fun run(command: String): List<String> {
+        return execute(command)
+    }
+
+    fun reset(toHash: CommitHash, mode: ResetType): TestCommandHelper {
+        execute("git reset --${mode.raw} $toHash")
+        return this
+    }
+
+    fun writeToFile(file: String, content: String): TestCommandHelper {
+        writeToFileAndReturnIt(file, content)
+        return this
+    }
+
+    fun writeToFile(file: String, content: List<String>): TestCommandHelper {
+        writeToFileAndReturnIt(file, content)
+        return this
+    }
+
+    fun writeToFileAndReturnIt(file: String, content: String): File  = writeToFileAndReturnIt(file, listOf(content))
+
+    fun writeToFileAndReturnIt(file: String, content: List<String>): File {
+
+        val path = Paths.get(this.file.absolutePath, file)
+        Files.write(path, content, Charset.forName("UTF-8"))
+        return path.toFile()
+    }
+
+    fun isStaged(file: File): Boolean {
+        val stagedFiles = execute("git diff --cached --name-only")
+
+        return stagedFiles.any { file.absoluteFile.endsWith(it) }
+    }
+
+    private fun execute(command: String): List<String> {
+        val output = mutableListOf<String>()
 
         val p: Process
         try {
@@ -75,7 +105,7 @@ class TestCommandHelper(private val file: File) {
             val reader = BufferedReader(InputStreamReader(p.inputStream))
             val error = BufferedReader(InputStreamReader(p.errorStream))
 
-            var line: String? = ""
+            var line: String?
             do {
                 line = error.readLine()
                 if (line != null && line.isNotBlank()) {
@@ -87,7 +117,7 @@ class TestCommandHelper(private val file: File) {
                 line = reader.readLine()
 
                 if (line != null && line.isNotBlank()) {
-                    output.append(line)
+                    output.add(line)
                 }
 
             } while (line != null)
@@ -96,11 +126,25 @@ class TestCommandHelper(private val file: File) {
             e.printStackTrace()
         }
 
-        return output.toString().trim()
+        return output
     }
 
     fun branchAndCheckout(branch: String): TestCommandHelper {
         execute("git checkout -b $branch")
+        return this
+    }
+
+    fun deleteBranch(branchName: String) {
+        execute("git branch -d $branchName")
+    }
+
+    fun checkout(branch: String): TestCommandHelper {
+        execute("git checkout $branch")
+        return this
+    }
+
+    fun setupRemoteTracking(remote: String, branchName: String): TestCommandHelper {
+        execute("git branch -u $remote/$branchName")
         return this
     }
 }

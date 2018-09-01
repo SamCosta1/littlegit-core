@@ -1,16 +1,15 @@
 package org.littlegit.core.reader
 import org.littlegit.core.LittleGitCommandResult
 import org.littlegit.core.commandrunner.*
-import org.littlegit.core.model.FullCommit
-import org.littlegit.core.model.GitError
-import org.littlegit.core.model.LittleGitFile
-import org.littlegit.core.model.RawCommit
-import org.littlegit.core.parser.FullCommitParser
-import org.littlegit.core.parser.LogParser
-import org.littlegit.core.parser.Remote
-import org.littlegit.core.parser.RemoteParser
+import org.littlegit.core.model.*
+import org.littlegit.core.parser.*
+import org.littlegit.core.util.ListUtils
+import java.io.File
+import java.nio.file.Path
+import java.nio.file.Paths
 
-class RepoReader(private val commandRunner: GitCommandRunner) {
+class RepoReader(private val commandRunner: GitCommandRunner,
+                 private val repoPath: Path) {
 
     fun getGraph(): LittleGitCommandResult<GitGraph> {
         val resultProcessor = { result: GitResult.Success ->
@@ -54,9 +53,11 @@ class RepoReader(private val commandRunner: GitCommandRunner) {
         return commandRunner.runCommand(command = GitCommand.Log(), resultProcessor = resultProcessor)
     }
 
-    fun getFile(ref: String = "", file: String): LittleGitCommandResult<LittleGitFile> {
+    fun getFile(ref: String = "", file: File): LittleGitCommandResult<LittleGitFile> {
         val resultProcessor = { result: GitResult.Success -> LittleGitFile(result.lines, file) }
-        return commandRunner.runCommand(command = GitCommand.ShowFile(ref, file), resultProcessor = resultProcessor)
+
+        val relativePath = commandRunner.pathRelativeToRepo(file)
+        return commandRunner.runCommand(command = GitCommand.ShowFile(ref, relativePath), resultProcessor = resultProcessor)
     }
 
     fun getFullCommit(commit: RawCommit) = getFullCommit(commit.hash)
@@ -67,5 +68,79 @@ class RepoReader(private val commandRunner: GitCommandRunner) {
         }
 
         return commandRunner.runCommand(command = GitCommand.FullCommit(commit), resultProcessor = resultProcessor)
+    }
+
+    fun getStagingAreaDiff(): LittleGitCommandResult<Diff> {
+        val resultProcessor = { result: GitResult.Success ->
+            DiffParser.parse(result.lines)
+        }
+
+        return commandRunner.runCommand(command = GitCommand.StagingAreaDiff(), resultProcessor = resultProcessor)
+    }
+
+    fun getUnStagedChanges(): LittleGitCommandResult<UnstagedChanges> {
+        val unTrackedFilesProcessor = { result: GitResult.Success ->
+            // Each line is a path relative to the repo
+            result.lines.map {
+                val path = Paths.get(repoPath.toString(), it)
+                LittleGitFile(ListUtils.readFromPath(path) , path.toFile())
+            }
+        }
+
+        val diffProcessor = { result: GitResult.Success ->
+            DiffParser.parse(result.lines)
+        }
+
+        val unTrackedFilesResult = commandRunner.runCommand(command = GitCommand.GetUnTrackedNonIgnoredFiles(), resultProcessor = unTrackedFilesProcessor)
+        val trackedFilesDiffResult = commandRunner.runCommand(command = GitCommand.UnStagedDiff(), resultProcessor = diffProcessor)
+
+        if (trackedFilesDiffResult.result is GitResult.Error) {
+            return LittleGitCommandResult(null, trackedFilesDiffResult.result)
+        }
+
+        if (unTrackedFilesResult.result is GitResult.Error) {
+            return LittleGitCommandResult(null, unTrackedFilesResult.result)
+        }
+
+        val unTrackedFiles = unTrackedFilesResult.data
+        return LittleGitCommandResult(UnstagedChanges(trackedFilesDiffResult.data!!, unTrackedFiles!!), unTrackedFilesResult.result)
+    }
+
+    fun getBranches(): LittleGitCommandResult<List<Branch>> {
+        val remotesResult = getRemotes()
+
+        if (remotesResult.result is GitResult.Error) {
+            return LittleGitCommandResult.buildError(remotesResult.result.err)
+        }
+
+        val resultProcessor = { result: GitResult.Success ->
+            BranchesParser.parse(result.lines, remotesResult.data)
+        }
+
+        return commandRunner.runCommand(command = GitCommand.ForEachBranchRef(), resultProcessor = resultProcessor)
+    }
+
+    fun getBranch(branch: Branch): LittleGitCommandResult<Branch?> = getBranch(branch.fullRefName)
+
+    fun getBranch(fullRefName: String): LittleGitCommandResult<Branch?> {
+        val remotesResult = getRemotes()
+
+        if (remotesResult.result is GitResult.Error) {
+            return LittleGitCommandResult.buildError(remotesResult.result.err)
+        }
+
+        val resultProcessor = { result: GitResult.Success ->
+            BranchesParser.parse(result.lines, remotesResult.data).firstOrNull()
+        }
+
+        return commandRunner.runCommand(command = GitCommand.SearchForRef(fullRefName), resultProcessor = resultProcessor)
+    }
+
+    fun getConflictFiles(): LittleGitCommandResult<MergeResult> {
+        val resultProcessor = { result: GitResult.Success ->
+            ConflictFilesParser.parse(repoPath, result.lines)
+        }
+
+        return commandRunner.runCommand(command = GitCommand.GetConflictFiles(), resultProcessor = resultProcessor)
     }
 }

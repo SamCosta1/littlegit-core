@@ -1,11 +1,10 @@
 package org.littlegit.core.parser
 
+import org.littlegit.core.exception.MalformedDiffException
 import org.littlegit.core.model.*
 import org.littlegit.core.util.ListUtils
 import org.littlegit.core.util.joinWithNewLines
 import org.littlegit.core.util.joinWithSpace
-
-class MalformedDiffException(override var message: String = "Diff is malformed", exception: Exception): Exception(message, exception)
 
 object DiffParser {
 
@@ -110,7 +109,7 @@ object DiffParser {
     }
 
     private fun stripQuotesIfNeeded(filePath: String): String {
-        // Sometimes the path is wrapped in quotes sometimes it isn't account for both cases
+        // Sometimes the path is wrapped in quotes sometimes it isn't, account for both cases
         if (filePath.startsWith('"')) {
             return filePath.removePrefix("\"").removeSuffix("\"")
         }

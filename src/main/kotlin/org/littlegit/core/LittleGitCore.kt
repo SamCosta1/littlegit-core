@@ -7,13 +7,14 @@ import org.littlegit.core.commandrunner.GitCommandRunner
 import org.littlegit.core.shell.ShellRunner
 import org.littlegit.core.shell.ShellRunnerLocal
 import org.littlegit.core.shell.ShellRunnerRemote
+import java.nio.file.Path
 
-class LittleGitCore private constructor(shellRunner: ShellRunner) {
+class LittleGitCore private constructor(shellRunner: ShellRunner, repoPath: Path) {
 
      class Builder {
         private var user: String? = null
         private var host: String? = null
-        private var repoPath: String? = null
+        private var repoPath: Path? = null
 
         fun setRemoteUser(usr: String): Builder {
             user = usr
@@ -25,7 +26,7 @@ class LittleGitCore private constructor(shellRunner: ShellRunner) {
             return this
         }
 
-        fun setRepoDirectoryPath(path: String): Builder {
+        fun setRepoDirectoryPath(path: Path): Builder {
             repoPath = path
             return this
         }
@@ -36,21 +37,19 @@ class LittleGitCore private constructor(shellRunner: ShellRunner) {
                 throw IllegalStateException("To manipulate a remote repo, supply a user and host")
             }
 
-            if (repoPath.isNullOrBlank()) throw IllegalStateException("You must specify a directory for the repo")
+            if (repoPath == null) throw IllegalStateException("You must specify a directory for the repo")
 
             return if (!host.isNullOrBlank()) {
-                LittleGitCore(ShellRunnerRemote(user!!, host!!, repoPath!!))
+                LittleGitCore(ShellRunnerRemote(user!!, host!!, repoPath!!), repoPath!!)
             } else {
-                LittleGitCore(ShellRunnerLocal(repoPath!!))
+                LittleGitCore(ShellRunnerLocal(repoPath!!), repoPath!!)
             }
-
         }
-
     }
 
-    private val commandRunner = GitCommandRunner(shellRunner)
+    private val commandRunner = GitCommandRunner(shellRunner, repoPath)
 
-    val repoReader = RepoReader(commandRunner)
-    val repoModifier = RepoModifier(commandRunner)
+    val repoReader = RepoReader(commandRunner, repoPath)
+    val repoModifier = RepoModifier(commandRunner, repoReader)
     val configModifier = ConfigModifier(commandRunner)
 }

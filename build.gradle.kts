@@ -1,10 +1,11 @@
 import org.gradle.jvm.tasks.Jar
 import org.jetbrains.kotlin.config.AnalysisFlag.Flags.experimental
 import org.jetbrains.kotlin.gradle.dsl.Coroutines
+import java.net.URI
 
 
 group = "org.littlegit.core"
-version = "0.0.1"
+version = "0.1.0"
 
 plugins {
     `maven-publish`
@@ -36,6 +37,16 @@ val dokkaJar by tasks.creating(Jar::class) {
     from(dokka)
 }
 
+val mavenWriteUrl: URI?; get() {
+    val raw = System.getenv("LITTLEGIT_MAVEN_WRITE_URL")
+    
+    if (raw.isNullOrBlank()) {
+        return null
+    }
+
+    return uri(raw)
+}
+
 jacoco {
     toolVersion = "0.7.9"
     reportsDir = file("$buildDir/jacoco")
@@ -49,8 +60,9 @@ publishing {
         }
     }
     repositories {
+
         maven {
-            url = uri("$buildDir/repository")
+            url = mavenWriteUrl!!
         }
     }
 }

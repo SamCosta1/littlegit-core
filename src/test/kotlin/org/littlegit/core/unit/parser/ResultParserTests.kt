@@ -1,4 +1,4 @@
-package org.littlegit.core.unit.resultparser
+package org.littlegit.core.unit.parser
 
 import junit.framework.TestCase.assertTrue
 import org.junit.Rule
@@ -12,7 +12,8 @@ import org.littlegit.core.shell.ShellResult
 @Suppress("MemberVisibilityCanBePrivate")
 class ResultParserTests {
 
-    @get:Rule val localChangesError = LocalResourceFile("err/err-local-changes.txt")
+    @get:Rule val localChangesErrorV1 = LocalResourceFile("err/err-local-changes_v1.txt")
+    @get:Rule val localChangesErrorV2 = LocalResourceFile("err/err-local-changes_v2.txt")
     @get:Rule val notARepoError = LocalResourceFile("err/err-not-a-repo.txt")
     @get:Rule val nothingToCommit = LocalResourceFile("err/err-nothing-to-commit.txt")
     @get:Rule val noRemoteError = LocalResourceFile("err/err-no-remote.txt")
@@ -21,6 +22,7 @@ class ResultParserTests {
     @get:Rule val cannotReadRemoteHttpError = LocalResourceFile("err/err-cannot-read-remote-http.txt")
     @get:Rule val invalidRemoteName = LocalResourceFile("err/err-invalid-remote-windows.txt")
     @get:Rule val lockedCommit = LocalResourceFile("err/err-head-locked.txt")
+    @get:Rule val corruptPatchError = LocalResourceFile("err/err-corrupt-patch.txt")
 
     @Test fun testLockedCommit() {
         val parsedResult = GitResultParser.parseShellResult(ShellResult.Error(lockedCommit.content))
@@ -32,8 +34,13 @@ class ResultParserTests {
         assertTrue(parsedResult is GitResult.Error && parsedResult.err is GitError.InvalidRemoteInfo)
     }
 
-    @Test fun testLocalChangesWouldBeOverwritten() {
-        val parsedResult = GitResultParser.parseShellResult(ShellResult.Error(localChangesError.content))
+    @Test fun testLocalChangesWouldBeOverwritten_V1() {
+        val parsedResult = GitResultParser.parseShellResult(ShellResult.Error(localChangesErrorV1.content))
+        assertTrue(parsedResult is GitResult.Error && parsedResult.err is GitError.LocalChangesWouldBeOverwritten)
+    }
+
+    @Test fun testLocalChangesWouldBeOverwritten_V2() {
+        val parsedResult = GitResultParser.parseShellResult(ShellResult.Error(localChangesErrorV2.content))
         assertTrue(parsedResult is GitResult.Error && parsedResult.err is GitError.LocalChangesWouldBeOverwritten)
     }
 
@@ -66,6 +73,11 @@ class ResultParserTests {
     @Test fun testCannotReadRemoteHttp() {
         val parsedResult = GitResultParser.parseShellResult(ShellResult.Error(cannotReadRemoteHttpError.content))
         assertTrue(parsedResult is GitResult.Error && parsedResult.err is GitError.CannotReadRemote)
+    }
+
+    @Test fun testCorruptPatch() {
+        val parsedResult = GitResultParser.parseShellResult(ShellResult.Error(corruptPatchError.content))
+        assertTrue(parsedResult is GitResult.Error && parsedResult.err is GitError.CorruptPatch)
     }
 
     @Test
