@@ -3,19 +3,20 @@ package org.littlegit.core.shell
 import org.littlegit.core.util.joinWithSpace
 import java.io.BufferedReader
 import java.io.InputStreamReader
+import java.nio.charset.Charset
 import java.nio.file.Path
 
 class ShellRunnerRemote(private val user: String, private val host: String, private val repoPath: Path) : ShellRunner {
 
     override fun runCommand(command: List<String>): ShellResult {
-        val gitCommand = "cd ${repoPath.toFile().canonicalPath} && ${command.joinWithSpace()}"
+        val gitCommand = "cd ${repoPath.normalize()} && ${command.joinWithSpace()}"
         val sshCommand = mutableListOf("ssh", "-oStrictHostKeyChecking=no", "$user@$host", gitCommand)
         val pb = ProcessBuilder(sshCommand.toList())
 
         val proc = pb.start()
 
-        val stdInput = BufferedReader(InputStreamReader(proc.inputStream))
-        val stdError = BufferedReader(InputStreamReader(proc.errorStream))
+        val stdInput = BufferedReader(InputStreamReader(proc.inputStream, Charset.forName("UTF-8")))
+        val stdError = BufferedReader(InputStreamReader(proc.errorStream, Charset.forName("UTF-8")))
 
         val lines = ArrayList<String>()
         var line : String?

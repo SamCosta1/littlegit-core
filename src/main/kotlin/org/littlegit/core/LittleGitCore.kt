@@ -50,6 +50,6 @@ class LittleGitCore private constructor(shellRunner: ShellRunner, repoPath: Path
     private val commandRunner = GitCommandRunner(shellRunner, repoPath)
 
     val repoReader = RepoReader(commandRunner, repoPath)
-    val repoModifier = RepoModifier(commandRunner, repoReader)
+    val repoModifier = RepoModifier(commandRunner, repoReader, repoPath)
     val configModifier = ConfigModifier(commandRunner)
 }

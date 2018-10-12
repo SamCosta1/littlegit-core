@@ -6,18 +6,20 @@ import org.junit.Test
 import org.littlegit.core.helper.LocalResourceFile
 import org.littlegit.core.model.FileDiff
 import org.littlegit.core.parser.DiffParser
+import java.nio.file.Paths
 
 @Suppress("MemberVisibilityCanBePrivate")
 class GeneratePatchTests {
+    private val repoPath = Paths.get("/test")
     @get:Rule val multipleFilesMultipleHunks = LocalResourceFile("diffCommits/diff-commit-multiple-files-multiple-hunks.txt")
 
     @Test
     fun testHunkPatch() {
 
-        val diff = DiffParser.parse(multipleFilesMultipleHunks.content)
+        val diff = DiffParser.parse(multipleFilesMultipleHunks.content, repoPath)
         val firstFile = diff.fileDiffs.first() as FileDiff.ChangedFile
 
-        val patch = firstFile.hunks[1].generatePatch(firstFile)
+        val patch = firstFile.hunks[1].generatePatch(firstFile, repoPath)
         val expectedPatch = """
         diff --git a/src/main/kotlin/org/littlegit/core/commandrunner/GitCommand.kt b/src/main/kotlin/org/littlegit/core/commandrunner/GitCommand.kt
         --- a/src/main/kotlin/org/littlegit/core/commandrunner/GitCommand.kt
@@ -33,13 +35,14 @@ class GeneratePatchTests {
         assertEquals(expectedPatch, patch)
     }
 
+
     @Test
     fun testReverseHunkPatch() {
 
-        val diff = DiffParser.parse(multipleFilesMultipleHunks.content)
+        val diff = DiffParser.parse(multipleFilesMultipleHunks.content, repoPath)
         val firstFile = diff.fileDiffs.first() as FileDiff.ChangedFile
 
-        val patch = firstFile.hunks[1].generateInversePatch(firstFile)
+        val patch = firstFile.hunks[1].generateInversePatch(firstFile, repoPath)
         val expectedPatch = """
         diff --git a/src/main/kotlin/org/littlegit/core/commandrunner/GitCommand.kt b/src/main/kotlin/org/littlegit/core/commandrunner/GitCommand.kt
         --- a/src/main/kotlin/org/littlegit/core/commandrunner/GitCommand.kt

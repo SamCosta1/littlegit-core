@@ -46,7 +46,7 @@ class DiffTests: BaseIntegrationTest() {
         assertTrue(fileDiff is FileDiff.NewFile)
         fileDiff as FileDiff.NewFile
 
-        assertEquals(stagedFileName, fileDiff.filePath)
+        assertEquals(stagedFileName, fileDiff.filePath.fileName.toString())
         assertEquals(1, fileDiff.hunks.size)
         assertEquals(1, fileDiff.hunks.first().lines.size)
         assertEquals(stagedFileContent, fileDiff.hunks.first().lines.first().line)
@@ -77,7 +77,7 @@ class DiffTests: BaseIntegrationTest() {
         assertEquals(1, trackedFiles?.fileDiffs?.size)
 
         val file = trackedFiles?.fileDiffs?.first() as FileDiff.ChangedFile
-        assertEquals(trackedFileName, file.filePath)
+        assertEquals(trackedFileName, file.filePath.fileName.toString())
 
         assertEquals(listOf(
             DiffLine(DiffLineType.Deletion,1, null, originalLine),
@@ -114,7 +114,7 @@ class DiffTests: BaseIntegrationTest() {
         assertEquals(1, trackedFiles?.fileDiffs?.size)
 
         val file = trackedFiles?.fileDiffs?.first() as FileDiff.ChangedFile
-        assertEquals(trackedFileName, file.filePath)
+        assertEquals(trackedFileName, file.filePath.fileName.toString())
 
         assertEquals(listOf(
                 DiffLine(DiffLineType.Deletion,1, null, originalLine),

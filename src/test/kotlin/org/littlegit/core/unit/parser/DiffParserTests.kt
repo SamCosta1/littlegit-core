@@ -7,10 +7,12 @@ import junit.framework.TestCase.assertEquals
 import org.littlegit.core.exception.MalformedDiffException
 import org.littlegit.core.model.*
 import org.littlegit.core.parser.DiffParser
+import java.nio.file.Paths
 
 @Suppress("MemberVisibilityCanBePrivate")
 class DiffParserTests {
 
+    private val repoPath = Paths.get("/test")
     @get:Rule val singleFileCreated = LocalResourceFile("diffCommits/diff-commit-create-one-file.txt")
     @get:Rule val singleEmptyFileCreated = LocalResourceFile("diffCommits/diff-commit-create-empty-file.txt")
     @get:Rule val singleEmptyFileDeleted = LocalResourceFile("diffCommits/diff-commit-remove-empty-file.txt")
@@ -25,10 +27,11 @@ class DiffParserTests {
     @get:Rule val quotesInFileName = LocalResourceFile("diffCommits/diff-commit-quotes-in-filename.txt")
 
     @Test fun testQuotesInFileName() {
-        val diff = DiffParser.parse(quotesInFileName.content)
+        val diff = DiffParser.parse(quotesInFileName.content, repoPath)
 
-        val file1Diff = FileDiff.NewFile("some file . txt", emptyList())
-        val file2Diff = FileDiff.NewFile("some file . txt", emptyList())
+
+        val file1Diff = FileDiff.NewFile(repoPath.resolve("some file . txt"), emptyList())
+        val file2Diff = FileDiff.NewFile(repoPath.resolve("some file . txt"), emptyList())
 
         val file3Content = listOf(
                 DiffLine(DiffLineType.Deletion, 1, null, "oeirjgoeij"),
@@ -41,51 +44,51 @@ class DiffParserTests {
                 DiffLine(DiffLineType.Addition, null, 6, "\""),
                 DiffLine(DiffLineType.Addition, null, 7, ")^%\$£@!")
         )
-        val file3Diff = FileDiff.ChangedFile("\\\"directory\\\"/bla.txt", listOf(Hunk(1,0,1,7, "", file3Content)))
+        val file3Diff = FileDiff.ChangedFile(repoPath.resolve("\\\"directory\\\"/bla.txt"), listOf(Hunk(1,0,1,7, "", file3Content)))
         val correctDiff = Diff(listOf(file1Diff, file2Diff, file3Diff))
 
         assertEquals(correctDiff, diff)
     }
 
     @Test fun testEmptyFileCreated() {
-        val diff = DiffParser.parse(singleEmptyFileDeleted.content)
+        val diff = DiffParser.parse(singleEmptyFileDeleted.content, repoPath)
 
-        val fileDiff = FileDiff.DeletedFile("emptyFile.txt", emptyList())
+        val fileDiff = FileDiff.DeletedFile(repoPath.resolve("emptyFile.txt"), emptyList())
         val correctDiff = Diff(listOf(fileDiff))
 
         assertEquals(correctDiff, diff)
     }
 
     @Test fun testEmptyFileDeleted() {
-        val diff = DiffParser.parse(singleEmptyFileCreated.content)
+        val diff = DiffParser.parse(singleEmptyFileCreated.content, repoPath)
 
-        val fileDiff = FileDiff.NewFile("emptyFile.txt", emptyList())
+        val fileDiff = FileDiff.NewFile(repoPath.resolve("emptyFile.txt"), emptyList())
         val correctDiff = Diff(listOf(fileDiff))
 
         assertEquals(correctDiff, diff)
     }
 
     @Test fun testEmptyFileRenamed() {
-        val diff = DiffParser.parse(singleEmptyFileRenamed.content)
+        val diff = DiffParser.parse(singleEmptyFileRenamed.content, repoPath)
 
-        val fileDiff = FileDiff.RenamedFile("file with spaces.txt", "renamed file.txt", emptyList())
+        val fileDiff = FileDiff.RenamedFile(repoPath.resolve("file with spaces.txt"), repoPath.resolve("renamed file.txt"), emptyList())
         val correctDiff = Diff(listOf(fileDiff))
 
         assertEquals(correctDiff, diff)
     }
 
     @Test fun testSingleFileCreated() {
-        val diff = DiffParser.parse(singleFileCreated.content)
+        val diff = DiffParser.parse(singleFileCreated.content, repoPath)
 
         val fileContent = listOf(DiffLine(DiffLineType.Addition, null, 1, "hellow"))
-        val fileDiff = FileDiff.NewFile("helloWorld.txt", listOf(Hunk(0,0,1,0, "", fileContent)))
+        val fileDiff = FileDiff.NewFile(repoPath.resolve("helloWorld.txt"), listOf(Hunk(0,0,1,0, "", fileContent)))
         val correctDiff = Diff(listOf(fileDiff))
 
         assertEquals(correctDiff, diff)
     }
 
     @Test fun testSingleFileModified() {
-        val diff = DiffParser.parse(singleFileModified.content)
+        val diff = DiffParser.parse(singleFileModified.content, repoPath)
 
         val fileContent = listOf(
             DiffLine(DiffLineType.Unchanged, 108, 108, ""),
@@ -95,14 +98,14 @@ class DiffParserTests {
             DiffLine(DiffLineType.Addition, null, 112, "src/test/kotlin/org/littlegit/core/integration/\\.DS_Store")
         )
 
-        val fileDiff = FileDiff.ChangedFile(".gitignore", listOf(Hunk(108,3,108,5, "gradle-app.setting", fileContent)))
+        val fileDiff = FileDiff.ChangedFile(repoPath.resolve(".gitignore"), listOf(Hunk(108,3,108,5, "gradle-app.setting", fileContent)))
         val correctDiff = Diff(listOf(fileDiff))
 
         assertEquals(correctDiff, diff)
     }
 
     @Test fun testSingleFileRenamed() {
-        val diff = DiffParser.parse(singleFileRenamed.content)
+        val diff = DiffParser.parse(singleFileRenamed.content, repoPath)
 
         val fileContent = listOf(
             DiffLine(DiffLineType.Unchanged, 1, 1, "function helloWorld() {"),
@@ -113,14 +116,14 @@ class DiffParserTests {
             DiffLine(DiffLineType.Unchanged, 5, 5, "")
         )
 
-        val fileDiff = FileDiff.RenamedFile("helloworld.txt", "helloworld.js", listOf(Hunk(1,5,1,5, "", fileContent)))
+        val fileDiff = FileDiff.RenamedFile(repoPath.resolve("helloworld.txt"), repoPath.resolve("helloworld.js"), listOf(Hunk(1,5,1,5, "", fileContent)))
         val correctDiff = Diff(listOf(fileDiff))
 
         assertEquals(correctDiff, diff)
     }
 
     @Test fun testSingleFileRemoved() {
-        val diff = DiffParser.parse(singleFileRemoved.content)
+        val diff = DiffParser.parse(singleFileRemoved.content, repoPath)
 
         val fileContent = listOf(
                 DiffLine(DiffLineType.Deletion, 1, null, "function helloWorld() {"),
@@ -131,14 +134,14 @@ class DiffParserTests {
                 DiffLine(DiffLineType.Deletion, 6, null, "helloWorld();")
         )
 
-        val fileDiff = FileDiff.DeletedFile("helloworld.js", listOf(Hunk(1,6,0,0, "", fileContent)))
+        val fileDiff = FileDiff.DeletedFile(repoPath.resolve("helloworld.js"), listOf(Hunk(1,6,0,0, "", fileContent)))
         val correctDiff = Diff(listOf(fileDiff))
 
         assertEquals(correctDiff, diff)
     }
 
     @Test fun testMultipleFilesMultipleHunks() {
-        val diff = DiffParser.parse(multipleFilesMultipleHunks.content)
+        val diff = DiffParser.parse(multipleFilesMultipleHunks.content, repoPath)
 
         val file1Hunk1 = listOf(
             DiffLine(DiffLineType.Unchanged, 46, 46, "        override val command: List<String> get() = listOf(\"git\", \"remote\", \"add\", name, url)"),
@@ -162,7 +165,7 @@ class DiffParserTests {
             DiffLine(DiffLineType.Unchanged, 58, 64, "}")
         )
 
-        val file1Diff = FileDiff.ChangedFile("src/main/kotlin/org/littlegit/core/commandrunner/GitCommand.kt", listOf(
+        val file1Diff = FileDiff.ChangedFile(repoPath.resolve("src/main/kotlin/org/littlegit/core/commandrunner/GitCommand.kt"), listOf(
             Hunk(46,6,46,10, "abstract class GitCommand {", file1Hunk1),
             Hunk(55,4,59,6, "abstract class GitCommand {", file1Hunk2)
         ))
@@ -178,7 +181,7 @@ class DiffParserTests {
             DiffLine(DiffLineType.NoNewLineAtEndOfFile, null, null, "\\ No newline at end of file")
         )
 
-        val file2Diff = FileDiff.NewFile("src/main/kotlin/org/littlegit/core/parser/RemoteParser.kt", listOf(
+        val file2Diff = FileDiff.NewFile(repoPath.resolve("src/main/kotlin/org/littlegit/core/parser/RemoteParser.kt"), listOf(
             Hunk(0,0,1,7, "", file2Content)
         ))
 
@@ -187,7 +190,7 @@ class DiffParserTests {
     }
 
     @Test fun testSpecialCharacters() {
-        val diff = DiffParser.parse(specialCharacters.content)
+        val diff = DiffParser.parse(specialCharacters.content, repoPath)
 
         val file1Content = listOf(
                 DiffLine(DiffLineType.Addition, null, 1, "+plus"),
@@ -205,26 +208,26 @@ class DiffParserTests {
                 DiffLine(DiffLineType.Addition , null, 5, "-hello")
         )
 
-        val file1Diff = FileDiff.NewFile("file1.txt", listOf(
+        val file1Diff = FileDiff.NewFile(repoPath.resolve("file1.txt"), listOf(
             Hunk(0, 0,1, 6, "", file1Content)
         ))
 
-        val file2Diff = FileDiff.ChangedFile("file2.txt", listOf(
+        val file2Diff = FileDiff.ChangedFile(repoPath.resolve("file2.txt"), listOf(
             Hunk(2,3,2,4, "", file2Content)
         ))
 
-        val file3Diff = FileDiff.NewFile("a/b/awks file \\\\ name : +_)(*&^%\$\\302\\243@!/:\\\\:\\\\ :b !@\\302\\243\$%^&*()_+eroij    oif .txt", emptyList())
+        val file3Diff = FileDiff.NewFile(repoPath.resolve("a/b/awks file \\\\ name : +_)(*&^%\$\\302\\243@!/:\\\\:\\\\ :b !@\\302\\243\$%^&*()_+eroij    oif .txt"), emptyList())
 
         val correctDiff = Diff(listOf(file1Diff, file2Diff, file3Diff))
         assertEquals(correctDiff, diff)
     }
 
     @Test(expected = MalformedDiffException::class) fun testMalformedDiff() {
-        DiffParser.parse(malformedDiff.content)
+        DiffParser.parse(malformedDiff.content, repoPath)
     }
 
     @Test fun testNoNewLineAtEndOfFile() {
-        val diff = DiffParser.parse(noNewLineAtEndOfFile.content)
+        val diff = DiffParser.parse(noNewLineAtEndOfFile.content, repoPath)
 
         val file1Content = listOf(
                 DiffLine(DiffLineType.Deletion, 1, null, "name")
@@ -235,8 +238,8 @@ class DiffParserTests {
                 DiffLine(DiffLineType.NoNewLineAtEndOfFile, null, null, "\\ No newline at end of file")
         )
 
-        val file1Diff = FileDiff.DeletedFile("name", listOf(Hunk(1,0,0,0, "", file1Content)))
-        val file2Diff = FileDiff.NewFile("name.txt", listOf(Hunk(0,0,1,0, "", file2Content)))
+        val file1Diff = FileDiff.DeletedFile(repoPath.resolve("name"), listOf(Hunk(1,0,0,0, "", file1Content)))
+        val file2Diff = FileDiff.NewFile(repoPath.resolve("name.txt"), listOf(Hunk(0,0,1,0, "", file2Content)))
         val correctDiff = Diff(listOf(file1Diff, file2Diff))
 
         assertEquals(correctDiff, diff)
