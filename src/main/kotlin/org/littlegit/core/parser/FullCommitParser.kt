@@ -3,10 +3,11 @@ package org.littlegit.core.parser
 import org.littlegit.core.commandrunner.InvalidCommitException
 import org.littlegit.core.model.FullCommit
 import org.littlegit.core.util.joinWithNewLines
+import java.nio.file.Path
 
 object FullCommitParser {
 
-    fun parse(lines: List<String>): FullCommit {
+    fun parse(lines: List<String>, repoPath: Path): FullCommit {
         if (lines.isEmpty()) {
             throw InvalidCommitException(raw = lines.joinWithNewLines())
         }
@@ -34,7 +35,7 @@ object FullCommitParser {
         }
 
         val diffLines = lines.subList(commitMessageEndIndex, lines.size).dropWhile { it.isBlank() }
-        val diff = DiffParser.parse(diffLines)
+        val diff = DiffParser.parse(diffLines, repoPath)
         return FullCommit.from(rawCommitInfo, diff, commitBody.dropLastWhile { it.isBlank() })
     }
 }

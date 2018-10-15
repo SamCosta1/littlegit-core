@@ -27,7 +27,6 @@ class CommitTests: BaseIntegrationTest() {
 
         assertTrue("Result was a success", result is GitResult.Success)
         assertTrue("RawCommit message is as expected", commandHelper.getLastCommitMessage() == commitMessage)
-
     }
 
     @Test fun testCommitBeforeInit() {
@@ -68,7 +67,7 @@ class CommitTests: BaseIntegrationTest() {
         assertTrue(fileDiffs?.get(0) is FileDiff.NewFile)
 
         val newFile = fileDiffs?.get(0) as FileDiff.NewFile
-        assertEquals(fileName, newFile.filePath)
+        assertEquals(fileName, newFile.filePath.fileName.toString())
         assertEquals(emptyList<Hunk>(), newFile.hunks)
         assertEquals(commitSubject, fullCommit.commitSubject)
 
@@ -101,7 +100,7 @@ class CommitTests: BaseIntegrationTest() {
         assertTrue(fileDiffs?.get(0) is FileDiff.NewFile)
 
         val newFile = fileDiffs?.get(0) as FileDiff.NewFile
-        assertEquals(fileName, newFile.filePath)
+        assertEquals(fileName, newFile.filePath.fileName.toString())
         assertEquals(emptyList<Hunk>(), newFile.hunks)
         assertEquals(commitSubject, fullCommit.commitSubject)
     }

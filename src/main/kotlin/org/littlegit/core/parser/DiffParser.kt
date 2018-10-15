@@ -3,12 +3,13 @@ package org.littlegit.core.parser
 import org.littlegit.core.exception.MalformedDiffException
 import org.littlegit.core.model.*
 import org.littlegit.core.util.ListUtils
-import org.littlegit.core.util.joinWithNewLines
 import org.littlegit.core.util.joinWithSpace
+import java.nio.file.Path
+import java.nio.file.Paths
 
 object DiffParser {
 
-    fun parse(lines: List<String>): Diff {
+    fun parse(lines: List<String>, repoPath: Path): Diff {
         val diffStartIndexes = ListUtils.findAllIndexesWhere(lines) { it.startsWith("diff --git") }
         val fileDiffs  = mutableListOf<FileDiff>()
 
@@ -21,7 +22,7 @@ object DiffParser {
                     diffStartIndexes[indexOfIndex + 1]
                 }
 
-                fileDiffs.add(parseFileDiff(lines, startIndex, endIndex))
+                fileDiffs.add(parseFileDiff(lines, startIndex, endIndex, repoPath))
             }
         } catch (e: Exception) {
             throw MalformedDiffException(exception = e)
@@ -30,7 +31,7 @@ object DiffParser {
         return Diff(fileDiffs)
     }
 
-    private fun parseFileDiff(lines: List<String>, startIndex: Int, endIndex: Int): FileDiff {
+    private fun parseFileDiff(lines: List<String>, startIndex: Int, endIndex: Int, repoPath: Path): FileDiff {
         /*
 
          Before the actual diff are the lines for the form
@@ -43,7 +44,7 @@ object DiffParser {
 
         // The file committed must have been empty and doesn't contain the normal structure
         if (aFilePathIndex < 0 || aFilePathIndex > endIndex) {
-            return parseEmptyFile(lines, startIndex)
+            return parseEmptyFile(lines, startIndex, repoPath)
         }
 
         val hunks = mutableListOf<Hunk>()
@@ -94,15 +95,15 @@ object DiffParser {
 
         currentHunk?.let { hunks.add(it) }
 
-        var aFilePath = lines[aFilePathIndex].removePrefix("--- ")
-        var bFilePath = lines[bFilePathIndex].removePrefix("+++ ")
+        val aFilePathStr = lines[aFilePathIndex].removePrefix("--- ")
+        val bFilePathStr = lines[bFilePathIndex].removePrefix("+++ ")
 
-        aFilePath = stripQuotesIfNeeded(aFilePath).removePrefix("a/")
-        bFilePath = stripQuotesIfNeeded(bFilePath).removePrefix("b/")
+        val aFilePath = Paths.get(repoPath.toString(), stripQuotesIfNeeded(aFilePathStr).removePrefix("a/"))
+        val bFilePath = Paths.get(repoPath.toString(), stripQuotesIfNeeded(bFilePathStr).removePrefix("b/"))
 
         return when {
-            aFilePath == "/dev/null" -> FileDiff.NewFile(bFilePath, hunks)
-            bFilePath == "/dev/null" -> FileDiff.DeletedFile(aFilePath, hunks)
+            aFilePathStr == "/dev/null" -> FileDiff.NewFile(bFilePath, hunks)
+            bFilePathStr == "/dev/null" -> FileDiff.DeletedFile(aFilePath, hunks)
             aFilePath != bFilePath -> FileDiff.RenamedFile(aFilePath, bFilePath, hunks)
             else -> FileDiff.ChangedFile(aFilePath, hunks)
         }
@@ -117,7 +118,7 @@ object DiffParser {
         return filePath;
     }
 
-    private fun parseEmptyFile(lines: List<String>, startIndex: Int): FileDiff {
+    private fun parseEmptyFile(lines: List<String>, startIndex: Int, repoPath: Path): FileDiff {
         val deletedFile = lines[startIndex + 1].startsWith("deleted file mode")
         val newFile = lines[startIndex + 1].startsWith("new file mode")
         val renamedFile = !deletedFile && !newFile
@@ -133,7 +134,7 @@ object DiffParser {
 
             val fromPath = lines[fromLineIndex].removePrefix("rename from ")
             val toPath = lines[toLineIndex].removePrefix("rename to ")
-            return FileDiff.RenamedFile(fromPath, toPath, emptyList())
+            return FileDiff.RenamedFile(Paths.get(repoPath.toString(), fromPath), Paths.get(repoPath.toString(), toPath), emptyList())
         } else {
             // In this case we strip it out of the diff header line: diff --git a/FILE_PATH b/FILE_PATH
 
@@ -152,9 +153,9 @@ object DiffParser {
             val path = filePath.removePrefix("a/")
 
             return if (newFile) {
-                FileDiff.NewFile(path, emptyList())
+                FileDiff.NewFile(Paths.get(repoPath.toString(), path), emptyList())
             } else {
-                FileDiff.DeletedFile(path, emptyList())
+                FileDiff.DeletedFile(Paths.get(repoPath.toString(), path), emptyList())
             }
         }
     }

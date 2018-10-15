@@ -64,7 +64,7 @@ class RepoReader(private val commandRunner: GitCommandRunner,
 
     fun getFullCommit(commit: CommitHash): LittleGitCommandResult<FullCommit> {
         val resultProcessor = { result: GitResult.Success ->
-            FullCommitParser.parse(result.lines)
+            FullCommitParser.parse(result.lines, repoPath)
         }
 
         return commandRunner.runCommand(command = GitCommand.FullCommit(commit), resultProcessor = resultProcessor)
@@ -72,7 +72,7 @@ class RepoReader(private val commandRunner: GitCommandRunner,
 
     fun getStagingAreaDiff(): LittleGitCommandResult<Diff> {
         val resultProcessor = { result: GitResult.Success ->
-            DiffParser.parse(result.lines)
+            DiffParser.parse(result.lines, repoPath)
         }
 
         return commandRunner.runCommand(command = GitCommand.StagingAreaDiff(), resultProcessor = resultProcessor)
@@ -88,7 +88,7 @@ class RepoReader(private val commandRunner: GitCommandRunner,
         }
 
         val diffProcessor = { result: GitResult.Success ->
-            DiffParser.parse(result.lines)
+            DiffParser.parse(result.lines, repoPath)
         }
 
         val unTrackedFilesResult = commandRunner.runCommand(command = GitCommand.GetUnTrackedNonIgnoredFiles(), resultProcessor = unTrackedFilesProcessor)

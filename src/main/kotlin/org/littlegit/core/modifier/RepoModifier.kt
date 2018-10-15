@@ -10,9 +10,10 @@ import org.littlegit.core.model.*
 import org.littlegit.core.reader.RepoReader
 import org.littlegit.core.util.FileUtils
 import java.io.File
+import java.nio.file.Path
 
 
-class RepoModifier(private val commandRunner: GitCommandRunner, private val repoReader: RepoReader) {
+class RepoModifier(private val commandRunner: GitCommandRunner, private val repoReader: RepoReader, private val repoPath: Path) {
 
     fun initializeRepo(bare: Boolean = false, name: String? = null): LittleGitCommandResult<Unit>
             = commandRunner.runCommand(command = GitCommand.InitializeRepo(bare, name))
@@ -55,12 +56,12 @@ class RepoModifier(private val commandRunner: GitCommandRunner, private val repo
     fun unStageFile(file: File): LittleGitCommandResult<Unit>  = commandRunner.runCommand(command = GitCommand.UnStageFile(file))
 
     fun stageHunk(hunk: Hunk, fileDiff: FileDiff.ChangedFile): LittleGitCommandResult<Unit> {
-        val patch = hunk.generatePatch(fileDiff)
+        val patch = hunk.generatePatch(fileDiff, repoPath)
         return applyPatch(patch)
     }
 
     fun unStageHunk(hunk: Hunk, fileDiff: FileDiff.ChangedFile): LittleGitCommandResult<Unit> {
-        val patch = hunk.generateInversePatch(fileDiff)
+        val patch = hunk.generateInversePatch(fileDiff, repoPath)
         return applyPatch(patch)
     }
 
