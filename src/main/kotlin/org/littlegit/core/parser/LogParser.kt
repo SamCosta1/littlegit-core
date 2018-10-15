@@ -18,7 +18,7 @@ object LogParser {
         val commits = mutableListOf<RawCommit>()
 
         rawLines.forEach {
-            val split = it.removePrefix("\"").split(GitCommand.Log.deliminator)
+            val split = it.removePrefix("\"").removeSuffix( "\"").split(GitCommand.Log.deliminator)
 
             if (split.size < 6) {
                 throw InvalidCommitException(raw = it)
