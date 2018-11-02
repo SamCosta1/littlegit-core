@@ -7,6 +7,7 @@ import org.littlegit.core.model.ResetType
 import org.littlegit.core.util.OSType
 import org.littlegit.core.util.OperatingSystemUtils
 import java.io.File
+import java.nio.file.Path
 
 typealias CommitHash = String
 abstract class GitCommand {
@@ -33,6 +34,14 @@ abstract class GitCommand {
 
     class Commit(private val commitFile: File) : GitCommand() {
         override val command: List<String> get() = listOf("git", "commit", "-F", commitFile.canonicalPath)
+    }
+
+    class SetSshKeyPath(path: Path): GitCommand() {
+        override val command: List<String> = listOf("git", "config", "core.sshCommand", "ssh -i ${path.normalize()}")
+    }
+
+    class GetSshKeyPath: GitCommand() {
+        override val command: List<String> = listOf("git", "config", "core.sshCommand")
     }
 
     class SetUserEmail(private val email: String, private val global: Boolean = false) : GitCommand() {
