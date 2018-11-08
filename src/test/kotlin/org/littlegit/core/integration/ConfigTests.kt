@@ -38,7 +38,25 @@ class ConfigTests: BaseIntegrationTest() {
         val result = littleGit.configModifier.getEmail()
         assertTrue("Result is successful", result.result is GitResult.Success)
         assertEquals("Name matches", result.data, testEmail)
+    }
 
+    @Test fun testGetAndSetSshKeyPath() {
+        TestCommandHelper(testFolder.root).init()
+        val testPath = testFolder.root.resolve(".ssh").toPath()
 
+        val setResult = littleGit.configModifier.setSshKeyPath(testPath)
+        assertTrue("Result is successful", setResult.result is GitResult.Success)
+
+        val getResult = littleGit.configModifier.getSshKeyPath()
+        assertTrue("Result is successful", getResult.result is GitResult.Success)
+        assertEquals("Paths match", testPath.normalize(), getResult.data!!.normalize())
+    }
+
+    @Test fun getSshKeyPathWithoutSet() {
+        TestCommandHelper(testFolder.root).init()
+
+        val getResult = littleGit.configModifier.getSshKeyPath()
+        assertTrue("Result is successful", getResult.result is GitResult.Success)
+        assertEquals("Path null", null, getResult.data)
     }
 }
