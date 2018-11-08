@@ -109,6 +109,7 @@ gradle-app.setting
 
 # End of https://www.gitignore.io/api/gradle,kotlin,intellij
 
+*MessAbout.kt
 src/test/kotlin/org/littlegit/core/integration/\.DS_Store
 
 src/test/kotlin/\.DS_Store
