@@ -49,6 +49,10 @@ class RepoModifier(private val commandRunner: GitCommandRunner, private val repo
         return commandRunner.runCommand(command = command)
     }
 
+    fun fetch(quiet: Boolean = false): LittleGitCommandResult<Unit> {
+        return commandRunner.runCommand(GitCommand.Fetch(quiet))
+    }
+
     fun addRemote(remoteName: String, remoteUrl: String): LittleGitCommandResult<Unit>
             = commandRunner.runCommand(command = GitCommand.AddRemote(remoteName, remoteUrl))
 
