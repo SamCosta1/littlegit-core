@@ -128,7 +128,7 @@ abstract class GitCommand {
             var formatWithBody = "$format%n%B%n%n"
         }
 
-        override val command: List<String> get() = listOf("git", "log", "--all", "--decorate=full", "--format=\"$format\"")
+        override val command: List<String> get() = listOf("git", "log", "--branches", "--tags", "--remotes", "--decorate=full", "--format=\"$format\"")
     }
 
     class FullCommit(val commit: CommitHash) : GitCommand() {
