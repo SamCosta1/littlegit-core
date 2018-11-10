@@ -133,7 +133,7 @@ abstract class GitCommand {
 
     class LogBetween(private val start: Branch, private val end: Branch): GitCommand() {
         override val command: List<String>
-            get() = listOf("git", "log", "${start.commitHash}..${end.commitHash}", "--decorate=full", "--format=\"${Log.format}\"")
+            get() = listOf("git", "log", "${start.commitHash}..${end.commitHash}", "--branches", "--tags", "--remotes", "--decorate=full", "--format=\"${Log.format}\"")
     }
 
     class FullCommit(val commit: CommitHash) : GitCommand() {
