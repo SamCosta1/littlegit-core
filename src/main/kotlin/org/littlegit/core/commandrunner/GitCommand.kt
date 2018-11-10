@@ -128,7 +128,7 @@ abstract class GitCommand {
             var formatWithBody = "$format%n%B%n%n"
         }
 
-        override val command: List<String> get() = listOf("git", "log", "--all", "--decorate=full", "--format=\"$format\"")
+        override val command: List<String> get() = listOf("git", "log", "--branches", "--tags", "--remotes", "--decorate=full", "--format=\"$format\"")
     }
 
     class LogBetween(private val start: Branch, private val end: Branch): GitCommand() {
