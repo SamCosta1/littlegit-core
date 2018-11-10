@@ -64,6 +64,10 @@ abstract class GitCommand {
         override val command: List<String> get() = listOf("git", "push") + if (remote != null && branch != null) listOf(remote, branch) else emptyList()
     }
 
+    class Fetch(private val quiet: Boolean): GitCommand() {
+        override val command: List<String> get() = if (quiet) listOf("git", "fetch", "--quiet") else listOf("git", "fetch")
+    }
+
     class PushSetUpstream(val remote: String, val branch: String): GitCommand() {
         override val command: List<String> get() = listOf("git", "push", "-u", remote, branch)
     }
