@@ -31,6 +31,12 @@ class RepoReader(private val commandRunner: GitCommandRunner,
         return commandRunner.runCommand(command = GitCommand.Log(), resultProcessor = resultProcessor)
     }
 
+    fun getLogBetween(branch1: Branch, branch2: Branch): LittleGitCommandResult<List<RawCommit>> {
+        val resultProcessor = { result: GitResult.Success -> LogParser.parse(result.lines) }
+
+        return commandRunner.runCommand(command = GitCommand.LogBetween(branch1, branch2), resultProcessor = resultProcessor)
+    }
+
     fun isInitialized(): LittleGitCommandResult<Boolean> {
         val resultProcessor = { result: GitResult.Success -> result.lines[0] == "true" }
 
