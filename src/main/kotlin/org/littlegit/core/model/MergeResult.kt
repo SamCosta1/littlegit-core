@@ -1,6 +1,5 @@
 package org.littlegit.core.model
 
-import java.io.File
 import java.nio.file.Path
 
 data class MergeResult(val conflictFiles: List<ConflictFile>) {
