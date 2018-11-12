@@ -1,5 +1,6 @@
 package org.littlegit.core.commandrunner
 
+import kotlinx.coroutines.experimental.runBlocking
 import org.littlegit.core.model.Branch
 import org.littlegit.core.model.LocalBranch
 import org.littlegit.core.model.RemoteBranch
@@ -187,5 +188,9 @@ abstract class GitCommand {
 
     class GetConflictFiles(): GitCommand() {
         override val command: List<String>; get() = listOf("git", "ls-files", "--unmerged", "--full-name")
+    }
+
+    class GetBlob(blobHash: String): GitCommand() {
+        override val command: List<String> = listOf("git", "cat-file", "blob", blobHash)
     }
 }

@@ -149,4 +149,12 @@ class RepoReader(private val commandRunner: GitCommandRunner,
 
         return commandRunner.runCommand(command = GitCommand.GetConflictFiles(), resultProcessor = resultProcessor)
     }
+
+    fun getConflictFileContent(conflictFile: ConflictFile, conflictFileType: ConflictFileType): LittleGitCommandResult<LittleGitFile> {
+        val resultParser = { result: GitResult.Success ->
+            LittleGitFile(result.lines, conflictFile.filePath.toFile())
+        }
+
+        return commandRunner.runCommand(command = GitCommand.GetBlob(conflictFileType.getHash(conflictFile)), resultProcessor = resultParser)
+    }
 }
