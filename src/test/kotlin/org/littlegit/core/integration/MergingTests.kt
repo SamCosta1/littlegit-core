@@ -4,6 +4,7 @@ import junit.framework.TestCase.*
 import org.junit.Test
 import org.littlegit.core.commandrunner.GitResult
 import org.littlegit.core.helper.TestCommandHelper
+import org.littlegit.core.model.ConflictFileType
 import java.nio.file.Paths
 
 class MergingTests: BaseIntegrationTest() {
@@ -46,16 +47,19 @@ class MergingTests: BaseIntegrationTest() {
         val fileName = "minas-tirith.txt"
         val branchName = "gondor"
 
+        val otherBranchContent = "Calls for aid!"
+        val masterBranchContent = "Defo going to go badly"
+        val baseContent = "Yeah this isn't going great"
         commandHelper
-                .writeToFile(fileName, "Yeah this isn't going great")
+                .writeToFile(fileName, baseContent)
                 .addAll()
                 .commit()
                 .branchAndCheckout(branchName)
-                .writeToFile(fileName, "Calls for aid!")
+                .writeToFile(fileName, otherBranchContent)
                 .addAll()
                 .commit()
                 .checkout("master")
-                .writeToFile(fileName, "Defo going to go badly")
+                .writeToFile(fileName, masterBranchContent)
                 .addAll()
                 .commit()
 
@@ -68,7 +72,19 @@ class MergingTests: BaseIntegrationTest() {
         assertTrue(result.data?.hasConflicts!!)
 
         val conflict = result.data?.conflictFiles?.first()
-        assertEquals(1, result.data?.conflictFiles?.size)
-        assertEquals(Paths.get(testFolder.root.canonicalPath, fileName), conflict?.filePath)
+        assertEquals(1, result.data?.conflictFiles?.size); conflict!!
+        assertEquals(Paths.get(testFolder.root.canonicalPath, fileName), conflict.filePath)
+
+        val theirsFile = littleGit.repoReader.getConflictFileContent(conflict, ConflictFileType.Theirs)
+        assertEquals(conflict.filePath, theirsFile.data?.file?.toPath())
+        assertEquals(listOf(otherBranchContent), theirsFile.data?.content)
+
+        val oursFile = littleGit.repoReader.getConflictFileContent(conflict, ConflictFileType.Ours)
+        assertEquals(conflict.filePath, oursFile.data?.file?.toPath())
+        assertEquals(listOf(masterBranchContent), oursFile.data?.content)
+
+        val baseFile = littleGit.repoReader.getConflictFileContent(conflict, ConflictFileType.Base)
+        assertEquals(conflict.filePath, baseFile.data?.file?.toPath())
+        assertEquals(listOf(baseContent), baseFile.data?.content)
     }
 }
