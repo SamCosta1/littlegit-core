@@ -33,7 +33,7 @@ class FullCommitTests: BaseIntegrationTest() {
                 TestCommandHelper.DEFAULT_EMAIL,
                 commitMessage,
                 true,
-                commitBody = listOf(commitMessage)
+                commitBody = emptyList()
         )
 
         val result = littleGit.repoReader.getFullCommit(hash)

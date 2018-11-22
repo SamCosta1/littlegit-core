@@ -36,6 +36,8 @@ object FullCommitParser {
 
         val diffLines = lines.subList(commitMessageEndIndex, lines.size).dropWhile { it.isBlank() }
         val diff = DiffParser.parse(diffLines, repoPath)
-        return FullCommit.from(rawCommitInfo, diff, commitBody.dropLastWhile { it.isBlank() })
+        val formattedCommitBody = commitBody.dropLastWhile { it.isBlank() }
+
+        return FullCommit.from(rawCommitInfo, diff, formattedCommitBody)
     }
 }
