@@ -126,7 +126,7 @@ abstract class GitCommand {
             var deliminator = "@|@"
             //     | RawCommit hash | Parent Hashes | Refs |   Timestamp  | committer email | Subject line of message
             var format = "%H$deliminator%P$deliminator%D$deliminator%ct$deliminator%ce$deliminator%s"
-            var formatWithBody = "$format%n%B%n%n"
+            var formatWithBody = "$format%n%b%n%n%n"
         }
 
         override val command: List<String> get() = listOf("git", "log", "--branches", "--tags", "--remotes", "--decorate=full", "--format=\"$format\"")

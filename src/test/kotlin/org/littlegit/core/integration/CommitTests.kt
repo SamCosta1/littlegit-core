@@ -45,8 +45,6 @@ class CommitTests: BaseIntegrationTest() {
         val fileName = "testFile.txt"
         val commitSubject = "This is a subject line"
         val commitMessage = listOf(
-                commitSubject,
-                "",
                 "First body line",
                 "Second body line"
         )
@@ -55,7 +53,9 @@ class CommitTests: BaseIntegrationTest() {
         val commandHelper = TestCommandHelper(testFolder.root)
         commandHelper.init().initConfig().addAll()
 
-        littleGit.repoModifier.commit(commitMessage)
+        val joinedMessage = mutableListOf(commitSubject, "")
+        joinedMessage.addAll(commitMessage)
+        littleGit.repoModifier.commit(joinedMessage)
 
         val result = littleGit.repoReader.getFullCommit(commandHelper.getLastCommitHash())
         val fullCommit = result.data
@@ -80,8 +80,6 @@ class CommitTests: BaseIntegrationTest() {
         val fileName = "testFile.txt"
         val commitSubject = "This is a subject line"
         val commitMessage = listOf(
-                commitSubject,
-                "",
                 "#First body line",
                 "#Second body line"
         )
@@ -90,7 +88,9 @@ class CommitTests: BaseIntegrationTest() {
         val commandHelper = TestCommandHelper(testFolder.root)
         commandHelper.init().initConfig().addAll()
 
-        littleGit.repoModifier.commit(commitMessage)
+        val joinedMessage = mutableListOf(commitSubject, "")
+        joinedMessage.addAll(commitMessage)
+        littleGit.repoModifier.commit(joinedMessage)
 
         val fullCommit = littleGit.repoReader.getFullCommit(commandHelper.getLastCommitHash()).data
         assertEquals(commitMessage, fullCommit?.commitBody)
