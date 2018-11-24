@@ -1,5 +1,6 @@
 package org.littlegit.core.commandrunner
 
+import kotlinx.coroutines.experimental.runBlocking
 import org.littlegit.core.model.Branch
 import org.littlegit.core.model.LocalBranch
 import org.littlegit.core.model.RemoteBranch
@@ -125,7 +126,7 @@ abstract class GitCommand {
             var deliminator = "@|@"
             //     | RawCommit hash | Parent Hashes | Refs |   Timestamp  | committer email | Subject line of message
             var format = "%H$deliminator%P$deliminator%D$deliminator%ct$deliminator%ce$deliminator%s"
-            var formatWithBody = "$format%n%B%n%n"
+            var formatWithBody = "$format%n%b%n%n%n"
         }
 
         override val command: List<String> get() = listOf("git", "log", "--branches", "--tags", "--remotes", "--decorate=full", "--format=\"$format\"")
@@ -187,5 +188,9 @@ abstract class GitCommand {
 
     class GetConflictFiles(): GitCommand() {
         override val command: List<String>; get() = listOf("git", "ls-files", "--unmerged", "--full-name")
+    }
+
+    class GetBlob(blobHash: String): GitCommand() {
+        override val command: List<String> = listOf("git", "cat-file", "blob", blobHash)
     }
 }

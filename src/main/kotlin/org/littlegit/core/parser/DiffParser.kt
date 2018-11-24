@@ -10,7 +10,7 @@ import java.nio.file.Paths
 object DiffParser {
 
     fun parse(lines: List<String>, repoPath: Path): Diff {
-        val diffStartIndexes = ListUtils.findAllIndexesWhere(lines) { it.startsWith("diff --git") }
+        val diffStartIndexes = ListUtils.findAllIndexesWhere(lines) { it.startsWith("diff --git") || it.startsWith("diff --cc") }
         val fileDiffs  = mutableListOf<FileDiff>()
 
         try {
