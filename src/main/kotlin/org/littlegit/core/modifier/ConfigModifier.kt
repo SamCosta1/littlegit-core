@@ -18,7 +18,7 @@ class ConfigModifier(private val commandRunner: GitCommandRunner) {
             if (result.lines.isEmpty()) {
                 null
             } else {
-                Paths.get(result.lines.first().removePrefix("ssh -i "))
+                Paths.get(result.lines.first().removePrefix("ssh -i '").removeSuffix("'"))
             }
         }
 
