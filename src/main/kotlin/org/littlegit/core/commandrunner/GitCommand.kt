@@ -65,8 +65,15 @@ abstract class GitCommand {
         override val command: List<String> get() = listOf("git", "push") + if (remote != null && branch != null) listOf(remote, branch) else emptyList()
     }
 
-    class Fetch(private val quiet: Boolean): GitCommand() {
-        override val command: List<String> get() = if (quiet) listOf("git", "fetch", "--quiet") else listOf("git", "fetch")
+    class Fetch(quiet: Boolean, all: Boolean): GitCommand() {
+        private val base = mutableListOf("git", "fetch")
+
+        init {
+            if (quiet) base.add("--quiet")
+            if (all) base.add("--all")
+        }
+
+        override val command: List<String> = base
     }
 
     class PushSetUpstream(val remote: String, val branch: String): GitCommand() {
