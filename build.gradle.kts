@@ -5,7 +5,7 @@ import java.net.URI
 
 
 group = "org.littlegit.core"
-version = "0.6.0"
+version = "0.6.1"
 
 plugins {
     `maven-publish`
