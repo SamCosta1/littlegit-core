@@ -208,4 +208,8 @@ class RepoModifier(private val commandRunner: GitCommandRunner, private val repo
 
         return repoReader.getConflictFiles()
     }
+
+    fun setRemoteTracking(localBranch: LocalBranch, remoteBranch: RemoteBranch): LittleGitCommandResult<Unit> {
+        return commandRunner.runCommand(GitCommand.SetUpstreamTo(localBranch, remoteBranch))
+    }
 }
