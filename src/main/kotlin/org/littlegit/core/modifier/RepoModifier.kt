@@ -160,7 +160,7 @@ class RepoModifier(private val commandRunner: GitCommandRunner, private val repo
         return when {
             // If no local branch exists to track the given remote, we create it
             localBranch == null -> {
-                val newLocalBranchResult = createBranch(remote.branchName)
+                val newLocalBranchResult = createBranch(remote.branchName, remote.commitHash)
 
                 if (newLocalBranchResult.result.isError) {
                     throw LittleGitException(newLocalBranchResult.result as GitResult.Error)
