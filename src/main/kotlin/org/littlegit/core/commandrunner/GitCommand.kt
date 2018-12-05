@@ -200,4 +200,8 @@ abstract class GitCommand {
     class GetBlob(blobHash: String): GitCommand() {
         override val command: List<String> = listOf("git", "cat-file", "blob", blobHash)
     }
+
+    class SetUpstreamTo(localBranch: LocalBranch, remoteBranch: RemoteBranch) : GitCommand() {
+        override val command: List<String> = listOf("git", "branch", "--set-upstream-to=${remoteBranch.branchNameWithRemote}", localBranch.branchName)
+    }
 }
