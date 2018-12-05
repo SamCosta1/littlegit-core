@@ -38,7 +38,7 @@ abstract class GitCommand {
     }
 
     class SetSshKeyPath(path: Path): GitCommand() {
-        override val command: List<String> = listOf("git", "config", "core.sshCommand", "ssh -i ${path.normalize()}")
+        override val command: List<String> = listOf("git", "config", "core.sshCommand", "ssh -i '${path.normalize()}'")
     }
 
     class GetSshKeyPath: GitCommand() {
