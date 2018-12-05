@@ -368,6 +368,43 @@ class BranchesTests: BaseIntegrationTest() {
     }
 
     @Test
+    fun testCheckoutBranch_RemoteBranch_WhenRemoteAheadOfLocal() {
+        val branchName = "find-gimli"
+        val fileContent = "Route to gimli"
+
+        val localBranchCommitHash = commandHelper
+                .writeToFile("map.txt", fileContent)
+                .addAll()
+                .commit()
+                .branchAndCheckout(branchName)
+                .getLastCommitHash()
+
+        val remoteCommitHash = commandHelper
+                .writeToFile("map.txt", "$fileContent - 2")
+                .addAll()
+                .commit()
+                .getLastCommitHash()
+
+        commandHelper.addRemote("origin")
+                .createRemoteBranch(branchName, "origin")
+                .setupRemoteTracking("origin", branchName)
+                .reset(localBranchCommitHash, ResetType.Hard)
+                .checkout("master")
+                .deleteBranch("find-gimli")
+
+        val targetBranch = littleGit.repoReader.getBranches().data?.find { it is RemoteBranch }
+        assertNotNull(targetBranch); targetBranch!!
+
+        val checkoutResult = littleGit.repoModifier.checkoutBranch(targetBranch, true)
+        assertFalse(checkoutResult.isError)
+
+        val currentBranch = littleGit.repoReader.getBranches().data?.find { it.isHead }
+
+        assertEquals(targetBranch.branchName, currentBranch?.branchName)
+        assertEquals(remoteCommitHash, currentBranch?.commitHash)
+    }
+
+    @Test
     fun testCheckoutBranch_RemoteBranch_WhenRemoteHasDivergedFromLocal() {
         val branchName = "find-gimli"
         val fileContent = "Route to gimli"

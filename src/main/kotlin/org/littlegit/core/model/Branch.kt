@@ -8,7 +8,7 @@ import org.littlegit.core.parser.Remote
 abstract class Branch(
         val fullRefName: String,
         val isHead: Boolean,
-        val commitHash: CommitHash?
+        val commitHash: CommitHash
 ) {
     companion object {
         fun createFrom(refName: String, head: Boolean, objectName: String, objectType: String, upstream: RemoteBranch? = null, remotes: List<Remote>?): Branch? {
@@ -19,7 +19,7 @@ abstract class Branch(
             val commitHash = if (ObjectType.fromRaw(objectType) == ObjectType.Commit) {
                 objectName.trim()
             } else {
-                null
+                ""
             }
 
             return when {
@@ -50,7 +50,7 @@ abstract class Branch(
     }
 }
 
-class RemoteBranch(refName: String, head: Boolean, commitHash: String?, val remote: Remote) : Branch(refName, head, commitHash) {
+class RemoteBranch(refName: String, head: Boolean, commitHash: String, val remote: Remote) : Branch(refName, head, commitHash) {
     override val branchName: String; get() = fullRefName.removePrefix("refs/remotes/${remote.remoteName}/")
 
     val branchNameWithRemote: String = fullRefName.removePrefix("refs/remotes/")
@@ -61,7 +61,7 @@ class RemoteBranch(refName: String, head: Boolean, commitHash: String?, val remo
 
 }
 
-class LocalBranch(refName: String, head: Boolean, val upstream: RemoteBranch?, commitHash: String?) : Branch(refName, head, commitHash) {
+class LocalBranch(refName: String, head: Boolean, val upstream: RemoteBranch?, commitHash: String) : Branch(refName, head, commitHash) {
     override val branchName: String; get() = fullRefName.removePrefix("refs/heads/")
 
     override fun equals(other: Any?): Boolean {
